@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Box } from '@mui/material';
 import { Routes, Route } from 'react-router-dom';
-import LeftSidebar from './LeftSidebar';
-import SecondarySidebar from './SecondarySidebar';
-import Calendar from './Calendar';
+import LeftSidebar from '../sidebar/LeftSidebar';
+import SecondarySidebar from '../sidebar/SecondarySidebar';
+import Calendar from '../Calendar';
 
 const DoubleSidebarLayout = () => {
   const [showSecondary, setShowSecondary] = useState(false);
