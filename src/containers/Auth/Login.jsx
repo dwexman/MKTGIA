@@ -1,6 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import {
   Box,
   Typography,
@@ -8,7 +7,7 @@ import {
   Button,
   Paper,
   Stack,
-  useTheme
+  Alert
 } from '@mui/material';
 import './Login.css'; 
 import logo from '../../assets/logoWhite.png'; 
@@ -17,10 +16,11 @@ const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 const Login = ({ onLogin }) => {
   const navigate = useNavigate();
-  const theme = useTheme();
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleSubmit = async (e) => {
   e.preventDefault();
+  setErrorMessage('');
   const formData = new FormData(e.target);
   const username = formData.get('username');
   const password = formData.get('password');
@@ -31,14 +31,14 @@ const Login = ({ onLogin }) => {
       method: 'POST',
       body: new URLSearchParams({ username, password }),
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      credentials: 'include', // Incluye cookies de sesión
+      credentials: 'include',
       redirect: 'manual'
     });
 
     console.log('Response status:', response.status);
     console.log('Response headers:', [...response.headers]);
     
-    // Si el servidor devuelve un redirect (por ejemplo, 302), buscamos el header "Location".
+    // Si el servidor devuelve un redirect, buscamos el header "Location".
     if (response.status >= 300 && response.status < 400) {
       const redirectUrl = response.headers.get('Location');
       console.log('Redirect URL:', redirectUrl);
@@ -50,22 +50,20 @@ const Login = ({ onLogin }) => {
       }
     }
 
-    // En caso de que no se produzca un redirect (o no se pueda capturar), leemos el contenido para detectar patrones.
-    const responseText = await response.text();
-    // Si el HTML contiene el formulario de login (por ejemplo, el input con name="username"), asumimos que hubo un error.
-    if (responseText.includes('name="username"')) {
-      console.error("Error en el login: Usuario o clave incorrectos.");
-      // Aquí podrías actualizar el estado para mostrar un mensaje en la UI.
-    } else {
-      // Si el HTML no parece ser la página de login, asumimos que se redireccionó a la cuenta.
-      if (onLogin) onLogin();
-      navigate('/inicio', { replace: true });
-    }
+    // En caso de que no se produzca un redirect, leemos el contenido para detectar patrones.
+    const text = await response.text();
+      if (text.includes('name="username"')) {
+        setErrorMessage('Usuario o clave incorrectos.');
+      } else {
+        onLogin?.();
+        navigate('/inicio', { replace: true });
+      }
 
-  } catch (error) {
-    console.error('Error en la conexión con el backend:', error);
-  }
-};
+    } catch (err) {
+      console.error(err);
+      setErrorMessage('Error de conexión con el servidor.');
+    }
+  };
 
 
   return (
@@ -111,6 +109,13 @@ const Login = ({ onLogin }) => {
         <Typography variant="body1" className="subtitle">
         Accede a herramientas inteligentes para optimizar tu marketing digital.
         </Typography>
+
+         {/* Alert de error si existe */}     
+        {errorMessage && (
+          <Alert severity="error" sx={{ mt: 2 }}>
+            {errorMessage}
+          </Alert>
+        )}
 
         <Box component="form" onSubmit={handleSubmit} sx={{ mt: 4 }}>
           <Stack spacing={3}>
