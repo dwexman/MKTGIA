@@ -103,16 +103,19 @@ const LeftSidebar = ({ onSelectItem, onWidthChange }) => {
       open
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      sx={{
-        width: drawerWidth,
-        flexShrink: 0,
-        '& .MuiDrawer-paper': {
+      PaperProps={{
+        sx: {
           ...glassEffect,
           width: drawerWidth,
-          transition: 'width 0.3s, backdrop-filter 0.3s',
+          transition: 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1)', 
           color: '#fff',
           overflowX: 'hidden'
         }
+      }}
+      sx={{ 
+        width: drawerWidth, 
+        flexShrink: 0,
+        transition: 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1)', 
       }}
     >
       <Toolbar sx={{ 
