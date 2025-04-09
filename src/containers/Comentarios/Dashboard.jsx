@@ -68,6 +68,8 @@ const Dashboard = () => {
               variant="contained"
               startIcon={<InstagramIcon className="instagram-icon" />}
               className="instagram-btn"
+              onClick={() => window.location.href = 'https://www.mrkt21.com/comentarios/connect_instagram'}
+
             >
               Conectar Instagram
             </Button>
