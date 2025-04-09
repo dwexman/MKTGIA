@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Drawer,
   List,
@@ -52,6 +52,18 @@ const SecondarySidebar = ({ section }) => {
   const [selectedIndex, setSelectedIndex] = useState(null);
   const drawerWidth = pinned || hovered ? 240 : 90;
   const isExpanded = pinned || hovered;
+
+  // Efecto para seleccionar la opción por defecto según la sección
+  useEffect(() => {
+    if (section === 'Comentarios') {
+      // Selecciona el primer ítem (índice 0) en la sección Comentarios,
+      // que corresponde a "Conectar cuentas"
+      setSelectedIndex(0);
+    } else {
+      // Puedes establecer otro valor o dejarlo en null para otras secciones
+      setSelectedIndex(null);
+    }
+  }, [section]);
 
   // Si no hay menú para esta sección, no renderiza nada
   const items = menus[section] || [];
