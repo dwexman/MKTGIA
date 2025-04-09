@@ -20,18 +20,42 @@ import DescriptionIcon from '@mui/icons-material/Description';
 import EventIcon from '@mui/icons-material/Event';
 import LightbulbIcon from '@mui/icons-material/Lightbulb';
 import ScheduleIcon from '@mui/icons-material/Schedule';
+import AccountTreeIcon from '@mui/icons-material/AccountTree';
+import PromptIcon from '@mui/icons-material/AutoAwesomeMotion';
+import HistoryIcon from '@mui/icons-material/History';
+import ReportIcon from '@mui/icons-material/Assessment';
 
 const neonGlow = keyframes`
   from { filter: drop-shadow(0 0 1px #4dabf7); }
   to { filter: drop-shadow(0 0 3px #4dabf7); }
 `;
 
-const SecondarySidebar = () => {
+// Configuración de menús por sección
+const menus = {
+  Contenido: [
+    { icon: DescriptionIcon, text: 'Inicio Contenido', to: '/content_calendar/index' },
+    { icon: EventIcon, text: 'Calendario', to: '/content_calendar/calendario' },
+    { icon: LightbulbIcon, text: 'Estrategia', to: '/content_calendar/estrategia' },
+    { icon: ScheduleIcon, text: 'Planificar', to: '/content_calendar/planificar_calendario' },
+  ],
+  Comentarios: [
+    { icon: AccountTreeIcon, text: 'Conectar cuentas', to: '/comentarios/dashboard' },
+    { icon: PromptIcon, text: 'Prompts', to: '/comentarios/prompts' },
+    { icon: HistoryIcon, text: 'Registro de comentarios', to: '/comentarios/registro' },
+    { icon: ReportIcon, text: 'Reportes', to: '/comentarios/reportes' },
+  ],
+};
+
+const SecondarySidebar = ({ section }) => {
   const [pinned, setPinned] = useState(false);
   const [hovered, setHovered] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(null);
   const drawerWidth = pinned || hovered ? 240 : 90;
   const isExpanded = pinned || hovered;
+
+  // Si no hay menú para esta sección, no renderiza nada
+  const items = menus[section] || [];
+  if (items.length === 0) return null;
 
   const drawerStyles = {
     flexShrink: 0,
@@ -101,7 +125,7 @@ const SecondarySidebar = () => {
             WebkitTextFillColor: 'transparent',
             fontFamily: 'Arial Rounded MT Bold'
           }}>
-            Contenido
+            {section}
           </Typography>
         )}
         <IconButton 
@@ -125,12 +149,7 @@ const SecondarySidebar = () => {
       <Divider sx={{ borderColor: 'rgba(77, 171, 247, 0.2)' }} />
 
       <List component="nav" sx={{ py: 1, px: 0.5 }}>
-        {[
-          { icon: DescriptionIcon, text: 'Inicio Contenido', to: '/content_calendar/index' },
-          { icon: EventIcon, text: 'Calendario', to: '/content_calendar/calendario' },
-          { icon: LightbulbIcon, text: 'Estrategia', to: '/content_calendar/estrategia' },
-          { icon: ScheduleIcon, text: 'Planificar', to: '/content_calendar/planificar_calendario' }
-        ].map((item, index) => (
+      {items.map((item, index) => (
           <ListItemButton
             key={index}
             selected={selectedIndex === index}
