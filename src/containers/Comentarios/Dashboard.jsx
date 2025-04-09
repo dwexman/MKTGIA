@@ -49,6 +49,7 @@ const Dashboard = () => {
               variant="contained"
               startIcon={<FacebookIcon className="facebook-icon" />}
               className="facebook-btn"
+              onClick={() => window.location.href = 'https://www.mrkt21.com/comentarios/connect_facebook'}
             >
               Conectar Facebook
             </Button>
@@ -94,6 +95,7 @@ const Dashboard = () => {
             variant="outlined"
             startIcon={<ExitToAppIcon />}
             className="logout-btn"
+            onClick={() => window.location.href = '/comentarios/logout'}
           >
             Cerrar Sesión
           </Button>
