@@ -5,6 +5,8 @@ import LeftSidebar from '../sidebar/LeftSidebar';
 import SecondarySidebar from '../sidebar/SecondarySidebar';
 import Calendar from '../Calendar';
 import Dashboard from '../../containers/Comentarios/Dashboard';
+import ComentariosPrompts from '../../containers/Comentarios/ComentariosPrompts';
+
 
 const DoubleSidebarLayout = () => {
   const [selectedSection, setSelectedSection] = useState(null);
@@ -35,6 +37,10 @@ const DoubleSidebarLayout = () => {
           <Route
             path="/comentarios/dashboard"
             element={<Dashboard />}
+          />
+          <Route
+            path="/comentarios/prompts"
+            element={<ComentariosPrompts />}
           />
 
           {/* Fallback */}

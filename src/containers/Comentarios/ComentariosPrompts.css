@@ -1,0 +1,227 @@
+/* Contenedor principal */
+.comentarios-container {
+    background: radial-gradient(circle at center, #f8f9ff 0%, #e6f0ff 100%);
+    min-height: 100vh;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Título con efecto */
+.neon-title {
+    color: #1a237e !important;
+    font-weight: 900 !important;
+    font-size: 2.8rem !important;
+    text-align: center !important;
+    letter-spacing: 2px !important;
+    position: relative;
+    padding-bottom: 24px !important;
+    margin: 3rem 0 !important;
+    text-shadow: 0 4px 8px rgba(77, 171, 247, 0.3);
+}
+
+.neon-title::after {
+    content: '';
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 70%;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #4dabf7, transparent);
+    box-shadow: 0 0 20px rgba(77, 171, 247, 0.4);
+}
+
+/* Tabla 3D */
+.glow-table {
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(12px);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.2),
+                0 0 20px rgba(77, 171, 247, 0.15);
+    border: 2px solid rgba(77, 171, 247, 0.4);
+    transform: perspective(1000px) rotateX(3deg);
+    transition: all 0.4s ease;
+    margin: 2rem 0;
+}
+
+.glow-table:hover {
+    transform: perspective(1000px) rotateX(1deg) translateY(-4px);
+    box-shadow: 0 12px 40px rgba(31, 38, 135, 0.25),
+                0 0 30px rgba(77, 171, 247, 0.2);
+}
+
+.glow-table .MuiTableCell-head {
+    color: #1a237e !important;
+    font-weight: 700 !important;
+    background: rgba(77, 171, 247, 0.15) !important;
+    border-bottom: 3px solid #4dabf7 !important;
+}
+
+.glow-table .MuiTableCell-body {
+    color: #2c3e50 !important;
+}
+
+/* Botón principal con efecto shine */
+.glow-button {
+    background: rgba(255, 255, 255, 0.95) !important;
+    color: #1a237e !important;
+    border: 2px solid #1a237e !important;
+    font-weight: 700 !important;
+    font-size: 1.2rem !important;
+    padding: 16px 40px !important;
+    border-radius: 12px !important;
+    box-shadow: 0 8px 24px rgba(26, 35, 126, 0.2),
+                0 0 20px rgba(77, 171, 247, 0.2) inset,
+                0 0 15px rgba(77, 171, 247, 0.15) !important;
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.glow-button::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, 
+        transparent 25%, 
+        rgba(77, 171, 247, 0.15) 50%, 
+        transparent 75%) !important;
+    animation: shine 4s infinite;
+    pointer-events: none;
+}
+
+.glow-button:hover {
+    background: rgba(245, 248, 255, 0.95) !important;
+    box-shadow: 0 8px 24px rgba(26, 35, 126, 0.3),
+                0 0 25px rgba(77, 171, 247, 0.3) inset,
+                0 0 20px rgba(77, 171, 247, 0.2) !important;
+    transform: translateY(-3px);
+}
+
+.glow-button:hover::before {
+    animation-duration: 3s;
+}
+
+/* Modal */
+.neon-modal {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.98) 0%, rgba(240, 247, 255, 0.98) 100%) !important;
+    border: 2px solid #4dabf7 !important;
+    box-shadow: 0 12px 40px rgba(77, 171, 247, 0.25) !important;
+    color: #1a237e !important;
+    padding: 24px;
+    width: 400px;
+    border-radius: 16px;
+    animation: float 6s ease-in-out infinite;
+}
+
+.modal-title {
+    font-size: 1.3rem !important;
+    color: #1a237e !important;
+    text-shadow: 0 2px 4px rgba(26, 35, 126, 0.1) !important;
+    margin-bottom: 1.2rem !important;
+    text-align: center !important;
+    font-weight: 700 !important;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+/* Botón Cancelar (rojo) */
+.modal-cancel-button {
+    color: #e63946 !important;
+    border: 2px solid #e63946 !important;
+    border-radius: 8px !important;
+    padding: 8px 20px !important;
+    transition: all 0.3s !important;
+}
+
+.modal-cancel-button:hover {
+    background: rgba(230, 57, 70, 0.08) !important;
+    box-shadow: 0 0 10px rgba(230, 57, 70, 0.2) !important;
+    transform: translateY(-1px);
+}
+
+/* Botón Guardar (invertido) */
+.modal-save-button {
+    background: #3b8ac4 !important;
+    color: white !important;
+    border-radius: 8px !important;
+    padding: 8px 20px !important;
+    transition: all 0.3s !important;
+}
+
+.modal-save-button:hover {
+    background: #4dabf7 !important;
+    box-shadow: 0 6px 18px rgba(77, 171, 247, 0.3) !important;
+}
+
+/* Campo de texto */
+.custom-textfield .MuiOutlinedInput-root {
+    color: #1a237e !important;
+    border-radius: 8px !important;
+}
+
+.custom-textfield .MuiOutlinedInput-notchedOutline {
+    border-color: rgba(77, 171, 247, 0.7) !important;
+    border-width: 2px !important;
+}
+
+.custom-textfield:hover .MuiOutlinedInput-notchedOutline {
+    border-color: #4dabf7 !important;
+    box-shadow: 0 0 8px rgba(77, 171, 247, 0.2) !important;
+}
+
+.custom-textfield.Mui-focused .MuiOutlinedInput-notchedOutline {
+    border-color: #4dabf7 !important;
+    box-shadow: 0 0 12px rgba(77, 171, 247, 0.3) !important;
+}
+
+.modal-close-button {
+    color: #8c919b !important;
+    position: absolute !important;
+    right: 12px !important;
+    top: 12px !important;
+    padding: 8px !important;
+    transition: all 0.3s !important;
+}
+
+.modal-close-button:hover {
+    transform: rotate(90deg) scale(1.1);
+    background: rgba(156, 163, 175, 0.1) !important; 
+    color: #4b5563 !important;
+}
+
+.modal-close-button .MuiSvgIcon-root {
+    font-size: 1.8rem !important;
+    transition: all 0.3s !important;
+}
+
+/* Animaciones */
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-8px); }
+    100% { transform: translateY(0px); }
+}
+
+@keyframes shine {
+    0% { transform: translateX(-100%) rotate(45deg); }
+    100% { transform: translateX(100%) rotate(45deg); }
+}
