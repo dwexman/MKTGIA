@@ -1,20 +1,28 @@
-import React from 'react';
-import { 
-  Box, 
-  Paper, 
-  Typography, 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableContainer, 
-  TableHead, 
+import React, { useEffect } from 'react';
+import {
+  Box,
+  Paper,
+  Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
   TableRow,
   Modal,
   IconButton
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 
-const ConnectedAccountsModal = ({ open, onClose }) => {
+const ConnectedAccountsModal = ({ open, onClose, accounts }) => {
+
+  useEffect(() => {
+    if (open) {
+      console.log("Datos de cuentas recibidos:", accounts);
+    }
+  }, [open, accounts]);
+
+
   return (
     <Modal open={open} onClose={onClose}>
       <Box sx={{
@@ -33,11 +41,11 @@ const ConnectedAccountsModal = ({ open, onClose }) => {
           boxShadow: '0 8px 32px rgba(31, 38, 135, 0.15)',
           position: 'relative'
         }}>
-          <IconButton 
-            onClick={onClose} 
-            sx={{ 
-              position: 'absolute', 
-              right: 16, 
+          <IconButton
+            onClick={onClose}
+            sx={{
+              position: 'absolute',
+              right: 16,
               top: 16,
               color: '#4dabf7'
             }}
@@ -45,7 +53,7 @@ const ConnectedAccountsModal = ({ open, onClose }) => {
             <CloseIcon />
           </IconButton>
 
-          <Typography variant="h5" gutterBottom sx={{ 
+          <Typography variant="h5" gutterBottom sx={{
             color: '#1a237e',
             fontWeight: 600,
             mb: 3
@@ -60,8 +68,8 @@ const ConnectedAccountsModal = ({ open, onClose }) => {
               }
             }}>
               <TableHead>
-                <TableRow sx={{ 
-                  background: 'linear-gradient(145deg, rgba(77, 171, 247, 0.1) 0%, rgba(77, 171, 247, 0.05) 100%)' 
+                <TableRow sx={{
+                  background: 'linear-gradient(145deg, rgba(77, 171, 247, 0.1) 0%, rgba(77, 171, 247, 0.05) 100%)'
                 }}>
                   <TableCell sx={{ fontWeight: 600, color: '#1a237e' }}>ID de Usuario</TableCell>
                   <TableCell sx={{ fontWeight: 600, color: '#1a237e' }}>ID de Facebook</TableCell>
@@ -70,13 +78,26 @@ const ConnectedAccountsModal = ({ open, onClose }) => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {/* Aquí irían las filas de datos */}
-                <TableRow hover sx={{ '&:hover': { background: 'rgba(77, 171, 247, 0.03)' } }}>
-                  <TableCell>-</TableCell>
-                  <TableCell>-</TableCell>
-                  <TableCell>-</TableCell>
-                  <TableCell>-</TableCell>
-                </TableRow>
+                {accounts && accounts.length > 0 ? (
+                  accounts.map((account, index) => (
+                    <TableRow
+                      key={index}
+                      hover
+                      sx={{ '&:hover': { background: 'rgba(77, 171, 247, 0.03)' } }}
+                    >
+                      <TableCell>{account.user_id}</TableCell>
+                      <TableCell>{account.page_id}</TableCell>
+                      <TableCell>{account.page_name}</TableCell>
+                      <TableCell>{account.instagram_id}</TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={4} align="center">
+                      No hay cuentas conectadas
+                    </TableCell>
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
           </TableContainer>

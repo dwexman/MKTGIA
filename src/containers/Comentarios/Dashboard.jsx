@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Box, Paper, Button, Typography, Divider, Tooltip } from '@mui/material';
 import ConnectedAccountsModal from './ConnectedAccountsModal';
 import FacebookIcon from '@mui/icons-material/Facebook';
@@ -9,14 +10,37 @@ import './dashboard.css';
 const Dashboard = () => {
   const [open, setOpen] = useState(false);
   const [username, setUsername] = useState('');
+  const [accounts, setAccounts] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // Al montar el componente, leemos el username guardado en localStorage
-    const storedUsername = localStorage.getItem('username');
-    if (storedUsername) {
-      setUsername(storedUsername);
-    }
-  }, []);
+    const fetchDashboardData = async () => {
+      try {
+        const response = await fetch('https://www.mrkt21.com/comentarios/dashboard/API/', {
+          method: 'GET',
+          credentials: 'include'
+        });
+
+        const data = await response.json();
+        console.log('Respuesta de comentarios Dashboard API:', data);
+
+        if (data.status === 'success') {
+          setUsername(data.username);
+          setAccounts(data.accounts);
+          console.log('Cuentas recibidas:', data.accounts);
+        } else {
+          // En caso de que no esté autenticado o haya otro error, se redirige a login.
+          console.error('Mensaje de error:', data.message);
+          navigate('/login', { replace: true });
+        }
+      } catch (error) {
+        console.error('Error al obtener la información del Dashboard:', error);
+      }
+    };
+
+    fetchDashboardData();
+  }, [navigate]);
+
 
   const handleModalOpen = () => setOpen(true);
   const handleModalClose = () => setOpen(false);
@@ -105,7 +129,7 @@ const Dashboard = () => {
           </Button>
         </Box>
       </Paper>
-      <ConnectedAccountsModal open={open} onClose={handleModalClose} />
+      <ConnectedAccountsModal open={open} onClose={handleModalClose} accounts={accounts} />
     </Box>
   );
 };

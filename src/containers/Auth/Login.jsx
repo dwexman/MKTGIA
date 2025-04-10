@@ -45,42 +45,35 @@ const Login = ({ onLogin }) => {
     e.preventDefault();
     setErrorMessage('');
 
-    // Se puede usar los estados username y password en lugar de formData.get(...)
     try {
-      const response = await fetch(`${BASE_URL}/login`, {
+      // Se utiliza el endpoint /login/API/ y se envían las credenciales
+      const response = await fetch(`${BASE_URL}/login/API/`, {
         method: 'POST',
-        body: new URLSearchParams({ username, password }),
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        credentials: 'include',
-        redirect: 'manual'
+        body: JSON.stringify({ username, password }),
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include'
       });
 
-      console.log('Response status:', response.status);
-      console.log('Response headers:', [...response.headers]);
-      
-      if (response.status >= 300 && response.status < 400) {
-        const redirectUrl = response.headers.get('Location');
-        console.log('Redirect URL:', redirectUrl);
-        if (redirectUrl && !redirectUrl.includes('/login')) {
-          onLogin && onLogin();
-          navigate('/inicio', { replace: true });
-          return;
-        }
-      }
+      // Intentamos parsear la respuesta como JSON
+      const data = await response.json();
+      console.log('Respuesta del servidor:', data);
 
-      const text = await response.text();
-      if (text.includes('name="username"')) {
-        setErrorMessage('Usuario o clave incorrectos.');
+      if (data.status === 'success') {
+        onLogin && onLogin();
+        // Se espera que el JSON incluya la propiedad redirect_url
+        navigate(data.redirect_url, { replace: true });
+      } else if (data.status === 'error') {
+        setErrorMessage(data.message);
       } else {
-        onLogin?.();
-        navigate('/inicio', { replace: true });
+        setErrorMessage('Ocurrió un error inesperado.');
       }
-
+      
     } catch (err) {
-      console.error(err);
+      console.error('Error de conexión con el servidor:', err);
       setErrorMessage('Error de conexión con el servidor.');
     }
   };
+
 
 
   return (
