@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Paper, Button, Typography, Divider } from '@mui/material';
 import ConnectedAccountsModal from './ConnectedAccountsModal';
 import FacebookIcon from '@mui/icons-material/Facebook';
@@ -9,6 +9,15 @@ import './dashboard.css';
 
 const Dashboard = () => {
   const [open, setOpen] = useState(false);
+  const [username, setUsername] = useState('');
+
+  useEffect(() => {
+    // Al montar el componente, leemos el username guardado en localStorage
+    const storedUsername = localStorage.getItem('username');
+    if (storedUsername) {
+      setUsername(storedUsername);
+    }
+  }, []);
 
   const handleModalOpen = () => setOpen(true);
   const handleModalClose = () => setOpen(false);
@@ -22,7 +31,7 @@ const Dashboard = () => {
             Bienvenido,
           </Typography>
           <Typography variant="h3" className="username-text">
-            deniseUI
+            {username}
           </Typography>
         </Box>
 
@@ -89,15 +98,6 @@ const Dashboard = () => {
             className="connected-accounts-btn"
           >
             Cuentas Conectadas
-          </Button>
-
-          <Button
-            variant="outlined"
-            startIcon={<ExitToAppIcon />}
-            className="logout-btn"
-            onClick={() => window.location.href = '/comentarios/logout'}
-          >
-            Cerrar Sesión
           </Button>
         </Box>
       </Paper>

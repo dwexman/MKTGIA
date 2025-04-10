@@ -12,12 +12,13 @@ import {
   Typography
 } from '@mui/material';
 import { Link } from 'react-router-dom';
-
 import MenuIcon from '@mui/icons-material/Menu';
 import PushPinIcon from '@mui/icons-material/PushPin';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import ChatIcon from '@mui/icons-material/Chat';
 import DescriptionIcon from '@mui/icons-material/Description';
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
+
 
 const LeftSidebar = ({ onSelectItem, onWidthChange }) => {
   const [pinned, setPinned] = useState(false);
@@ -74,18 +75,18 @@ const LeftSidebar = ({ onSelectItem, onWidthChange }) => {
       width: isExpanded ? 48 : 36,
       height: isExpanded ? 48 : 36,
       borderRadius: '50%',
-      background: isSelected 
-        ? 'linear-gradient(145deg, #4dabf7 0%, #1a237e 100%)' 
+      background: isSelected
+        ? 'linear-gradient(145deg, #4dabf7 0%, #1a237e 100%)'
         : 'rgba(255, 255, 255, 0.1)',
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
-      boxShadow: isSelected 
+      boxShadow: isSelected
         ? '0 0 15px rgba(77, 171, 247, 0.5)'
         : '0 2px 8px rgba(0, 0, 0, 0.1)',
       transition: 'all 0.3s ease',
       marginRight: isExpanded ? 0 : '12px',
-      border: isSelected 
+      border: isSelected
         ? '1px solid rgba(77, 171, 247, 0.5)'
         : '1px solid rgba(255, 255, 255, 0.1)'
     }}>
@@ -107,18 +108,18 @@ const LeftSidebar = ({ onSelectItem, onWidthChange }) => {
         sx: {
           ...glassEffect,
           width: drawerWidth,
-          transition: 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1)', 
+          transition: 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           color: '#fff',
           overflowX: 'hidden'
         }
       }}
-      sx={{ 
-        width: drawerWidth, 
+      sx={{
+        width: drawerWidth,
         flexShrink: 0,
-        transition: 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1)', 
+        transition: 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
       }}
     >
-      <Toolbar sx={{ 
+      <Toolbar sx={{
         minHeight: '64px !important',
         borderBottom: '1px solid rgba(77, 171, 247, 0.2)',
         display: 'flex',
@@ -127,7 +128,7 @@ const LeftSidebar = ({ onSelectItem, onWidthChange }) => {
         px: 2
       }}>
         {isExpanded && (
-          <Typography variant="h6" sx={{ 
+          <Typography variant="h6" sx={{
             fontWeight: 600,
             letterSpacing: '1px',
             ...neonText,
@@ -136,9 +137,9 @@ const LeftSidebar = ({ onSelectItem, onWidthChange }) => {
             MKTG AI
           </Typography>
         )}
-        <IconButton 
-          onClick={togglePin} 
-          sx={{ 
+        <IconButton
+          onClick={togglePin}
+          sx={{
             color: '#4dabf7',
             '&:hover': {
               background: 'rgba(77, 171, 247, 0.1)'
@@ -146,11 +147,11 @@ const LeftSidebar = ({ onSelectItem, onWidthChange }) => {
             transition: 'transform 0.3s'
           }}
         >
-          {pinned ? 
-            <PushPinIcon sx={{ 
+          {pinned ?
+            <PushPinIcon sx={{
               transform: 'rotate(45deg)',
               filter: 'drop-shadow(0 0 2px #4dabf7)'
-            }} /> : 
+            }} /> :
             <MenuIcon sx={{ fontSize: '1.5rem' }} />
           }
         </IconButton>
@@ -173,7 +174,7 @@ const LeftSidebar = ({ onSelectItem, onWidthChange }) => {
           {isExpanded && (
             <ListItemText
               primary="AdsBudget"
-              sx={{ 
+              sx={{
                 ml: 2,
                 '& .MuiTypography-root': {
                   fontWeight: 500,
@@ -200,7 +201,7 @@ const LeftSidebar = ({ onSelectItem, onWidthChange }) => {
           {isExpanded && (
             <ListItemText
               primary="Comentarios"
-              sx={{ 
+              sx={{
                 ml: 2,
                 '& .MuiTypography-root': {
                   fontWeight: 500,
@@ -226,7 +227,7 @@ const LeftSidebar = ({ onSelectItem, onWidthChange }) => {
           {isExpanded && (
             <ListItemText
               primary="Contenido"
-              sx={{ 
+              sx={{
                 ml: 2,
                 '& .MuiTypography-root': {
                   fontWeight: 500,
@@ -238,7 +239,43 @@ const LeftSidebar = ({ onSelectItem, onWidthChange }) => {
           )}
         </ListItemButton>
       </List>
+      <Box sx={{ position: 'absolute', bottom: 0, left: 0, right: 0 }}>
+        <Divider sx={{ borderColor: 'rgba(77, 171, 247, 0.2)' }} />
+        <List>
+          <ListItemButton
+            onClick={() => window.location.href = '/comentarios/logout'}
+            sx={{
+              m: 1,
+              borderRadius: '8px',
+              '&:hover': {
+                background: 'rgba(77, 171, 247, 0.15)',
+                '& .MuiListItemText-root': { color: '#4dabf7' }
+              },
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+            }}
+          >
+            <ListItemIcon sx={{ minWidth: isExpanded ? 56 : 40 }}>
+              {renderIconInCircle(ExitToAppIcon, false)}
+            </ListItemIcon>
+            {isExpanded && (
+              <ListItemText
+                primary="Cerrar Sesión"
+                sx={{
+                  ml: 2,
+                  '& .MuiTypography-root': {
+                    fontWeight: 500,
+                    letterSpacing: '0.5px',
+                    ...neonText,
+                    fontSize: '0.95rem'
+                  }
+                }}
+              />
+            )}
+          </ListItemButton>
+        </List>
+      </Box>
     </Drawer>
+
   );
 };
 
