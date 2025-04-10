@@ -6,6 +6,7 @@ import SecondarySidebar from '../sidebar/SecondarySidebar';
 import Calendar from '../Calendar';
 import Dashboard from '../../containers/Comentarios/Dashboard';
 import ComentariosPrompts from '../../containers/Comentarios/ComentariosPrompts';
+import RegistroComentarios from '../../containers/Comentarios/RegistroComentarios';
 
 
 const DoubleSidebarLayout = () => {
@@ -42,6 +43,10 @@ const DoubleSidebarLayout = () => {
             path="/comentarios/prompts"
             element={<ComentariosPrompts />}
           />
+          <Route
+            path="/comentarios/registro"
+            element={<RegistroComentarios />}
+  />
 
           {/* Fallback */}
           <Route
