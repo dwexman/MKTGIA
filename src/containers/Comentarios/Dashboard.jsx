@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Paper, Button, Typography, Divider } from '@mui/material';
+import { Box, Paper, Button, Typography, Divider, Tooltip } from '@mui/material';
 import ConnectedAccountsModal from './ConnectedAccountsModal';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import InstagramIcon from '@mui/icons-material/Instagram';
-import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import './dashboard.css';
 
@@ -44,45 +43,50 @@ const Dashboard = () => {
 
         {/* Sección de conexión */}
         <Box className="connection-section">
-          {/* Facebook */}
-          <Box className="connection-item">
-            <Box className="connection-text">
-              <Typography variant="h6">
-                Conecta tu cuenta de Facebook
-              </Typography>
-              <Typography variant="h6">
-                para que podamos responder por ti
-              </Typography>
-            </Box>
-            <Button
-              variant="contained"
-              startIcon={<FacebookIcon className="facebook-icon" />}
-              className="facebook-btn"
-              onClick={() => window.location.href = 'https://www.mrkt21.com/comentarios/connect_facebook'}
+          <Typography variant="h5" className="connect-accounts-title">
+            Conecta tus cuentas
+          </Typography>
+          
+          <Box className="buttons-row">
+            {/* Botón Facebook con Tooltip */}
+            <Tooltip 
+              title={
+                <>
+                  <Typography variant="body2" color="inherit">Conecta tu cuenta de Facebook</Typography>
+                  <Typography variant="body2" color="inherit">para que podamos responder por ti</Typography>
+                </>
+              }
+              arrow
             >
-              Conectar Facebook
-            </Button>
-          </Box>
+              <Button
+                variant="contained"
+                startIcon={<FacebookIcon />}
+                className="facebook-btn"
+                onClick={() => window.location.href = 'https://www.mrkt21.com/comentarios/connect_facebook'}
+              >
+              Facebook
+              </Button>
+            </Tooltip>
 
-          {/* Instagram */}
-          <Box className="connection-item">
-            <Box className="connection-text">
-              <Typography variant="h6">
-                Conecta tu cuenta de Instagram
-              </Typography>
-              <Typography variant="h6">
-                para recibir notificaciones de comentarios
-              </Typography>
-            </Box>
-            <Button
-              variant="contained"
-              startIcon={<InstagramIcon className="instagram-icon" />}
-              className="instagram-btn"
-              onClick={() => window.location.href = 'https://www.mrkt21.com/comentarios/connect_instagram'}
-
+            {/* Botón Instagram con Tooltip */}
+            <Tooltip 
+              title={
+                <>
+                  <Typography variant="body2" color="inherit">Conecta tu cuenta de Instagram</Typography>
+                  <Typography variant="body2" color="inherit">para recibir notificaciones de comentarios</Typography>
+                </>
+              }
+              arrow
             >
-              Conectar Instagram
-            </Button>
+              <Button
+                variant="contained"
+                startIcon={<InstagramIcon />}
+                className="instagram-btn"
+                onClick={() => window.location.href = 'https://www.mrkt21.com/comentarios/connect_instagram'}
+              >
+              Instagram
+              </Button>
+            </Tooltip>
           </Box>
         </Box>
 
