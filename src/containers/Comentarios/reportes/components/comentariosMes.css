@@ -1,0 +1,39 @@
+.comentarios-chart {
+    background: rgba(255, 255, 255, 0.95) !important;
+    border-radius: 16px !important;
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.2),
+                0 0 20px rgba(77, 171, 247, 0.15) !important;
+    border: 2px solid rgba(77, 171, 247, 0.4) !important;
+    transform: perspective(1000px) rotateX(0deg);
+    transition: all 0.4s ease;
+    margin: 2rem auto;
+    width: 95%;
+}
+  
+  .comentarios-chart:hover {
+    transform: perspective(1000px) rotateX(1deg) translateY(-4px);
+    box-shadow: 0 12px 40px rgba(31, 38, 135, 0.25),
+                0 0 30px rgba(77, 171, 247, 0.2) !important;
+}
+
+  
+  canvas {
+    height: 100% !important;
+    width: 100% !important;
+    padding: 20px;
+  }
+  
+  /* Media query para pantallas pequeñas */
+  @media (max-width: 768px) {
+    .comentarios-chart {
+      transform: none;
+      width: 100%;
+      max-width: 100%;
+      margin: 1rem auto;
+    }
+  
+    .comentarios-chart:hover {
+      transform: translateY(-2px);
+    }
+  }
+  

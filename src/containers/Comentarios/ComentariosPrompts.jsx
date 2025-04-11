@@ -35,7 +35,7 @@ const ComentariosPrompts = () => {
         Gestión de Prompts
       </Typography>
 
-      <Table className="glow-table">
+      <Table className="prompts-table">
         <TableHead>
           <TableRow>
             <TableCell>Fecha de Creación</TableCell>
@@ -55,13 +55,13 @@ const ComentariosPrompts = () => {
       <Button 
         variant="contained" 
         onClick={handleOpenModal}
-        className="glow-button"
+        className="prompts-button"
       >
         Agregar nuevo Prompt
       </Button>
 
       <Modal open={openModal} onClose={handleCloseModal}>
-        <Box className="neon-modal">
+        <Box className="prompts-modal">
           <Paper className="modal-content">
           <IconButton 
               className="modal-close-button"
@@ -75,7 +75,7 @@ const ComentariosPrompts = () => {
             >
               <CloseIcon />
             </IconButton>
-            <Typography variant="h6" gutterBottom className="neon-title modal-title">
+            <Typography variant="h6" gutterBottom className="prompts-title modal-title">
               Nuevo Prompt
             </Typography>
             

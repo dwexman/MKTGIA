@@ -30,13 +30,24 @@ const Reportes = () => {
       });
   }, []);
 
+  const handleButtonClick = (componentName) => {
+    setSelectedButton(componentName);
+  };
+
   if (loading) {
     return <div>Cargando...</div>;
   }
 
   const publicacionesData = data.publicaciones_data || [];
-  const horasData = { data: data.horas_data, labels: data.horas_labels };
-  const mesesData = { data: data.meses_data, labels: data.meses_labels };
+  const horasData = {
+    data: data.horas_data,      
+    labels: data.horas_labels   
+  };
+
+  const mesesData = {
+    data: data.meses_data,     
+    labels: data.meses_labels   
+  };
 
   return (
     <div className="reportes-container">
@@ -74,8 +85,8 @@ const Reportes = () => {
 
       {/* Renderizado condicional de cada componente */}
       {selectedButton === 'numero_comentarios' && <NumeroComentarios data={publicacionesData} />}
-      {selectedButton === 'tendencias_interaccion' && <TendenciasInteraccion />}
-      {selectedButton === 'comentarios_2025' && <ComentariosMes />}
+      {selectedButton === 'tendencias_interaccion' && <TendenciasInteraccion horasData={horasData}  />}
+      {selectedButton === 'comentarios_2025' && <ComentariosMes mesesData={mesesData} />}
     </div>
   );
 };

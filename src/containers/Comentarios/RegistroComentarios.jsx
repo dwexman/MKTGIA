@@ -33,14 +33,14 @@ const RegistroComentarios = () => {
 
   return (
     <Box className="comentarios-container" sx={{ padding: 2 }}>
-      <Typography variant="h4" gutterBottom className="neon-title">
+      <Typography variant="h4" gutterBottom className="registro-title">
         Registro de Comentarios
       </Typography>
-      <Typography variant="subtitle2" gutterBottom className="neon-subtitle">
+      <Typography variant="subtitle2" gutterBottom className="registro-subtitle">
         Revisa tus comentarios en Instagram y Facebook:
       </Typography>
 
-      <Table className="glow-table" sx={{ marginTop: 2 }}>
+      <Table className="registro-table" sx={{ marginTop: 2 }}>
         <TableHead>
           <TableRow>
             <TableCell>Fecha</TableCell>

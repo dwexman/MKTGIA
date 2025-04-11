@@ -9,7 +9,7 @@
 }
 
 /* Título con efecto */
-.neon-title {
+.prompts-title {
     color: #1a237e !important;
     font-weight: 900 !important;
     font-size: 2.8rem !important;
@@ -21,7 +21,7 @@
     text-shadow: 0 4px 8px rgba(77, 171, 247, 0.3);
 }
 
-.neon-title::after {
+.prompts-title::after {
     content: '';
     position: absolute;
     bottom: 12px;
@@ -34,7 +34,7 @@
 }
 
 /* Tabla 3D */
-.glow-table {
+.prompts-table {
     background: rgba(255, 255, 255, 0.95) !important;
     backdrop-filter: blur(12px);
     border-radius: 16px;
@@ -42,30 +42,30 @@
     box-shadow: 0 8px 32px rgba(31, 38, 135, 0.2),
                 0 0 20px rgba(77, 171, 247, 0.15);
     border: 2px solid rgba(77, 171, 247, 0.4);
-    transform: perspective(1000px) rotateX(3deg);
+    transform: perspective(1000px) rotateX(0deg);
     transition: all 0.4s ease;
     margin: 2rem 0;
 }
 
-.glow-table:hover {
+.prompts-table:hover {
     transform: perspective(1000px) rotateX(1deg) translateY(-4px);
     box-shadow: 0 12px 40px rgba(31, 38, 135, 0.25),
                 0 0 30px rgba(77, 171, 247, 0.2);
 }
 
-.glow-table .MuiTableCell-head {
+.prompts-table .MuiTableCell-head {
     color: #1a237e !important;
     font-weight: 700 !important;
     background: rgba(77, 171, 247, 0.15) !important;
     border-bottom: 3px solid #4dabf7 !important;
 }
 
-.glow-table .MuiTableCell-body {
+.prompts-table .MuiTableCell-body {
     color: #2c3e50 !important;
 }
 
 /* Botón principal con efecto shine */
-.glow-button {
+.prompts-button {
     background: rgba(255, 255, 255, 0.95) !important;
     color: #1a237e !important;
     border: 2px solid #1a237e !important;
@@ -81,7 +81,7 @@
     overflow: hidden;
 }
 
-.glow-button::before {
+.prompts-button::before {
     content: '';
     position: absolute;
     top: -50%;
@@ -96,7 +96,7 @@
     pointer-events: none;
 }
 
-.glow-button:hover {
+.prompts-button:hover {
     background: rgba(245, 248, 255, 0.95) !important;
     box-shadow: 0 8px 24px rgba(26, 35, 126, 0.3),
                 0 0 25px rgba(77, 171, 247, 0.3) inset,
@@ -104,12 +104,12 @@
     transform: translateY(-3px);
 }
 
-.glow-button:hover::before {
+.prompts-button:hover::before {
     animation-duration: 3s;
 }
 
 /* Modal */
-.neon-modal {
+.prompts-modal {
     display: flex !important;
     align-items: center;
     justify-content: center;
