@@ -58,11 +58,29 @@ const ComentariosPrompts = () => {
   const handleCloseModal = () => setOpenModal(false);
 
   const handleSavePrompt = () => {
-    // Aquí se puede implementar la lógica para enviar el nuevo prompt a la API.
-    console.log('Guardando prompt:', newPrompt);
-    setNewPrompt('');
-    handleCloseModal();
-  };
+    fetch('https://www.mrkt21.com/comentarios/comentarios_prompts/API/', {
+    method: 'POST',
+    credentials: 'include', // para incluir cookies si es necesario
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ prompt: newPrompt }) // ajusta la clave/valor según lo que espere tu API
+  })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`Error al guardar el prompt: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      setPromptData(data.prompts || []);
+      setNewPrompt('');
+      handleCloseModal();
+    })
+    .catch(error => {
+      console.error("Error al guardar el prompt: ", error);
+    });
+};
 
   // Función para visualizar el prompt completo en el modal de vista
   const handleViewPrompt = (promptText) => {
@@ -92,7 +110,7 @@ const ComentariosPrompts = () => {
             <TableHead>
               <TableRow>
                 <TableCell className="fecha-column">Fecha de Creación</TableCell>
-                <TableCell className="estado-column">Estado</TableCell>
+                <TableCell className="estado-column">Activo</TableCell>
                 <TableCell className="prompt-column">Prompt</TableCell>
               </TableRow>
             </TableHead>
