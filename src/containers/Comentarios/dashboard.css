@@ -1,4 +1,5 @@
 .dashboard-container {
+    position: fixed;
     background: radial-gradient(circle at center, #f8f9ff 0%, #e6f0ff 100%);
     display: flex;
     align-items: center;
@@ -9,20 +10,22 @@
 }
 
 .dashboard-paper {
+    position: fixed; 
+    position: fixed;
+    left: 50%;
+    transform: translate(calc(-50% - 260px), -50%) perspective(1000px) rotateX(3deg);                    
     background: linear-gradient(145deg, rgba(77, 171, 247, 0.15) 0%, rgba(255, 255, 255, 0.97) 100%) !important;
     backdrop-filter: blur(12px);
     border: 2px solid rgba(77, 171, 247, 0.4) !important;
     border-radius: 16px;
-    padding: 30px;
-    margin: auto;
-    position: relative;
+    padding-top: 25px;
+    margin-left: -260px;
     min-width: 650px;
     min-height: 500px;
     box-shadow: 0 12px 40px rgba(31, 38, 135, 0.3),
                 0 0 35px rgba(77, 171, 247, 0.25),
                 0 0 20px rgba(77, 171, 247, 0.2) inset;
     animation: float 6s ease-in-out infinite;
-    transform: perspective(1000px) rotateX(3deg);
     transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 

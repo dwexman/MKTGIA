@@ -43,6 +43,7 @@ const ConnectedAccountsModal = ({ open, onClose, accounts }) => {
         }}>
           <IconButton
             onClick={onClose}
+            className="modal-close-button"
             sx={{
               position: 'absolute',
               right: 16,

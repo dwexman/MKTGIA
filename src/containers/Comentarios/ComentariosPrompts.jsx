@@ -272,7 +272,7 @@ const ComentariosPrompts = () => {
                 }}
               >
                 <IconButton
-                  className="prompt-view-modal-close-button"
+                  className="modal-close-button"
                   onClick={() => setOpenViewModal(false)}
                   sx={{
                     position: 'absolute',
