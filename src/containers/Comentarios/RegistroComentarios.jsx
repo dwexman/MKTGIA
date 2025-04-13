@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Typography,
@@ -6,30 +6,46 @@ import {
   TableHead,
   TableRow,
   TableCell,
-  TableBody
+  TableBody,
+  TableFooter,
+  TablePagination
 } from '@mui/material';
 import './RegistroComentarios.css';
 
 const RegistroComentarios = () => {
-  // Datos de ejemplo 
-  const comentarios = [
-    {
-      fecha: '2025-04-10',
-      plataforma: 'Instagram',
-      usuario: 'usuario1',
-      mensaje: '¡Excelente publicación!',
-      idPublicacion: '12345',
-      respuesta: 'Gracias por tu comentario!'
-    },
-    {
-      fecha: '2025-04-09',
-      plataforma: 'Facebook',
-      usuario: 'usuario2',
-      mensaje: 'Muy interesante.',
-      idPublicacion: '67890',
-      respuesta: 'Nos alegra que te guste.'
-    }
-  ];
+
+  const [comentarios, setComentarios] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(0);
+  const rowsPerPage = 20;
+
+  useEffect(() => {
+    fetch('https://www.mrkt21.com/comentarios/registro_comentarios/API/', {
+      method: 'GET',
+      credentials: 'include'
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`Error en la solicitud: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        setComentarios(data.comments || []);
+        setLoading(false);
+      })
+      .catch(error => {
+        console.error('Error al obtener los comentarios: ', error);
+        setLoading(false);
+      });
+  }, []);
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const dataArray = Array.isArray(comentarios) ? comentarios : [];
+  const displayedData = dataArray.slice(page * rowsPerPage, (page + 1) * rowsPerPage);
 
   return (
     <Box className="comentarios-container" sx={{ padding: 2 }}>
@@ -40,30 +56,67 @@ const RegistroComentarios = () => {
         Revisa tus comentarios en Instagram y Facebook:
       </Typography>
 
-      <Table className="registro-table" sx={{ marginTop: 2 }}>
-        <TableHead>
-          <TableRow>
-            <TableCell>Fecha</TableCell>
-            <TableCell>Plataforma</TableCell>
-            <TableCell>Usuario</TableCell>
-            <TableCell>Mensaje</TableCell>
-            <TableCell>ID de Publicación</TableCell>
-            <TableCell>Respuesta</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {comentarios.map((comentario, index) => (
-            <TableRow key={index}>
-              <TableCell>{comentario.fecha}</TableCell>
-              <TableCell>{comentario.plataforma}</TableCell>
-              <TableCell>{comentario.usuario}</TableCell>
-              <TableCell>{comentario.mensaje}</TableCell>
-              <TableCell>{comentario.idPublicacion}</TableCell>
-              <TableCell>{comentario.respuesta}</TableCell>
+      {loading ? (
+        <Typography variant="body1">Cargando datos...</Typography>
+      ) : (
+        <Table className="registro-table" sx={{ marginTop: 2 }}>
+          <TableHead>
+            <TableRow>
+              <TableCell>Fecha</TableCell>
+              <TableCell>Plataforma</TableCell>
+              <TableCell>Usuario</TableCell>
+              <TableCell>Mensaje</TableCell>
+              <TableCell>ID de Publicación</TableCell>
+              <TableCell>Respuesta</TableCell>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHead>
+          <TableBody>
+            {displayedData.map((comentario, index) => (
+              <TableRow key={index}>
+                <TableCell>{comentario.date || ''}</TableCell>
+                <TableCell>{comentario.platform || ''}</TableCell>
+                <TableCell>{comentario.name || 'Anónimo'}</TableCell>
+                <TableCell>{comentario.message || ''}</TableCell>
+                <TableCell>{comentario.post_id || ''}</TableCell>
+                <TableCell>{comentario.Reply_Message || ''}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+          <TableFooter>
+            <TableRow>
+              <TableCell
+                colSpan={6}
+                sx={{
+                  borderTop: '1px solid rgba(77, 171, 247, 0.2)',
+                  p: 0
+                }}
+              >
+                <TablePagination
+                  component="div"
+                  count={dataArray.length}
+                  page={page}
+                  onPageChange={handleChangePage}
+                  rowsPerPage={rowsPerPage}
+                  rowsPerPageOptions={[20]}
+                  sx={{
+                    backgroundColor: 'transparent',
+                    border: 'none',
+                    margin: 0,
+                    '& .MuiToolbar-root': {
+                      justifyContent: 'center',
+                      width: '100%',
+                      padding: '8px 0'
+                    },
+                    '& .MuiTablePagination-selectLabel, .MuiTablePagination-displayedRows': {
+                      color: '#1a237e'
+                    }
+                  }}
+                />
+              </TableCell>
+            </TableRow>
+          </TableFooter>
+        </Table>
+      )}
     </Box>
   );
 };

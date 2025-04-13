@@ -92,7 +92,6 @@
 }
 
 .registro-table:hover {
-    transform: perspective(1000px) rotateX(1deg) translateY(-4px);
     box-shadow: 0 12px 40px rgba(31, 38, 135, 0.25),
                 0 0 30px rgba(77, 171, 247, 0.2);
 }

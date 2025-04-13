@@ -16,6 +16,31 @@
                 0 0 30px rgba(77, 171, 247, 0.2) !important;
 }
 
+.comentarios-mes-title{
+  color: #1a237e;
+  font-weight: 900;
+  text-align: center;
+  letter-spacing: 2px;
+  position: relative;
+  padding-bottom: 10px;
+  margin: 0.5rem 0 !important;
+  text-shadow: 0 4px 8px rgba(77, 171, 247, 0.3);
+  font-size: 2rem !important;
+}
+
+.comentarios-mes-title::after {
+  content: '';
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 25%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #4dabf7, transparent);
+  box-shadow: 0 0 20px rgba(77, 171, 247, 0.4);
+}
+
+
   
   canvas {
     height: 100% !important;

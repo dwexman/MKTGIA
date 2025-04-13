@@ -110,7 +110,7 @@ const TendenciasInteraccion = ({ horasData }) => {
                 padding: 3,
                 position: 'relative',
                 width: '100%',
-                maxWidth: '95vw'
+                maxWidth: '65vw'
             }}>
                 <Bar data={chartData} options={chartOptions} />
             </Paper>

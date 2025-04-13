@@ -95,8 +95,8 @@ const ComentariosMes = ({ mesesData }) => {
         margin: 'auto',
       }}
     >
-      <Typography variant="h4" className="neon-title" gutterBottom>
-        Comentarios por Mes (2025)
+      <Typography variant="h4" className="comentarios-mes-title" gutterBottom>
+        Comentarios por Mes 2025
       </Typography>
 
       <Paper
@@ -106,7 +106,7 @@ const ComentariosMes = ({ mesesData }) => {
           padding: 3,
           position: 'relative',
           width: '100%',
-          maxWidth: '95vw',
+          maxWidth: '60vw',
         }}
       >
         <Bar data={chartData} options={chartOptions} />

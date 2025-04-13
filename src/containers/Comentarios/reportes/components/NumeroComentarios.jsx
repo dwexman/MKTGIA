@@ -7,6 +7,7 @@ import {
   TableCell,
   TableBody,
   TablePagination,
+  TableFooter,
   Typography
 } from '@mui/material';
 import './numeroComentarios.css';
@@ -50,46 +51,40 @@ const NumeroComentarios = ({ data = [] }) => {
               <TableCell>{row.total}</TableCell>
             </TableRow>
           ))}
-          
-          {/* Paginación integrada */}
-          <TableRow>
-            <TableCell colSpan={2} sx={{ padding: '0 !important', borderBottom: 'none' }}>
-              <TablePagination
-                component="div"
-                count={dataArray.length}
-                page={page}
-                onPageChange={handleChangePage}
-                rowsPerPage={rowsPerPage}
-                rowsPerPageOptions={[20]}
-                sx={{
-                  width: '100%',
-                  margin: 0,
-                  borderTop: '1px solid rgba(77, 171, 247, 0.2)',
-                  '& .MuiToolbar-root': {
-                    justifyContent: 'center',
-                    width: '100%',
-                    padding: '8px 0'
-                  },
-                  '& .MuiTablePagination-selectLabel': {
-                    color: '#1a237e',
-                    fontWeight: 500
-                  },
-                  '& .MuiTablePagination-displayedRows': {
-                    color: '#1a237e',
-                    fontWeight: 600
-                  },
-                  '& .MuiIconButton-root': {
-                    color: '#1a237e',
-                    '&:hover': {
-                      backgroundColor: 'rgba(77, 171, 247, 0.15)',
-                      borderRadius: '4px'
-                    }
-                  }
-                }}
-              />
-            </TableCell>
-          </TableRow>
         </TableBody>
+        <TableFooter>
+            <TableRow>
+              <TableCell
+                colSpan={6}
+                sx={{
+                  borderTop: '1px solid rgba(77, 171, 247, 0.2)',
+                  p: 0
+                }}
+              >
+                <TablePagination
+                  component="div"
+                  count={dataArray.length}
+                  page={page}
+                  onPageChange={handleChangePage}
+                  rowsPerPage={rowsPerPage}
+                  rowsPerPageOptions={[20]}
+                  sx={{
+                    backgroundColor: 'transparent',
+                    border: 'none',
+                    margin: 0,
+                    '& .MuiToolbar-root': {
+                      justifyContent: 'center',
+                      width: '100%',
+                      padding: '8px 0'
+                    },
+                    '& .MuiTablePagination-selectLabel, .MuiTablePagination-displayedRows': {
+                      color: '#1a237e'
+                    }
+                  }}
+                />
+              </TableCell>
+            </TableRow>
+          </TableFooter>
       </Table>
     </Box>
   );
