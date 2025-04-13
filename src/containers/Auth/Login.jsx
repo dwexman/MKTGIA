@@ -7,8 +7,12 @@ import {
   Button,
   Paper,
   Stack,
-  Alert
+  Alert,
+  InputAdornment,
+  IconButton
 } from '@mui/material';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import './Login.css'; 
 import logo from '../../assets/logoWhite.png'; 
 
@@ -19,6 +23,7 @@ const Login = ({ onLogin }) => {
   const [errorMessage, setErrorMessage] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   // Al montar el componente, cargamos el username desde localStorage
   useEffect(() => {
@@ -39,6 +44,12 @@ const Login = ({ onLogin }) => {
   // Handler para actualizar el password (sin guardar en localStorage)
   const handlePasswordChange = (e) => {
     setPassword(e.target.value);
+  };
+
+
+  //Handler para controlar la visibilidad de la contraseña
+  const handleTogglePassword = () => {
+    setShowPassword(prev => !prev);
   };
 
   const handleSubmit = async (e) => {
@@ -144,11 +155,25 @@ const Login = ({ onLogin }) => {
               fullWidth
               name="password"
               label="Clave"
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               variant="outlined"
               required
               className="login-input"
               onChange={handlePasswordChange}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={handleTogglePassword}
+                      edge="end"
+                      aria-label="toggle password visibility"
+                      sx={{color: "white"}}
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                )
+              }}
             />
 
             <Button

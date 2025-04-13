@@ -60,11 +60,11 @@ const ComentariosPrompts = () => {
   const handleSavePrompt = () => {
     fetch('https://www.mrkt21.com/comentarios/comentarios_prompts/API/', {
     method: 'POST',
-    credentials: 'include', // para incluir cookies si es necesario
+    credentials: 'include', 
     headers: {
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({ prompt: newPrompt }) // ajusta la clave/valor según lo que espere tu API
+    body: JSON.stringify({ prompt: newPrompt }) 
   })
     .then(response => {
       if (!response.ok) {
