@@ -23,10 +23,12 @@ const DoubleSidebarLayout = () => {
     setLeftWidth(width);
   };
 
+  const secondaryExpandedWidth = 240;
+
   return (
     <Box sx={{ display: 'flex', width: '100%', minHeight: '100vh' }}>
       <LeftSidebar onSelectItem={handleSelectItem} onWidthChange={handleLeftWidthChange} />
-      <SecondarySidebar section={selectedSection} />
+      <SecondarySidebar section={selectedSection} leftSidebarWidth={leftWidth} />
 
       <Box component="main" sx={{ flexGrow: 1, p: 0 }}>
         <Routes>

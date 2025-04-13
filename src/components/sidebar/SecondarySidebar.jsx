@@ -46,7 +46,7 @@ const menus = {
   ],
 };
 
-const SecondarySidebar = ({ section }) => {
+const SecondarySidebar = ({ section, leftSidebarWidth }) => {
   const [pinned, setPinned] = useState(false);
   const [hovered, setHovered] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(null);
@@ -72,7 +72,10 @@ const SecondarySidebar = ({ section }) => {
   const drawerStyles = {
     flexShrink: 0,
     '& .MuiDrawer-paper': {
-      position: 'relative',
+      position: 'fixed',
+      top: 0,
+      left: leftSidebarWidth,
+      height: '100vh',
       width: drawerWidth,
       transition: 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
       backgroundColor: 'rgba(255, 255, 255, 0.1)',
