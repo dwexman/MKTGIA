@@ -209,7 +209,7 @@ const ComentariosPrompts = () => {
                   className="custom-textfield"
                   label="Escribe tu prompt"
                   multiline
-                  rows={4}
+                  rows={10}
                   fullWidth
                   value={newPrompt}
                   onChange={(e) => setNewPrompt(e.target.value)}

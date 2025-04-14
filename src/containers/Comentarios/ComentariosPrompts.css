@@ -149,7 +149,8 @@
     box-shadow: 0 12px 40px rgba(77, 171, 247, 0.25) !important;
     color: #1a237e !important;
     padding: 24px;
-    width: 400px;
+    width: 600px;
+    height: 480px;
     border-radius: 16px;
     animation: float 6s ease-in-out infinite;
 }
