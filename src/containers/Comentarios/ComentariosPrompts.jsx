@@ -13,8 +13,10 @@ import {
   TableBody,
   TablePagination,
   TableFooter,
-  IconButton
+  IconButton,
+  Tooltip
 } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
 import CloseIcon from '@mui/icons-material/Close';
 import './ComentariosPrompts.css';
 
@@ -59,28 +61,28 @@ const ComentariosPrompts = () => {
 
   const handleSavePrompt = () => {
     fetch('https://www.mrkt21.com/comentarios/comentarios_prompts/API/', {
-    method: 'POST',
-    credentials: 'include', 
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ prompt: newPrompt }) 
-  })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error(`Error al guardar el prompt: ${response.status}`);
-      }
-      return response.json();
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ prompt: newPrompt })
     })
-    .then(data => {
-      setPromptData(data.prompts || []);
-      setNewPrompt('');
-      handleCloseModal();
-    })
-    .catch(error => {
-      console.error("Error al guardar el prompt: ", error);
-    });
-};
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`Error al guardar el prompt: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        setPromptData(data.prompts || []);
+        setNewPrompt('');
+        handleCloseModal();
+      })
+      .catch(error => {
+        console.error("Error al guardar el prompt: ", error);
+      });
+  };
 
   // Función para visualizar el prompt completo en el modal de vista
   const handleViewPrompt = (promptText) => {
@@ -106,71 +108,82 @@ const ComentariosPrompts = () => {
         <Typography variant="body1">Cargando datos...</Typography>
       ) : (
         <>
-          <Table className="prompts-table">
-            <TableHead>
-              <TableRow>
-                <TableCell className="fecha-column">Fecha de Creación</TableCell>
-                <TableCell className="estado-column">Activo</TableCell>
-                <TableCell className="prompt-column">Prompt</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {displayedData.map((promptArray, index) => (
-                <TableRow key={index}>
-                  <TableCell className="fecha-column">{promptArray[1]}</TableCell>
-                  <TableCell className="estado-column">
-                    {promptArray[3] === "TRUE" ? "Sí" : "No"}
-                  </TableCell>
-                  <TableCell className="prompt-column">
-                    <Button
-                      variant="outlined"
-                      onClick={() => handleViewPrompt(promptArray[2])}
-                    >
-                      Ver prompt
-                    </Button>
+          <Box className="table-container" sx={{ width: '45%', maxWidth: '520px', margin: '0 auto', }}>
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'flex-end',
+                marginBottom: '0.5rem'
+              }}
+            >
+              <Tooltip title="Agrega un nuevo prompt">
+              <Button variant="contained" onClick={handleOpenModal} className="prompts-button"
+              >
+                <AddIcon sx={{ mr: 1 }} /> Prompt
+              </Button></Tooltip>
+            </Box>
+            <Table className="prompts-table">
+              <TableHead>
+                <TableRow>
+                  <TableCell className="fecha-column">Fecha de Creación</TableCell>
+                  <TableCell className="estado-column">Activo</TableCell>
+                  <TableCell className="prompt-column">Prompt</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {displayedData.map((promptArray, index) => (
+                  <TableRow key={index}>
+                    <TableCell className="fecha-column">{promptArray[1]}</TableCell>
+                    <TableCell className="estado-column">
+                      {promptArray[3] === "TRUE" ? "Sí" : "No"}
+                    </TableCell>
+                    <TableCell className="prompt-column">
+                      <Button
+                        variant="outlined"
+                        onClick={() => handleViewPrompt(promptArray[2])}
+                      >
+                        Ver prompt
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+              <TableFooter>
+                <TableRow>
+                  {/* Usamos colSpan para abarcar todas las columnas (3 en este caso) */}
+                  <TableCell
+                    colSpan={3}
+                    sx={{
+                      borderTop: '1px solid rgba(77, 171, 247, 0.2)',
+                      p: 0
+                    }}
+                  >
+                    <TablePagination
+                      component="div"
+                      count={dataArray.length}
+                      page={page}
+                      onPageChange={handleChangePage}
+                      rowsPerPage={rowsPerPage}
+                      rowsPerPageOptions={[20]}
+                      sx={{
+                        backgroundColor: 'transparent',
+                        border: 'none',
+                        margin: 0,
+                        '& .MuiToolbar-root': {
+                          justifyContent: 'center',
+                          width: '100%',
+                          padding: '8px 0'
+                        },
+                        '& .MuiTablePagination-selectLabel, .MuiTablePagination-displayedRows': {
+                          color: '#1a237e'
+                        }
+                      }}
+                    />
                   </TableCell>
                 </TableRow>
-              ))}
-            </TableBody>
-            <TableFooter>
-              <TableRow>
-                {/* Usamos colSpan para abarcar todas las columnas (3 en este caso) */}
-                <TableCell
-                  colSpan={3}
-                  sx={{
-                    borderTop: '1px solid rgba(77, 171, 247, 0.2)',
-                    p: 0
-                  }}
-                >
-                  <TablePagination
-                    component="div"
-                    count={dataArray.length}
-                    page={page}
-                    onPageChange={handleChangePage}
-                    rowsPerPage={rowsPerPage}
-                    rowsPerPageOptions={[20]}
-                    sx={{
-                      backgroundColor: 'transparent',
-                      border: 'none',
-                      margin: 0,
-                      '& .MuiToolbar-root': {
-                        justifyContent: 'center',
-                        width: '100%',
-                        padding: '8px 0'
-                      },
-                      '& .MuiTablePagination-selectLabel, .MuiTablePagination-displayedRows': {
-                        color: '#1a237e'
-                      }
-                    }}
-                  />
-                </TableCell>
-              </TableRow>
-            </TableFooter>
-          </Table>
-
-          <Button variant="contained" onClick={handleOpenModal} className="prompts-button">
-            Agregar nuevo Prompt
-          </Button>
+              </TableFooter>
+            </Table>
+          </Box>
 
           {/* Modal para agregar un nuevo prompt */}
           <Modal open={openModal} onClose={handleCloseModal}>
@@ -300,8 +313,9 @@ const ComentariosPrompts = () => {
             </Box>
           </Modal>
         </>
-      )}
-    </Box>
+      )
+      }
+    </Box >
   );
 };
 
