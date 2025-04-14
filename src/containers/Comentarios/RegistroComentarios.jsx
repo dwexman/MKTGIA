@@ -19,6 +19,15 @@ const RegistroComentarios = () => {
   const [page, setPage] = useState(0);
   const rowsPerPage = 20;
 
+  const formatDate = (dateStr) => {
+    if (!dateStr) return "";
+    const dateObj = new Date(dateStr);
+    const day = String(dateObj.getDate()).padStart(2, '0');
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const year = dateObj.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+
   useEffect(() => {
     fetch('https://www.mrkt21.com/comentarios/registro_comentarios/API/', {
       method: 'GET',
@@ -31,7 +40,8 @@ const RegistroComentarios = () => {
         return response.json();
       })
       .then(data => {
-        setComentarios(data.comments || []);
+        const sortedComments = (data.comments || []).sort((a, b) => new Date(b.date) - new Date(a.date));
+        setComentarios(sortedComments || []);
         setLoading(false);
       })
       .catch(error => {
@@ -73,7 +83,7 @@ const RegistroComentarios = () => {
           <TableBody>
             {displayedData.map((comentario, index) => (
               <TableRow key={index}>
-                <TableCell>{comentario.date || ''}</TableCell>
+                <TableCell>{formatDate(comentario.date)}</TableCell>
                 <TableCell>{comentario.platform || ''}</TableCell>
                 <TableCell>{comentario.name || 'Anónimo'}</TableCell>
                 <TableCell>{comentario.message || ''}</TableCell>
