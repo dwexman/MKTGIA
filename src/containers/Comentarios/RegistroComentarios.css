@@ -1,10 +1,11 @@
 .comentarios-container {
     background: radial-gradient(circle at center, #f8f9ff 0%, #e6f0ff 100%);
     min-height: 100vh;
-    padding: 24px;
+    padding: 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
+    margin-right: '40px';  
 }
 
 .registro-title {

@@ -46,7 +46,7 @@ const menus = {
   ],
 };
 
-const SecondarySidebar = ({ section, leftSidebarWidth }) => {
+const SecondarySidebar = ({ section, leftSidebarWidth, onExpandChange }) => {
   const [pinned, setPinned] = useState(false);
   const [hovered, setHovered] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(null);
@@ -64,6 +64,10 @@ const SecondarySidebar = ({ section, leftSidebarWidth }) => {
       setSelectedIndex(null);
     }
   }, [section]);
+
+  useEffect(() => {
+    onExpandChange(pinned || hovered);
+  }, [pinned, hovered, onExpandChange]);
 
   // Si no hay menú para esta sección, no renderiza nada
   const items = menus[section] || [];
