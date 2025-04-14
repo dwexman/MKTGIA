@@ -94,9 +94,10 @@ const ComentariosPrompts = () => {
     setPage(newPage);
   };
 
-  // Pagina los datos
+  // Pagina los datos ordenados de mas reciente a mas antiguo
   const dataArray = Array.isArray(promptData) ? promptData : [];
-  const displayedData = dataArray.slice(page * rowsPerPage, (page + 1) * rowsPerPage);
+  const sortedData = [...dataArray].sort((a, b) => new Date(b[1]) - new Date(a[1]));
+  const displayedData = sortedData.slice(page * rowsPerPage, (page + 1) * rowsPerPage);
 
   return (
     <Box className="comentarios-container">
@@ -117,10 +118,10 @@ const ComentariosPrompts = () => {
               }}
             >
               <Tooltip title="Agrega un nuevo prompt">
-              <Button variant="contained" onClick={handleOpenModal} className="prompts-button"
-              >
-                <AddIcon sx={{ mr: 1 }} /> Prompt
-              </Button></Tooltip>
+                <Button variant="contained" onClick={handleOpenModal} className="prompts-button"
+                >
+                  <AddIcon sx={{ mr: 1 }} /> Prompt
+                </Button></Tooltip>
             </Box>
             <Table className="prompts-table">
               <TableHead>
@@ -133,8 +134,13 @@ const ComentariosPrompts = () => {
               <TableBody>
                 {displayedData.map((promptArray, index) => (
                   <TableRow key={index}>
-                    <TableCell className="fecha-column">{promptArray[1]}</TableCell>
-                    <TableCell className="estado-column">
+                    <TableCell className="fecha-column">
+                      {new Date(promptArray[1]).toLocaleDateString('es-ES', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric'
+                      })}
+                    </TableCell>                    <TableCell className="estado-column">
                       {promptArray[3] === "TRUE" ? "Sí" : "No"}
                     </TableCell>
                     <TableCell className="prompt-column">
