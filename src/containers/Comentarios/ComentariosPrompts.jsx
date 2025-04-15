@@ -109,44 +109,86 @@ const ComentariosPrompts = () => {
         <Typography variant="body1">Cargando datos...</Typography>
       ) : (
         <>
-          <Box className="table-container" sx={{ width: '45%', maxWidth: '520px', margin: '0 auto', }}>
-            <Box
-              sx={{
-                display: 'flex',
-                justifyContent: 'flex-end',
-                marginBottom: '0.5rem'
-              }}
-            >
+          <Box
+            className="table-container"
+            sx={{
+              width: '90%',
+              maxWidth: '800px',
+              margin: '0 auto',
+              backgroundColor: 'rgba(255, 255, 255, 0.95)',
+              borderRadius: '16px',
+              backdropFilter: 'blur(12px)',
+              boxShadow: '0 8px 32px rgba(31, 38, 135, 0.2)',
+              border: '2px solid rgba(77, 171, 247, 0.4)',
+              p: 3,
+              mt: 2,
+              transition: 'all 0.3s ease',
+              '&:hover': {
+                transform: 'translateY(-2px)',
+                boxShadow: '0 12px 40px rgba(31, 38, 135, 0.25)'
+              }
+            }}
+          >
+            <Box sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              mb: 2,
+              padding: '0 16px'
+            }}>
+              <Typography variant="h6" sx={{ color: '#1a237e', fontWeight: 600 }}>
+              </Typography>
               <Tooltip title="Agrega un nuevo prompt">
-                <Button variant="contained" onClick={handleOpenModal} className="prompts-button"
-                >
+                <Button variant="contained" onClick={handleOpenModal} className="prompts-button">
                   <AddIcon sx={{ mr: 1 }} /> Prompt
-                </Button></Tooltip>
+                </Button>
+              </Tooltip>
             </Box>
-            <Table className="prompts-table">
+
+            <Table className="prompts-table" sx={{ width: '100%' }}>
               <TableHead>
-                <TableRow>
+                <TableRow sx={{
+                  '& th:first-child': { borderTopLeftRadius: '12px' },
+                  '& th:last-child': { borderTopRightRadius: '12px' }
+                }}>
                   <TableCell className="fecha-column">Fecha de Creación</TableCell>
-                  <TableCell className="estado-column">Activo</TableCell>
+                  <TableCell className="estado-column">Estado</TableCell>
                   <TableCell className="prompt-column">Prompt</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {displayedData.map((promptArray, index) => (
-                  <TableRow key={index}>
+                  <TableRow key={index} hover>
                     <TableCell className="fecha-column">
                       {new Date(promptArray[1]).toLocaleDateString('es-ES', {
                         day: '2-digit',
                         month: '2-digit',
                         year: 'numeric'
                       })}
-                    </TableCell>                    <TableCell className="estado-column">
-                      {promptArray[3] === "TRUE" ? "Sí" : "No"}
+                    </TableCell>
+                    <TableCell className="estado-column" sx={{
+                      textAlign: 'center',
+                      backgroundColor: promptArray[3] === "TRUE" ? 'rgba(57, 255, 20, 0.15)' : 'rgba(255, 49, 49, 0.15)',
+                      color: promptArray[3] === "TRUE" ? '#1a5e1a' : '#8b0000',
+                      fontWeight: 600,
+                      borderRadius: '16px',
+                      width: '60px',
+                      height: '12px',
+                      marginTop: '15px',
+                      padding: '3px 3px 5px 3px',
+                      display: 'inline-block'
+                    }}>
+                      {promptArray[3] === "TRUE" ? "ACTIVO" : "INACTIVO"}
                     </TableCell>
                     <TableCell className="prompt-column">
                       <Button
                         variant="outlined"
                         onClick={() => handleViewPrompt(promptArray[2])}
+                        sx={{
+                          '&:hover': {
+                            backgroundColor: 'rgba(77, 171, 247, 0.08)'
+                          }
+                        }}
                       >
                         Ver prompt
                       </Button>
@@ -156,14 +198,7 @@ const ComentariosPrompts = () => {
               </TableBody>
               <TableFooter>
                 <TableRow>
-                  {/* Usamos colSpan para abarcar todas las columnas (3 en este caso) */}
-                  <TableCell
-                    colSpan={3}
-                    sx={{
-                      borderTop: '1px solid rgba(77, 171, 247, 0.2)',
-                      p: 0
-                    }}
-                  >
+                  <TableCell colSpan={3} sx={{ p: 0, borderTop: '1px solid rgba(77, 171, 247, 0.2)' }}>
                     <TablePagination
                       component="div"
                       count={dataArray.length}
@@ -172,14 +207,7 @@ const ComentariosPrompts = () => {
                       rowsPerPage={rowsPerPage}
                       rowsPerPageOptions={[20]}
                       sx={{
-                        backgroundColor: 'transparent',
-                        border: 'none',
-                        margin: 0,
-                        '& .MuiToolbar-root': {
-                          justifyContent: 'center',
-                          width: '100%',
-                          padding: '8px 0'
-                        },
+                        '& .MuiToolbar-root': { justifyContent: 'center' },
                         '& .MuiTablePagination-selectLabel, .MuiTablePagination-displayedRows': {
                           color: '#1a237e'
                         }

@@ -8,16 +8,16 @@
     align-items: center;
 }
 
-/* Título con efecto */
+/* Título principal */
 .prompts-title {
     color: #1a237e !important;
     font-weight: 900 !important;
-    font-size: 3rem !important;
+    font-size: 2.5rem !important;
     text-align: center !important;
-    letter-spacing: 2px !important;
+    letter-spacing: 1.5px !important;
     position: relative;
     padding-bottom: 24px !important;
-    margin: 3rem 0 !important;
+    margin: 2rem 0 !important;
     text-shadow: 0 4px 8px rgba(77, 171, 247, 0.3);
 }
 
@@ -27,114 +27,86 @@
     bottom: 12px;
     left: 50%;
     transform: translateX(-50%);
-    width: 70%;
+    width: 60%;
     height: 3px;
     background: linear-gradient(90deg, transparent, #4dabf7, transparent);
-    box-shadow: 0 0 20px rgba(77, 171, 247, 0.4);
+    box-shadow: 0 0 15px rgba(77, 171, 247, 0.3);
 }
 
-/* Tabla*/
-.prompts-table {
-    table-layout: fixed;
-    width: 45%;
-    max-width: 520px;
-    margin: 0 auto;
-    background: rgba(255, 255, 255, 0.95) !important;
-    backdrop-filter: blur(12px);
-    border-radius: 16px; 
-    overflow: hidden;
-    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.2),
-                0 0 20px rgba(77, 171, 247, 0.15);
-    border: 2px solid rgba(77, 171, 247, 0.4);
-    transform: perspective(1000px) rotateX(0deg);
-    transition: all 0.4s ease;
+/* Contenedor de la tabla */
+.table-container {
+    transition: all 0.3s ease;
     margin: 2rem 0;
 }
 
-.prompts-table:hover {
-    transform: perspective(1000px) rotateX(1deg) translateY(-4px);
-    box-shadow: 0 12px 40px rgba(31, 38, 135, 0.25),
-                0 0 30px rgba(77, 171, 247, 0.2);
+.table-container:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(31, 38, 135, 0.25);
+}
+
+/* Estilos de tabla */
+.prompts-table {
+    table-layout: fixed;
+    width: 100%;
+    margin: 0 auto;
 }
 
 .prompts-table .MuiTableCell-head {
     color: #1a237e !important;
     font-weight: 700 !important;
-    background: rgba(77, 171, 247, 0.15) !important;
-    border-bottom: 3px solid #4dabf7 !important;
+    background: rgba(77, 171, 247, 0.1) !important;
+    border-bottom: 2px solid #4dabf7 !important;
+}
+
+.prompts-table .MuiTableHead-root .MuiTableRow-root {
+    overflow: hidden;
+    border-radius: 12px 12px 0 0;
 }
 
 .prompts-table .MuiTableCell-body {
     color: #2c3e50 !important;
+    border-bottom: 1px solid rgba(77, 171, 247, 0.1) !important;
+    vertical-align: middle !important;
+    padding: 16px 24px !important;
 }
 
+/* Columnas */
 .fecha-column {
-    width: 25%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  
-  .estado-column {
-    width: 15%;
-    text-align: center;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  
-  .prompt-column {
-    width: 18%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
+    width: 20%;
+    padding-left: 32px !important;
+}
 
-/* Botón principal con efecto shine */
+.estado-column {
+    width: 20%;
+    text-align: left;
+}
+
+
+
+.prompt-column {
+    width: 20%;
+    padding-right: 32px !important;
+}
+
+/* Botón principal */
 .prompts-button {
     background: rgba(255, 255, 255, 0.95) !important;
     color: #1a237e !important;
     border: 2px solid #1a237e !important;
-    font-weight: 700 !important;
-    font-size: 1rem !important;
-    padding: 10px 30px !important;
-    border-radius: 12px !important;
-    box-shadow: 0 8px 24px rgba(26, 35, 126, 0.2),
-                0 0 20px rgba(77, 171, 247, 0.2) inset,
-                0 0 15px rgba(77, 171, 247, 0.15) !important;
-    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-    position: relative;
-    overflow: hidden;
-}
-
-.prompts-button::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(45deg, 
-        transparent 25%, 
-        rgba(77, 171, 247, 0.15) 50%, 
-        transparent 75%) !important;
-    animation: shine 4s infinite;
-    pointer-events: none;
+    font-weight: 600 !important;
+    padding: 8px 24px !important;
+    border-radius: 10px !important;
+    box-shadow: 0 4px 16px rgba(26, 35, 126, 0.15) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
 .prompts-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(26, 35, 126, 0.25) !important;
     background: rgba(245, 248, 255, 0.95) !important;
-    box-shadow: 0 8px 24px rgba(26, 35, 126, 0.3),
-                0 0 25px rgba(77, 171, 247, 0.3) inset,
-                0 0 20px rgba(77, 171, 247, 0.2) !important;
-    transform: translateY(-3px);
 }
 
-.prompts-button:hover::before {
-    animation-duration: 3s;
-}
-
-/* Modal */
+/* Modales */
 .prompts-modal {
     display: flex !important;
     align-items: center;
@@ -171,7 +143,7 @@
     margin-top: 1.5rem;
 }
 
-/* Botón Cancelar (rojo) */
+/* Botón Cancelar */
 .modal-cancel-button {
     color: #e63946 !important;
     border: 2px solid #e63946 !important;
@@ -186,7 +158,7 @@
     transform: translateY(-1px);
 }
 
-/* Botón Guardar (invertido) */
+/* Botón Guardar */
 .modal-save-button {
     background: #3b8ac4 !important;
     color: white !important;
@@ -200,7 +172,7 @@
     box-shadow: 0 6px 18px rgba(77, 171, 247, 0.3) !important;
 }
 
-/* Campo de texto */
+/* Campos de texto */
 .custom-textfield .MuiOutlinedInput-root {
     color: #1a237e !important;
     border-radius: 8px !important;
@@ -221,6 +193,44 @@
     box-shadow: 0 0 12px rgba(77, 171, 247, 0.3) !important;
 }
 
+/* Scrollbar */
+.prompt-view-modal-container::-webkit-scrollbar {
+    width: 8px;               
+}
+
+.prompt-view-modal-container::-webkit-scrollbar-track {
+    background-color: #f1f1f1; 
+    border-radius: 4px;
+}
+
+.prompt-view-modal-container::-webkit-scrollbar-thumb {
+    background-color: #0f0d83; 
+    border-radius: 8px;
+    border: 2px solid #0f0d83;  
+}
+
+.prompt-view-modal-container::-webkit-scrollbar-thumb:hover {
+    background-color: #0f0d83;     
+}
+
+.prompt-view-modal-container {
+    scrollbar-width: thin;            
+    scrollbar-color: #aaaaaa #f1f1f1;  
+}
+
+/* Animaciones */
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-8px); }
+    100% { transform: translateY(0px); }
+}
+
+@keyframes shine {
+    0% { transform: translateX(-100%) rotate(45deg); }
+    100% { transform: translateX(100%) rotate(45deg); }
+}
+
+/* Botón de cierre */
 .modal-close-button {
     color: #8c919b !important;
     position: absolute !important;
@@ -239,42 +249,4 @@
 .modal-close-button .MuiSvgIcon-root {
     font-size: 1.8rem !important;
     transition: all 0.3s !important;
-}
-
-/* Estilos de scrollbar en la clase contenedora del modal */
-.prompt-view-modal-container::-webkit-scrollbar {
-    width: 8px;               
-  }
-  
-  .prompt-view-modal-container::-webkit-scrollbar-track {
-    background-color: #f1f1f1; 
-    border-radius: 4px;
-  }
-  
-  .prompt-view-modal-container::-webkit-scrollbar-thumb {
-    background-color: #0f0d83; 
-    border-radius: 8px;
-    border: 2px solid #0f0d83;  
-  }
-  
-  .prompt-view-modal-container::-webkit-scrollbar-thumb:hover {
-    background-color: #0f0d83;     
-  }
-  
-  /* Para Firefox se usan otras propiedades */
-  .prompt-view-modal-container {
-    scrollbar-width: thin;            
-    scrollbar-color: #aaaaaa #f1f1f1;  
-  }
-
-/* Animaciones */
-@keyframes float {
-    0% { transform: translateY(0px); }
-    50% { transform: translateY(-8px); }
-    100% { transform: translateY(0px); }
-}
-
-@keyframes shine {
-    0% { transform: translateX(-100%) rotate(45deg); }
-    100% { transform: translateX(100%) rotate(45deg); }
 }
