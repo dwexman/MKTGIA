@@ -1,7 +1,8 @@
 // src/components/Header.js
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Box } from '@mui/material';
-import logo from '../../assets/logoblack.png'; // Ajusta la ruta según tu estructura
+import logo from '../../assets/logoblack.png'; 
 
 const Header = () => {
   return (
@@ -15,7 +16,9 @@ const Header = () => {
         backgroundColor: 'transparent', 
       }}
     >
+      <Link to="/home">
       <img src={logo} alt="Logo" style={{ height: '50px' }} />
+      </Link>
     </Box>
   );
 };

@@ -71,14 +71,10 @@ const Login = ({ onLogin }) => {
 
       if (data.status === 'success') {
         onLogin && onLogin();
-        // Se espera que el JSON incluya la propiedad redirect_url
-        navigate(data.redirect_url, { replace: true });
-      } else if (data.status === 'error') {
-        setErrorMessage(data.message);
+        navigate('/home', { replace: true });
       } else {
-        setErrorMessage('Ocurrió un error inesperado.');
+        setErrorMessage(data.message);
       }
-      
     } catch (err) {
       console.error('Error de conexión con el servidor:', err);
       setErrorMessage('Error de conexión con el servidor.');

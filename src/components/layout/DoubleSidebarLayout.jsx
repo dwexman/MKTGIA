@@ -10,6 +10,7 @@ import ComentariosPrompts from '../../containers/Comentarios/ComentariosPrompts'
 import RegistroComentarios from '../../containers/Comentarios/RegistroComentarios';
 import Reportes from '../../containers/Comentarios/reportes/Reportes';
 import Header from './Header';
+import Home from '../../containers/Home/Home';
 
 
 const DoubleSidebarLayout = () => {
@@ -50,6 +51,7 @@ const DoubleSidebarLayout = () => {
         }}
       >
         <Routes>
+        <Route path="/home" element={<Home />} />
           {/* Contenido */}
           <Route
             path="/content_calendar/calendario"
@@ -77,7 +79,7 @@ const DoubleSidebarLayout = () => {
           {/* Fallback */}
           <Route
             path="*"
-            element={<div>Seleccione una opción del sidebar.</div>}
+            element={<Home />}
           />
         </Routes>
       </Box>

@@ -191,8 +191,6 @@ const LeftSidebar = ({ onSelectItem, onWidthChange }) => {
         <ListItemButton
           selected={selectedIndex === 1}
           onClick={() => handleItemClick(1, 'Comentarios')}
-          component={Link}
-          to="/comentarios/dashboard"
           sx={selectedStyles}
         >
           <ListItemIcon sx={{ minWidth: isExpanded ? 56 : 40 }}>

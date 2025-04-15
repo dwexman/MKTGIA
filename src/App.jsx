@@ -1,34 +1,37 @@
+// App.js
 import React, { useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { DndProvider } from 'react-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend';
-import DoubleSidebarLayout from './components/layout/DoubleSidebarLayout';
 import Login from './containers/Auth/Login';
-import './index.css';
+import DoubleSidebarLayout from './components/layout/DoubleSidebarLayout';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   return (
-    <DndProvider backend={HTML5Backend}>
-      <Routes>
-        {/* Ruta para el login */}
-        <Route
-          path="/login"
-          element={<Login onLogin={() => setIsAuthenticated(true)} />}
-        />
-        <Route
-          path="/*"
-          element={
-            isAuthenticated ? (
-              <DoubleSidebarLayout />
-            ) : (
-              <Navigate to="/login" replace />
-            )
-          }
-        />
-      </Routes>
-    </DndProvider>
+    <Routes>
+      {/* Ruta para el Login */}
+      <Route path="/login" element={<Login onLogin={() => setIsAuthenticated(true)} />} />
+
+      {/* Rutas protegidas con el layout */}
+      <Route
+        element={
+          isAuthenticated ? (
+            <DoubleSidebarLayout />
+          ) : (
+            <Navigate to="/login" replace />
+          )
+        }
+      >
+        {/* Dentro del layout se definen todas las rutas de la aplicación */}
+        <Route path="/home" element={<div />} />
+        <Route path="/content_calendar/calendario" element={<div />} />
+        <Route path="/comentarios/dashboard" element={<div />} />
+        <Route path="/comentarios/prompts" element={<div />} />
+        <Route path="/comentarios/registro" element={<div />} />
+        <Route path="/comentarios/reportes" element={<div />} />
+        <Route path="*" element={<Navigate to="/home" replace />} />
+      </Route>
+    </Routes>
   );
 }
 

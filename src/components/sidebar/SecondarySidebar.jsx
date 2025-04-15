@@ -56,11 +56,6 @@ const SecondarySidebar = ({ section, leftSidebarWidth, onExpandChange }) => {
   // Efecto para seleccionar la opción por defecto según la sección
   useEffect(() => {
     if (section === 'Comentarios') {
-      // Selecciona el primer ítem (índice 0) en la sección Comentarios,
-      // que corresponde a "Conectar cuentas"
-      setSelectedIndex(0);
-    } else {
-      // Puedes establecer otro valor o dejarlo en null para otras secciones
       setSelectedIndex(null);
     }
   }, [section]);

@@ -1,0 +1,91 @@
+.login-container {
+    background: rgba(16, 20, 55, 0.95) !important;
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(77, 171, 247, 0.3);
+    box-shadow: 0 0 30px rgba(77, 171, 247, 0.3) !important;
+    border-radius: 16px;
+  }
+  
+  
+  .subtitle {
+    color: rgba(255, 255, 255, 0.8) !important;
+    text-align: center;
+    text-shadow: 0 0 12px rgba(77, 171, 247, 0.6);
+    margin-bottom: 2rem !important;
+    font-size: 1.3rem !important;
+    font-weight: 700 !important;
+    margin-top: -80px !important;
+  }
+  
+  .login-input .MuiOutlinedInput-root {
+    color: #fff !important;
+    border-radius: 8px !important;
+  }
+  
+  .login-input .MuiOutlinedInput-notchedOutline {
+    border-color: rgba(255, 255, 255, 0.3) !important;
+  }
+  
+  .login-input:hover .MuiOutlinedInput-notchedOutline {
+    border-color: #4dabf7 !important;
+  }
+  
+  .login-input.Mui-focused .MuiOutlinedInput-notchedOutline {
+    border-color: #4dabf7 !important;
+    box-shadow: 0 0 10px rgba(77, 171, 247, 0.3) !important;
+  }
+
+.login-input .MuiInputLabel-root {
+    color: rgba(255, 255, 255, 0.8) !important;
+    text-shadow: 0 0 8px rgba(77, 171, 247, 0.6);
+  }
+  
+  .login-input .Mui-focused.MuiInputLabel-root {
+    color: #fff !important;
+    text-shadow: 0 0 12px rgba(77, 171, 247, 0.8);
+  }
+  
+  .login-input:hover .MuiInputLabel-root {
+    color: #4dabf7 !important;
+  }
+  
+  .gradient-button {
+    background: linear-gradient(145deg, #4dabf7 0%, #1a237e 100%) !important;
+    color: #fff !important;
+    font-weight: 700 !important;
+    font-size: 20px !important;
+    letter-spacing: 3px !important;
+    padding: 12px 24px !important;
+    border-radius: 8px !important;
+    transition: all 0.3s ease !important;
+  }
+  
+  .gradient-button:hover {
+    background: linear-gradient(145deg, #1a237e 0%, #4dabf7 100%) !important;
+    box-shadow: 0 0 15px rgba(77, 171, 247, 0.5) !important;
+  }
+  
+  .footer-text {
+    display: block !important;
+    margin-top: 2rem !important;
+    color: rgba(255, 255, 255, 0.6) !important;
+    text-align: center !important;
+    font-size: 0.8rem !important;
+  }
+  
+  .background-effect {
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(77, 171, 247, 0.1), transparent);
+    animation: rotate 20s linear infinite;
+    z-index: 1;
+  }
+  
+  @keyframes rotate {
+    100% {
+      transform: rotate(360deg);
+    }
+  }
