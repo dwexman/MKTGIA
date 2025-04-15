@@ -1,0 +1,19 @@
+/* src/components/Header.css */
+.app-header {
+    width: 100%;
+    position: fixed;
+    top: 0;
+    right: 0;
+    padding: 10px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    background: #fff; /* Opcional: un fondo para la cabecera */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Opcional: una sombra sutil */
+    z-index: 1000; /* Para que quede por encima de otros contenidos */
+  }
+  
+  .logo {
+    height: 50px; /* Ajusta el tamaño del logo según necesites */
+  }
+  

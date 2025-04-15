@@ -1,12 +1,12 @@
+/* Contenedor principal centrado */
 .dashboard-container {
-    position: fixed;
-    background: radial-gradient(circle at center, #f8f9ff 0%, #e6f0ff 100%);
     display: flex;
     align-items: center;
     justify-content: center;
     width: 100vw;
     height: 100vh;
     padding: 20px;
+    background: radial-gradient(circle at center, #f8f9ff 0%, #e6f0ff 100%);
 }
 
 .dashboard-paper {
@@ -22,12 +22,55 @@
     margin-left: -260px;
     min-width: 650px;
     min-height: 500px;
-    box-shadow: 0 12px 40px rgba(31, 38, 135, 0.3),
-                0 0 35px rgba(77, 171, 247, 0.25),
-                0 0 20px rgba(77, 171, 247, 0.2) inset;
+    box-shadow: 
+        0 12px 40px rgba(31, 38, 135, 0.3),
+        0 0 35px rgba(77, 171, 247, 0.25),
+        0 0 20px rgba(77, 171, 247, 0.2) inset;
     animation: float 6s ease-in-out infinite;
     transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
+
+/* Efecto flotante del Paper interno */
+@keyframes float {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+    100% { transform: translateY(0); }
+}
+
+.dashboard-paper::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 12px;
+    padding: 2px;
+    background: linear-gradient(45deg, 
+      #00f3ff 0%, 
+      transparent 30%,
+      transparent 70%, 
+      #0066ff 100%);
+    -webkit-mask: 
+       linear-gradient(#fff 0 0) content-box, 
+       linear-gradient(#fff 0 0);
+    mask: 
+       linear-gradient(#fff 0 0) content-box, 
+       linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: rotateBorder 8s linear infinite;
+  }
+  
+  @keyframes neonScan {
+    0% { box-shadow: 0 0 10px rgba(0, 243, 255, 0.3); }
+    50% { box-shadow: 0 0 30px rgba(0, 243, 255, 0.6), 0 0 60px rgba(0, 243, 255, 0.3); }
+    100% { box-shadow: 0 0 10px rgba(0, 243, 255, 0.3); }
+  }
+  
+  @keyframes rotateBorder {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+
 
 .dashboard-paper:hover {
     animation: hover-pulse 1.5s ease-in-out infinite;

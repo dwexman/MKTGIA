@@ -9,7 +9,7 @@ import Dashboard from '../../containers/Comentarios/Dashboard';
 import ComentariosPrompts from '../../containers/Comentarios/ComentariosPrompts';
 import RegistroComentarios from '../../containers/Comentarios/RegistroComentarios';
 import Reportes from '../../containers/Comentarios/reportes/Reportes';
-
+import Header from './Header';
 
 
 const DoubleSidebarLayout = () => {
@@ -35,6 +35,8 @@ const DoubleSidebarLayout = () => {
 
 
   return (
+    <>
+    <Header />
     <Box sx={{ display: 'flex', width: '100%', minHeight: '100vh' }}>
       <LeftSidebar onSelectItem={handleSelectItem} onWidthChange={handleLeftWidthChange} />
       <SecondarySidebar section={selectedSection} leftSidebarWidth={leftWidth} onExpandChange={setSecondaryExpanded} />
@@ -80,6 +82,7 @@ const DoubleSidebarLayout = () => {
         </Routes>
       </Box>
     </Box>
+    </>
   );
 };
 
