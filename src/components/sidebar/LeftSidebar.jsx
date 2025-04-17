@@ -165,7 +165,7 @@ const LeftSidebar = ({ onSelectItem, onWidthChange }) => {
           selected={selectedIndex === 0}
           onClick={() => handleItemClick(0, 'AdsBudget')}
           component={Link}
-          to="/presupuestos/select_account"
+          to="/presupuestos/facebook-login"
           sx={selectedStyles}
         >
           <ListItemIcon sx={{ minWidth: isExpanded ? 56 : 40 }}>

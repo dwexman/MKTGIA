@@ -1,14 +1,19 @@
-// App.js
 import React, { useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
+import Home from './containers/Home/Home';
 import Login from './containers/Auth/Login';
 import DoubleSidebarLayout from './components/layout/DoubleSidebarLayout';
+import Optimizar from './containers/AdsBudget/Optimizar';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   return (
     <Routes>
+
+      {/* Ruta pública */}
+      <Route path="/" element={<Home />} />
+
       {/* Ruta para el Login */}
       <Route path="/login" element={<Login onLogin={() => setIsAuthenticated(true)} />} />
 
@@ -24,6 +29,7 @@ function App() {
       >
         {/* Dentro del layout se definen todas las rutas de la aplicación */}
         <Route path="/home" element={<div />} />
+        <Route path="/presupuestos/facebook-login" element={<div />} />
         <Route path="/content_calendar/calendario" element={<div />} />
         <Route path="/comentarios/dashboard" element={<div />} />
         <Route path="/comentarios/prompts" element={<div />} />

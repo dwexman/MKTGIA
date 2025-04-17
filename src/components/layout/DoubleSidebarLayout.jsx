@@ -11,6 +11,8 @@ import RegistroComentarios from '../../containers/Comentarios/RegistroComentario
 import Reportes from '../../containers/Comentarios/reportes/Reportes';
 import Header from './Header';
 import Home from '../../containers/Home/Home';
+import Optimizar from '../../containers/AdsBudget/Optimizar';
+
 
 
 const DoubleSidebarLayout = () => {
@@ -52,6 +54,13 @@ const DoubleSidebarLayout = () => {
       >
         <Routes>
         <Route path="/home" element={<Home />} />
+
+          {/* AdsBudget */}
+          <Route
+            path="/presupuestos/facebook-login"
+            element={<Optimizar />}
+          />
+
           {/* Contenido */}
           <Route
             path="/content_calendar/calendario"

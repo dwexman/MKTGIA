@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     Box,
     Typography,
@@ -30,6 +31,7 @@ const Home = () => {
         betatester: false
     });
     const [submitted, setSubmitted] = useState(false);
+    const navigate = useNavigate();
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -51,23 +53,38 @@ const Home = () => {
                 height: '100vh',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center',
+                justifyContent: 'flex-start',
                 background: 'linear-gradient(135deg, #0a1929 0%, #1a237e 100%)',
                 overflow: 'hidden',
                 position: 'relative'
             }}
         >
+            <Button
+                variant="contained" size="small"
+                onClick={() => navigate('/login')}
+                sx={{
+                    position: 'absolute',
+                    top: 16,
+                    right: 16,
+                    background: 'linear-gradient(145deg, #4dabf7 0%, #1a237e 100%)',
+                    color: 'white',
+                    textTransform: 'none'
+                }}
+            >
+                Login
+            </Button>
             {/* Contenedor principal */}
             <Box
                 sx={{
                     display: 'flex',
                     alignItems: 'flex-start',
                     justifyContent: 'center',
+                    marginLeft: '10%',
                     gap: 8,
                     width: '90%',
                     maxWidth: '1200px',
                     position: 'relative',
-                    paddingTop: '2vh' // Reducido el padding superior
+                    paddingTop: '2vh'
                 }}
             >
                 {/* Contenedor del logo y texto */}
@@ -77,22 +94,24 @@ const Home = () => {
                         flexDirection: 'column',
                         alignItems: 'center',
                         gap: 2,
-                        marginTop: '-120px', // Logo más arriba
+                        marginTop: '-120px',
                         transform: 'translateY(-40px)',
                         position: 'relative',
-                        zIndex: 3
+                        zIndex: 1,
+                        pointerEvents: 'none'
                     }}
                 >
                     {/* Logo */}
                     <Fade in={true} timeout={2000}>
                         <Box
                             sx={{
-                                minWidth: 400,
+                                minWidth: 700,
+                                width: '100%',
                                 position: 'relative',
-                                transform: 'rotate(-5deg) perspective(1000px) rotateY(-10deg)',
+                                transform: 'none',
                                 filter: 'drop-shadow(0 0 30px rgba(77, 171, 247, 0.7))',
                                 '&:hover': {
-                                    transform: 'rotate(-5deg) perspective(1000px) rotateY(-10deg) scale(1.02)',
+                                    transform: 'scale(1.02)',
                                     transition: 'transform 0.3s ease'
                                 }
                             }}
@@ -112,18 +131,16 @@ const Home = () => {
                     <Fade in={true} timeout={1000} style={{ transitionDelay: '500ms' }}>
                         <Box
                             sx={{
-                                transform: 'rotate(-3deg) perspective(800px) rotateY(-5deg) translateX(-50px)',
-                                filter: 'drop-shadow(0 0 20px rgba(77, 171, 247, 0.5))',
-                                transition: 'all 0.5s ease-out',
-                                animation: 'slideIn 1s ease-out forwards',
                                 position: 'absolute',
                                 top: '70%',
                                 left: '0%',
                                 marginTop: '40px',
-                                transformOrigin: 'left center',
+                                filter: 'drop-shadow(0 0 20px rgba(77, 171, 247, 0.5))',
+                                transition: 'all 0.5s ease-out',
+                                animation: 'slideIn 1s ease-out forwards',
                                 '@keyframes slideIn': {
-                                    '0%': { opacity: 0, transform: 'translateX(-100px) rotate(-3deg)' },
-                                    '100%': { opacity: 1, transform: 'translateX(0) rotate(-3deg)' }
+                                    '0%': { opacity: 0, transform: 'translateX(0)' },
+                                    '100%': { opacity: 1, transform: 'translateX(0)' }
                                 }
                             }}
                         >
@@ -138,15 +155,15 @@ const Home = () => {
                                     maxWidth: '800px',
                                     lineHeight: 1.2,
                                     letterSpacing: '4px',
-                                    transform: 'skewY(-2deg)',
+                                    transform: 'skewY(0)',
                                     fontSize: '3rem',
                                     whiteSpace: 'pre-line',
-                                    display: '-webkit-box',       // Nuevo: Habilitar flexbox de WebKit
-    WebkitBoxOrient: 'vertical',   // Nuevo: Orientación vertical
-    WebkitLineClamp: 3,            // Nuevo: Limitar a 2 líneas
-    overflow: 'hidden',            // Nuevo: Ocultar el exceso
-    textOverflow: 'ellipsis',
-                                
+                                    display: '-webkit-box',
+                                    WebkitBoxOrient: 'vertical',
+                                    WebkitLineClamp: 3,
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+
                                 }}
                             >
                                 Únete a la {' '}
@@ -177,160 +194,176 @@ const Home = () => {
                     </Fade>
                 </Box>
 
-                {/* Formulario con efecto 3D */}
-                <Paper
-                    elevation={24}
+
+                <Box
                     sx={{
-                        flex: 1,
-                        minWidth: 400,
-                        maxWidth: 500,
-                        p: 3,
-                        background: 'rgba(16, 20, 55, 0.97)',
-                        backdropFilter: 'blur(16px)',
-                        border: '2px solid rgba(77, 171, 247, 0.5)',
-                        borderRadius: '20px',
-                        transform: 'perspective(1000px) rotateY(-10deg)',
-                        boxShadow: `
+                        perspective: '1200px',      // controla la profundidad de la "cámara"
+                        '& .flippable': {          // selector para tu Paper
+                            transformStyle: 'preserve-3d',
+                            transition: 'transform 0.8s ease-in-out',
+                            '&:hover': {
+                                transform: 'rotateY(360deg)',  // gira 360° en el eje Y
+                            }
+                        }
+                    }}
+                >
+                    {/* Formulario con efecto 3D */}
+                    <Paper
+                        className="flippable"
+                        elevation={24}
+                        sx={{
+                            flex: 1,
+                            minWidth: 400,
+                            maxWidth: 500,
+                            p: 3,
+                            zIndex: 2,
+                            background: 'rgba(16, 20, 55, 0.97)',
+                            backdropFilter: 'blur(16px)',
+                            border: '2px solid rgba(77, 171, 247, 0.5)',
+                            borderRadius: '20px',
+                            transform: 'none',
+                            boxShadow: `
               0 0 40px rgba(77, 171, 247, 0.4),
               0 0 80px rgba(77, 171, 247, 0.2),
               0 0 120px rgba(77, 171, 247, 0.1)
             `,
-                        position: 'relative',
-                        '&:before': {
-                            content: '""',
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
-                            borderRadius: '18px',
-                            border: '2px solid rgba(77, 171, 247, 0.3)',
-                            zIndex: -1
-                        }
-                    }}
-                >
-                    <Typography variant="h4" gutterBottom sx={titleStyles}>
-                        Registro de Contacto
-                    </Typography>
+                            position: 'relative',
+                            '&:before': {
+                                content: '""',
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                right: 0,
+                                bottom: 0,
+                                borderRadius: '18px',
+                                border: '4px solid rgba(77, 171, 247, 0.4)',
+                                zIndex: -1
+                            }
+                        }}
+                    >
+                        <Typography variant="h4" gutterBottom sx={titleStyles}>
+                            Registro de Contacto
+                        </Typography>
 
-                    {submitted && (
-                        <Alert severity="success" sx={{ mb: 3 }}>
-                            ¡Formulario enviado con éxito!
-                        </Alert>
-                    )}
+                        {submitted && (
+                            <Alert severity="success" sx={{ mb: 3 }}>
+                                ¡Formulario enviado con éxito!
+                            </Alert>
+                        )}
 
-                    <form onSubmit={handleSubmit}>
-                        <Stack spacing={2}>
-                            <TextField
-                                name="nombre"
-                                label="Nombre"
-                                variant="outlined"
-                                fullWidth
-                                required
-                                sx={inputStyles}
-                                onChange={handleChange}
-                            />
-
-                            <TextField
-                                name="apellido"
-                                label="Apellido"
-                                variant="outlined"
-                                fullWidth
-                                required
-                                sx={inputStyles}
-                                onChange={handleChange}
-                            />
-
-                            <TextField
-                                name="telefono"
-                                label="Teléfono"
-                                variant="outlined"
-                                fullWidth
-                                required
-                                sx={inputStyles}
-                                onChange={handleChange}
-                            />
-
-                            <TextField
-                                name="email"
-                                label="Email"
-                                type="email"
-                                variant="outlined"
-                                fullWidth
-                                required
-                                sx={inputStyles}
-                                onChange={handleChange}
-                            />
-
-                            <FormControl fullWidth sx={inputStyles}>
-                                <InputLabel sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>Cargo</InputLabel>
-                                <Select
-                                    name="cargo"
-                                    value={formData.cargo}
-                                    label="Cargo"
-                                    onChange={handleChange}
+                        <form onSubmit={handleSubmit}>
+                            <Stack spacing={2}>
+                                <TextField
+                                    name="nombre"
+                                    label="Nombre"
+                                    variant="outlined"
+                                    fullWidth
                                     required
-                                >
-                                    <MenuItem value="Gerente de Marketing">Gerente de Marketing</MenuItem>
-                                    <MenuItem value="CEO">CEO</MenuItem>
-                                    <MenuItem value="Otro">Otro</MenuItem>
-                                </Select>
-                            </FormControl>
-
-                            <FormControl fullWidth sx={inputStyles}>
-                                <InputLabel sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>Caso de uso</InputLabel>
-                                <Select
-                                    name="casoUso"
-                                    value={formData.casoUso}
-                                    label="Caso de uso"
+                                    sx={inputStyles}
                                     onChange={handleChange}
-                                    required
-                                >
-                                    <MenuItem value="agencias">Agencias</MenuItem>
-                                    <MenuItem value="enterprise">Enterprise</MenuItem>
-                                </Select>
-                            </FormControl>
-
-                            <Box sx={{ display: 'flex', gap: 3, mt: 1 }}>
-                                <FormControlLabel
-                                    control={
-                                        <Checkbox
-                                            name="newsletter"
-                                            checked={formData.newsletter}
-                                            onChange={handleChange}
-                                            sx={checkboxStyles}
-                                        />
-                                    }
-                                    label="Newsletter"
-                                    sx={{ color: 'white' }}
                                 />
 
-                                <FormControlLabel
-                                    control={
-                                        <Checkbox
-                                            name="betatester"
-                                            checked={formData.betatester}
-                                            onChange={handleChange}
-                                            sx={checkboxStyles}
-                                        />
-                                    }
-                                    label="Beta Tester"
-                                    sx={{ color: 'white' }}
+                                <TextField
+                                    name="apellido"
+                                    label="Apellido"
+                                    variant="outlined"
+                                    fullWidth
+                                    required
+                                    sx={inputStyles}
+                                    onChange={handleChange}
                                 />
-                            </Box>
 
-                            <Button
-                                type="submit"
-                                variant="contained"
-                                size="large"
-                                fullWidth
-                                sx={buttonStyles}
-                            >
-                                Enviar Solicitud
-                            </Button>
-                        </Stack>
-                    </form>
-                </Paper>
+                                <TextField
+                                    name="telefono"
+                                    label="Teléfono"
+                                    variant="outlined"
+                                    fullWidth
+                                    required
+                                    sx={inputStyles}
+                                    onChange={handleChange}
+                                />
+
+                                <TextField
+                                    name="email"
+                                    label="Email"
+                                    type="email"
+                                    variant="outlined"
+                                    fullWidth
+                                    required
+                                    sx={inputStyles}
+                                    onChange={handleChange}
+                                />
+
+                                <FormControl fullWidth sx={inputStyles}>
+                                    <InputLabel sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>Cargo</InputLabel>
+                                    <Select
+                                        name="cargo"
+                                        value={formData.cargo}
+                                        label="Cargo"
+                                        onChange={handleChange}
+                                        required
+                                    >
+                                        <MenuItem value="Gerente de Marketing">Gerente de Marketing</MenuItem>
+                                        <MenuItem value="CEO">CEO</MenuItem>
+                                        <MenuItem value="Otro">Otro</MenuItem>
+                                    </Select>
+                                </FormControl>
+
+                                <FormControl fullWidth sx={inputStyles}>
+                                    <InputLabel sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>Caso de uso</InputLabel>
+                                    <Select
+                                        name="casoUso"
+                                        value={formData.casoUso}
+                                        label="Caso de uso"
+                                        onChange={handleChange}
+                                        required
+                                    >
+                                        <MenuItem value="agencias">Agencias</MenuItem>
+                                        <MenuItem value="enterprise">Enterprise</MenuItem>
+                                    </Select>
+                                </FormControl>
+
+                                <Box sx={{ display: 'flex', gap: 3, mt: 1 }}>
+                                    <FormControlLabel
+                                        control={
+                                            <Checkbox
+                                                name="newsletter"
+                                                checked={formData.newsletter}
+                                                onChange={handleChange}
+                                                sx={checkboxStyles}
+                                            />
+                                        }
+                                        label="Newsletter"
+                                        sx={{ color: 'white' }}
+                                    />
+
+                                    <FormControlLabel
+                                        control={
+                                            <Checkbox
+                                                name="betatester"
+                                                checked={formData.betatester}
+                                                onChange={handleChange}
+                                                sx={checkboxStyles}
+                                            />
+                                        }
+                                        label="Beta Tester"
+                                        sx={{ color: 'white' }}
+                                    />
+                                </Box>
+
+                                <Button
+                                    type="submit"
+                                    variant="contained"
+                                    size="large"
+                                    fullWidth
+                                    sx={buttonStyles}
+                                >
+                                    Enviar Solicitud
+                                </Button>
+                            </Stack>
+                        </form>
+                    </Paper>
+                </Box>
             </Box>
 
             {/* Efectos de fondo */}

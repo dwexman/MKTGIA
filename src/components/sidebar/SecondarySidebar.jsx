@@ -24,6 +24,7 @@ import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import PromptIcon from '@mui/icons-material/AutoAwesomeMotion';
 import HistoryIcon from '@mui/icons-material/History';
 import ReportIcon from '@mui/icons-material/Assessment';
+import FacebookIcon from '@mui/icons-material/Facebook';
 
 const neonGlow = keyframes`
   from { filter: drop-shadow(0 0 1px #4dabf7); }
@@ -32,6 +33,9 @@ const neonGlow = keyframes`
 
 // Configuración de menús por sección
 const menus = {
+  AdsBudget: [
+    { icon: FacebookIcon, text: 'Optimizar', to: '/presupuestos/facebook-login' }
+  ],
   Contenido: [
     { icon: DescriptionIcon, text: 'Inicio Contenido', to: '/content_calendar/index' },
     { icon: EventIcon, text: 'Calendario', to: '/content_calendar/calendario' },
