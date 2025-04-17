@@ -96,7 +96,13 @@ const ComentariosPrompts = () => {
 
   // Pagina los datos ordenados de mas reciente a mas antiguo
   const dataArray = Array.isArray(promptData) ? promptData : [];
-  const sortedData = [...dataArray].sort((a, b) => new Date(b[1]) - new Date(a[1]));
+  const sortedData = [...dataArray].sort((a, b) => {
+    // a[3] === "TRUE" => ACTIVO
+    if (a[3] === "TRUE" && b[3] !== "TRUE") return -1;
+    if (a[3] !== "TRUE" && b[3] === "TRUE") return 1;
+    // si ambos son iguales en estado, ordena por fecha (más reciente primero)
+    return new Date(b[1]) - new Date(a[1]);
+  });
   const displayedData = sortedData.slice(page * rowsPerPage, (page + 1) * rowsPerPage);
 
   return (
