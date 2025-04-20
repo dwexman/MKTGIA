@@ -90,3 +90,37 @@
       transform: rotate(360deg);
     }
   }
+
+  @keyframes neon-border {
+    0% { opacity: 0.8; }
+    50% { opacity: 1; }
+    100% { opacity: 0.8; }
+  }
+
+  /* Estilos personalizados para el menú del Select */
+.MuiPaper-root.MuiMenu-paper {
+  background: rgba(16, 20, 55, 0.98) !important;
+  border: 2px solid rgba(77, 171, 247, 0.5) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 0 20px rgba(77, 171, 247, 0.3) !important;
+  color: #4dabf7 !important;
+  margin-top: 5px !important;
+}
+
+.MuiMenuItem-root {
+  font-size: 1rem !important;
+  transition: all 0.3s ease !important;
+  color: #4dabf7 !important;
+}
+
+.MuiMenuItem-root:hover {
+  background: rgba(77, 171, 247, 0.1) !important;
+  text-shadow: 0 0 10px rgba(77, 171, 247, 0.7);
+}
+
+.Mui-selected {
+  background: rgba(77, 171, 247, 0.15) !important;
+}
+
+
+  

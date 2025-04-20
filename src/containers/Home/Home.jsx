@@ -16,6 +16,7 @@ import {
     FormControl,
     Fade
 } from '@mui/material';
+import LoginIcon from '@mui/icons-material/Login';
 import './Home.css';
 import logo from '../../assets/logoWhite.png';
 
@@ -59,16 +60,63 @@ const Home = () => {
                 position: 'relative'
             }}
         >
-            <Button
-                variant="contained" size="small"
+            <Button className='home-button'
+                variant="contained"
+                size="medium"
                 onClick={() => navigate('/login')}
+                startIcon={<LoginIcon sx={{
+                    fontSize: '28px',
+                    color: '#3BED4F',
+                    filter: 'drop-shadow(0 0 4px rgba(59, 237, 79, 0.5))'
+                }} />}
                 sx={{
                     position: 'absolute',
                     top: 16,
                     right: 16,
-                    background: 'linear-gradient(145deg, #4dabf7 0%, #1a237e 100%)',
-                    color: 'white',
-                    textTransform: 'none'
+                    background: 'rgba(15, 23, 18, 0.95)',
+                    border: '2px solid #3BED4F',
+                    color: '#3BED4F',
+                    textTransform: 'none',
+                    padding: '12px 28px',
+                    fontSize: '1.3rem',
+                    minWidth: '200px',
+                    borderRadius: '8px',
+                    boxShadow: `
+      0 0 8px rgba(59, 237, 79, 0.3),
+      0 0 15px rgba(59, 237, 79, 0.2),
+      inset 0 0 10px rgba(59, 237, 79, 0.1)
+    `,
+                    textShadow: '0 0 8px rgba(59, 237, 79, 0.4)',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    '&:hover': {
+                        background: 'rgba(25, 35, 28, 0.95)',
+                        borderColor: '#3BED4F',
+                        boxShadow: `
+        0 0 15px rgba(59, 237, 79, 0.5),
+        0 0 30px rgba(59, 237, 79, 0.3),
+        inset 0 0 15px rgba(59, 237, 79, 0.2)
+      `,
+                        transform: 'scale(1.03)',
+                        '& .MuiSvgIcon-root': {
+                            filter: 'drop-shadow(0 0 6px rgba(59, 237, 79, 0.7))'
+                        }
+                    },
+                    '&::before': {
+                        content: '""',
+                        position: 'absolute',
+                        top: '-2px',
+                        left: '-2px',
+                        right: '-2px',
+                        bottom: '-2px',
+                        background: 'linear-gradient(45deg, transparent, rgba(59, 237, 79, 0.1), transparent)',
+                        borderRadius: '8px',
+                        zIndex: -1,
+                        animation: 'neon-border 3s linear infinite'
+                    },
+                    '& .MuiButton-startIcon': {
+                        marginRight: '10px',
+                        marginLeft: '-4px'
+                    }
                 }}
             >
                 Login
@@ -195,180 +243,193 @@ const Home = () => {
                 </Box>
 
 
-                <Box
+                {/* Formulario con efecto 3D */}
+                <Paper
+                    className="flippable"
+                    elevation={24}
                     sx={{
-                        perspective: '1200px',      // controla la profundidad de la "cámara"
-                        '& .flippable': {          // selector para tu Paper
-                            transformStyle: 'preserve-3d',
-                            transition: 'transform 0.8s ease-in-out',
-                            '&:hover': {
-                                transform: 'rotateY(360deg)',  // gira 360° en el eje Y
-                            }
-                        }
-                    }}
-                >
-                    {/* Formulario con efecto 3D */}
-                    <Paper
-                        className="flippable"
-                        elevation={24}
-                        sx={{
-                            flex: 1,
-                            minWidth: 400,
-                            maxWidth: 500,
-                            p: 3,
-                            zIndex: 2,
-                            background: 'rgba(16, 20, 55, 0.97)',
-                            backdropFilter: 'blur(16px)',
-                            border: '2px solid rgba(77, 171, 247, 0.5)',
-                            borderRadius: '20px',
-                            transform: 'none',
-                            boxShadow: `
+                        flex: 1,
+                        minWidth: 400,
+                        maxWidth: 500,
+                        p: 3,
+                        zIndex: 2,
+                        background: 'rgba(16, 20, 55, 0.97)',
+                        backdropFilter: 'blur(16px)',
+                        border: '2px solid rgba(77, 171, 247, 0.5)',
+                        borderRadius: '20px',
+                        transform: 'none',
+                        boxShadow: `
               0 0 40px rgba(77, 171, 247, 0.4),
               0 0 80px rgba(77, 171, 247, 0.2),
               0 0 120px rgba(77, 171, 247, 0.1)
             `,
-                            position: 'relative',
-                            '&:before': {
-                                content: '""',
-                                position: 'absolute',
-                                top: 0,
-                                left: 0,
-                                right: 0,
-                                bottom: 0,
-                                borderRadius: '18px',
-                                border: '4px solid rgba(77, 171, 247, 0.4)',
-                                zIndex: -1
-                            }
-                        }}
-                    >
-                        <Typography variant="h4" gutterBottom sx={titleStyles}>
-                            Registro de Contacto
-                        </Typography>
+                        position: 'relative',
+                        '&:before': {
+                            content: '""',
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            borderRadius: '18px',
+                            border: '4px solid rgba(77, 171, 247, 0.4)',
+                            zIndex: -1
+                        }
+                    }}
+                >
+                    <Typography variant="h4" gutterBottom sx={titleStyles}>
+                        Registro de Contacto
+                    </Typography>
 
-                        {submitted && (
-                            <Alert severity="success" sx={{ mb: 3 }}>
-                                ¡Formulario enviado con éxito!
-                            </Alert>
-                        )}
+                    {submitted && (
+                        <Alert severity="success" sx={{ mb: 3 }}>
+                            ¡Formulario enviado con éxito!
+                        </Alert>
+                    )}
 
-                        <form onSubmit={handleSubmit}>
-                            <Stack spacing={2}>
-                                <TextField
-                                    name="nombre"
-                                    label="Nombre"
-                                    variant="outlined"
-                                    fullWidth
-                                    required
-                                    sx={inputStyles}
+                    <form onSubmit={handleSubmit}>
+                        <Stack spacing={2}>
+                            <TextField
+                                name="nombre"
+                                label="Nombre"
+                                variant="outlined"
+                                fullWidth
+                                required
+                                sx={inputStyles}
+                                onChange={handleChange}
+                            />
+
+                            <TextField
+                                name="apellido"
+                                label="Apellido"
+                                variant="outlined"
+                                fullWidth
+                                required
+                                sx={inputStyles}
+                                onChange={handleChange}
+                            />
+
+                            <TextField
+                                name="telefono"
+                                label="Teléfono"
+                                variant="outlined"
+                                fullWidth
+                                required
+                                sx={inputStyles}
+                                onChange={handleChange}
+                            />
+
+                            <TextField
+                                name="email"
+                                label="Email"
+                                type="email"
+                                variant="outlined"
+                                fullWidth
+                                required
+                                sx={inputStyles}
+                                onChange={handleChange}
+                            />
+
+                            <FormControl fullWidth sx={inputStyles}>
+                                <InputLabel sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>Cargo</InputLabel>
+                                <Select
+                                    name="cargo"
+                                    value={formData.cargo}
+                                    label="Cargo"
                                     onChange={handleChange}
-                                />
-
-                                <TextField
-                                    name="apellido"
-                                    label="Apellido"
-                                    variant="outlined"
-                                    fullWidth
                                     required
-                                    sx={inputStyles}
-                                    onChange={handleChange}
-                                />
-
-                                <TextField
-                                    name="telefono"
-                                    label="Teléfono"
-                                    variant="outlined"
-                                    fullWidth
-                                    required
-                                    sx={inputStyles}
-                                    onChange={handleChange}
-                                />
-
-                                <TextField
-                                    name="email"
-                                    label="Email"
-                                    type="email"
-                                    variant="outlined"
-                                    fullWidth
-                                    required
-                                    sx={inputStyles}
-                                    onChange={handleChange}
-                                />
-
-                                <FormControl fullWidth sx={inputStyles}>
-                                    <InputLabel sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>Cargo</InputLabel>
-                                    <Select
-                                        name="cargo"
-                                        value={formData.cargo}
-                                        label="Cargo"
-                                        onChange={handleChange}
-                                        required
-                                    >
-                                        <MenuItem value="Gerente de Marketing">Gerente de Marketing</MenuItem>
-                                        <MenuItem value="CEO">CEO</MenuItem>
-                                        <MenuItem value="Otro">Otro</MenuItem>
-                                    </Select>
-                                </FormControl>
-
-                                <FormControl fullWidth sx={inputStyles}>
-                                    <InputLabel sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>Caso de uso</InputLabel>
-                                    <Select
-                                        name="casoUso"
-                                        value={formData.casoUso}
-                                        label="Caso de uso"
-                                        onChange={handleChange}
-                                        required
-                                    >
-                                        <MenuItem value="agencias">Agencias</MenuItem>
-                                        <MenuItem value="enterprise">Enterprise</MenuItem>
-                                    </Select>
-                                </FormControl>
-
-                                <Box sx={{ display: 'flex', gap: 3, mt: 1 }}>
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                name="newsletter"
-                                                checked={formData.newsletter}
-                                                onChange={handleChange}
-                                                sx={checkboxStyles}
-                                            />
+                                    sx={{
+                                        ...inputStyles,
+                                        '& .MuiSelect-icon': {
+                                            color: '#4dabf7'
                                         }
-                                        label="Newsletter"
-                                        sx={{ color: 'white' }}
-                                    />
-
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                name="betatester"
-                                                checked={formData.betatester}
-                                                onChange={handleChange}
-                                                sx={checkboxStyles}
-                                            />
+                                    }}
+                                    MenuProps={{
+                                        PaperProps: {
+                                            sx: {
+                                                '&::-webkit-scrollbar': {
+                                                    width: '8px',
+                                                    background: 'rgba(16, 20, 55, 0.5)'
+                                                },
+                                                '&::-webkit-scrollbar-thumb': {
+                                                    background: '#4dabf7',
+                                                    borderRadius: '4px'
+                                                }
+                                            }
                                         }
-                                        label="Beta Tester"
-                                        sx={{ color: 'white' }}
-                                    />
-                                </Box>
-
-                                <Button
-                                    type="submit"
-                                    variant="contained"
-                                    size="large"
-                                    fullWidth
-                                    sx={buttonStyles}
+                                    }}
                                 >
-                                    Enviar Solicitud
-                                </Button>
-                            </Stack>
-                        </form>
-                    </Paper>
-                </Box>
+                                    <MenuItem value="Gerente de Marketing">Gerente de Marketing</MenuItem>
+                                    <MenuItem value="CEO">CEO</MenuItem>
+                                    <MenuItem value="Otro">Otro</MenuItem>
+                                </Select>
+                            </FormControl>
+
+                            <FormControl fullWidth sx={inputStyles}>
+                                <InputLabel sx={{
+                                    color: 'rgba(255, 255, 255, 0.7)',
+                                    '&.Mui-focused': {
+                                        color: '#4dabf7 !important',
+                                        textShadow: '0 0 15px rgba(77, 171, 247, 0.7)'
+                                    }
+                                }}>Caso de uso</InputLabel>
+                                <Select
+                                    name="casoUso"
+                                    value={formData.casoUso}
+                                    label="Caso de uso"
+                                    onChange={handleChange}
+                                    required
+                                >
+                                    <MenuItem value="agencias">Agencias</MenuItem>
+                                    <MenuItem value="enterprise">Enterprise</MenuItem>
+                                </Select>
+                            </FormControl>
+
+                            <Box sx={{ display: 'flex', gap: 3, mt: 1 }}>
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            name="newsletter"
+                                            checked={formData.newsletter}
+                                            onChange={handleChange}
+                                            sx={checkboxStyles}
+                                        />
+                                    }
+                                    label="Newsletter"
+                                    sx={{ color: 'white' }}
+                                />
+
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            name="betatester"
+                                            checked={formData.betatester}
+                                            onChange={handleChange}
+                                            sx={checkboxStyles}
+                                        />
+                                    }
+                                    label="Beta Tester"
+                                    sx={{ color: 'white' }}
+                                />
+                            </Box>
+
+                            <Button
+                                type="submit"
+                                variant="contained"
+                                size="large"
+                                fullWidth
+                                sx={buttonStyles}
+                            >
+                                Enviar Solicitud
+                            </Button>
+                        </Stack>
+                    </form>
+                </Paper>
             </Box>
 
             {/* Efectos de fondo */}
             <div className="background-effect"></div>
-        </Box>
+        </Box >
     );
 };
 
