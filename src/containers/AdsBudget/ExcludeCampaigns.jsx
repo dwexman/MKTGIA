@@ -11,7 +11,6 @@ import {
 
 const API_BASE = 'https://www.mrkt21.com'
 
-// Colores y estilos de la paleta proporcionada
 const BACKGROUND_COLOR = 'rgba(16, 20, 55, 0.85)'
 const PRIMARY_COLOR = '#4dabf7'
 const SECONDARY_COLOR = '#1a237e'
