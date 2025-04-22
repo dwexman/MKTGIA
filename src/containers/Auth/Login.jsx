@@ -13,7 +13,7 @@ import {
 } from '@mui/material';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import './Login.css'; 
+import './login.css'; 
 import logo from '../../assets/logoWhite.png'; 
 
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';

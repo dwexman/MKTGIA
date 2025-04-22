@@ -10,7 +10,7 @@ import {
   TableFooter,
   TablePagination
 } from '@mui/material';
-import './RegistroComentarios.css';
+import './registroComentarios.css';
 
 const RegistroComentarios = () => {
 

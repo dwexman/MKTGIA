@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import NumeroComentarios from './components/NumeroComentarios';
 import TendenciasInteraccion from './components/TendenciasInteraccion';
 import ComentariosMes from './components/ComentariosMes';
-import './Reportes.css';
+import './reportes.css';
 
 const Reportes = () => {
   const [data, setData] = useState([]); 
