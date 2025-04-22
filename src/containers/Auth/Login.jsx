@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -7,8 +7,12 @@ import {
   Button,
   Paper,
   Stack,
-  Alert
+  Alert,
+  InputAdornment,
+  IconButton
 } from '@mui/material';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import './Login.css'; 
 import logo from '../../assets/logoWhite.png'; 
 
@@ -17,53 +21,70 @@ const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 const Login = ({ onLogin }) => {
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState('');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+
+  // Al montar el componente, cargamos el username desde localStorage
+  useEffect(() => {
+    const storedUsername = localStorage.getItem('username');
+    console.log('Username recuperado del localStorage:', storedUsername);
+    if (storedUsername) {
+      setUsername(storedUsername);
+    }
+  }, []);
+
+  // Handler para actualizar el username y guardarlo en localStorage
+  const handleUsernameChange = (e) => {
+    setUsername(e.target.value);
+    localStorage.setItem('username', e.target.value);
+    console.log('Nuevo username guardado:', e.target.value);
+  };
+
+  // Handler para actualizar el password (sin guardar en localStorage)
+  const handlePasswordChange = (e) => {
+    setPassword(e.target.value);
+  };
+
+
+  //Handler para controlar la visibilidad de la contraseña
+  const handleTogglePassword = () => {
+    setShowPassword(prev => !prev);
+  };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  setErrorMessage('');
-  const formData = new FormData(e.target);
-  const username = formData.get('username');
-  const password = formData.get('password');
+    e.preventDefault();
+    setErrorMessage('');
 
-  try {
-    // Usamos redirect:"manual" para que fetch no siga automáticamente el redirect.
-    const response = await fetch(`${BASE_URL}/login`, {
-      method: 'POST',
-      body: new URLSearchParams({ username, password }),
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      credentials: 'include',
-      redirect: 'manual'
-    });
+    try {
+      // Se utiliza el endpoint /login/API/ y se envían las credenciales
+      const response = await fetch(`${BASE_URL}/login/API/`, {
+        method: 'POST',
+        body: JSON.stringify({ username, password }),
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include'
+      });
 
-    console.log('Response status:', response.status);
-    console.log('Response headers:', [...response.headers]);
-    
-    // Si el servidor devuelve un redirect, buscamos el header "Location".
-    if (response.status >= 300 && response.status < 400) {
-      const redirectUrl = response.headers.get('Location');
-      console.log('Redirect URL:', redirectUrl);
-      // Si redirectUrl no es nulo y no incluye "/login", asumimos que la autenticación fue exitosa.
-      if (redirectUrl && !redirectUrl.includes('/login')) {
-        if (onLogin) onLogin();
-        navigate('/inicio', { replace: true });
-        return;
-      }
-    }
+      // Intentamos parsear la respuesta como JSON
+      const data = await response.json();
+      console.log('Respuesta del servidor:', data);
 
-    // En caso de que no se produzca un redirect, leemos el contenido para detectar patrones.
-    const text = await response.text();
-      if (text.includes('name="username"')) {
-        setErrorMessage('Usuario o clave incorrectos.');
+      if (data.status === 'success') {
+        onLogin && onLogin();
+        // Se espera que el JSON incluya la propiedad redirect_url
+        navigate(data.redirect_url, { replace: true });
+      } else if (data.status === 'error') {
+        setErrorMessage(data.message);
       } else {
-        onLogin?.();
-        navigate('/inicio', { replace: true });
+        setErrorMessage('Ocurrió un error inesperado.');
       }
-
+      
     } catch (err) {
-      console.error(err);
+      console.error('Error de conexión con el servidor:', err);
       setErrorMessage('Error de conexión con el servidor.');
     }
   };
+
 
 
   return (
@@ -125,17 +146,34 @@ const Login = ({ onLogin }) => {
               label="Usuario"
               variant="outlined"
               required
+              value={username}
               className="login-input"
+              onChange={handleUsernameChange}
             />
 
             <TextField
               fullWidth
               name="password"
               label="Clave"
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               variant="outlined"
               required
               className="login-input"
+              onChange={handlePasswordChange}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={handleTogglePassword}
+                      edge="end"
+                      aria-label="toggle password visibility"
+                      sx={{color: "white"}}
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                )
+              }}
             />
 
             <Button
