@@ -25,7 +25,7 @@ const Login = ({ onLogin }) => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
-  // Al montar el componente, cargamos el username desde localStorage
+  // Al montar el componente, cargamos el username desde localStorage.
   useEffect(() => {
     const storedUsername = localStorage.getItem('username');
     console.log('Username recuperado del localStorage:', storedUsername);
