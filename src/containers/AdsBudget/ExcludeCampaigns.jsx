@@ -12,10 +12,10 @@ import {
 const API_BASE = 'https://www.mrkt21.com'
 
 const BACKGROUND_COLOR = 'rgba(16, 20, 55, 0.85)'
-const PRIMARY_COLOR = '#4dabf7'
-const SECONDARY_COLOR = '#1a237e'
-const TEXT_COLOR = 'rgba(255, 255, 255, 1)'
-const BORDER_COLOR = 'rgba(77, 171, 247, 0.3)'
+const PRIMARY_COLOR    = '#4dabf7'
+const SECONDARY_COLOR  = '#1a237e'
+const TEXT_COLOR       = 'rgba(255, 255, 255, 1)'
+const BORDER_COLOR     = 'rgba(77, 171, 247, 0.3)'
 
 // Datos dummy
 const dummyCampaigns = [
@@ -25,9 +25,11 @@ const dummyCampaigns = [
 ]
 
 export default function ExcludeCampaigns({ onBack, onOptimize }) {
-  // Inicializamos con dummyCampaigns
+  // <<< aquí define isDev
+  const isDev = process.env.NODE_ENV === 'development'
+
   const [campaigns, setCampaigns] = useState(dummyCampaigns)
-  const [selected, setSelected] = useState(
+  const [selected, setSelected]   = useState(
     dummyCampaigns.reduce((acc, c) => {
       acc[c.id] = false
       return acc
@@ -35,12 +37,11 @@ export default function ExcludeCampaigns({ onBack, onOptimize }) {
   )
 
   useEffect(() => {
-    // Intentamos cargar de la API, pero si falla, se mantienen los dummy
+    if (isDev) return  // salta el fetch en dev
     fetch(`${API_BASE}/presupuestos/list-campaigns-to-exclude/API/`, {
-      method: 'GET',
       credentials: 'include'
     })
-      .then(res => res.json())
+      .then(r => r.json())
       .then(js => {
         if (js.status === 'success') {
           setCampaigns(js.campaigns)
@@ -48,12 +49,10 @@ export default function ExcludeCampaigns({ onBack, onOptimize }) {
             acc[c.id] = false
             return acc
           }, {}))
-        } else {
-          console.error('API error:', js)
         }
       })
       .catch(err => console.error('Fetch error:', err))
-  }, [])
+  }, [isDev])
 
   const handleToggle = id => {
     setSelected(sel => ({ ...sel, [id]: !sel[id] }))
@@ -63,18 +62,17 @@ export default function ExcludeCampaigns({ onBack, onOptimize }) {
     const excludedIds = Object.entries(selected)
       .filter(([_, v]) => v)
       .map(([id]) => id)
-    onOptimize(excludedIds)
+    onOptimize(excludedIds, campaigns)
   }
 
   return (
-    <Box sx={{ 
+    <Box sx={{
       p: 3,
       background: BACKGROUND_COLOR,
       backdropFilter: 'blur(12px)',
       borderRadius: '10px'
     }}>
-      {/* Primer Paper - Optimizaciones */}
-      <Paper sx={{ 
+      <Paper sx={{
         mb: 3,
         p: 3,
         background: 'rgba(16, 20, 55, 0.7)',
@@ -94,8 +92,7 @@ export default function ExcludeCampaigns({ onBack, onOptimize }) {
         </Typography>
       </Paper>
 
-      {/* Segundo Paper - Selección de campañas */}
-      <Paper sx={{ 
+      <Paper sx={{
         p: 3,
         background: 'rgba(16, 20, 55, 0.7)',
         border: `2px solid ${BORDER_COLOR}`,
@@ -124,18 +121,13 @@ export default function ExcludeCampaigns({ onBack, onOptimize }) {
                   }}
                 />
               }
-              label={
-                <Typography sx={{ color: TEXT_COLOR }}>
-                  {c.name} (ID: {c.id})
-                </Typography>
-              }
+              label={<Typography sx={{ color: TEXT_COLOR }}>{c.name} (ID: {c.id})</Typography>}
               sx={{ '&:hover': { background: 'rgba(77, 171, 247, 0.1)' }, p: 1 }}
             />
           ))}
         </FormGroup>
 
-        {/* Botones */}
-        <Box sx={{ 
+        <Box sx={{
           mt: 4,
           display: 'flex',
           gap: 2,
