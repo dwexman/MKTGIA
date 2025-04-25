@@ -13,9 +13,12 @@ const TEXT_COLOR = 'rgba(255, 255, 255, 1)';
 const BORDER_COLOR = 'rgba(77, 171, 247, 0.3)';
 
 const SelectAccount = ({ accounts = [], campaignTypes = [], onBack, onContinue }) => {
+  const today = new Date().toISOString().split('T')[0];
+  const twoWeeksAgo = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000)
+    .toISOString().split('T')[0];
   const [accountId, setAccountId] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  const [startDate, setStartDate] = useState(twoWeeksAgo);
+  const [endDate, setEndDate] = useState(today);
   const [campaignType, setCampaignType] = useState('Todos los tipos');
   const [variable, setVariable] = useState('Costo por Lead');
   const [removeWorst, setRemoveWorst] = useState(false);
@@ -31,7 +34,7 @@ const SelectAccount = ({ accounts = [], campaignTypes = [], onBack, onContinue }
       borderRadius: '10px',
       boxShadow: '8px 8px 10px rgba(77, 171, 247, 0.6)',
     }}>
-      <Typography 
+      <Typography
         variant="h4"
         sx={{
           fontWeight: 700,
@@ -46,7 +49,7 @@ const SelectAccount = ({ accounts = [], campaignTypes = [], onBack, onContinue }
       </Typography>
 
       {/* Tabla de cuentas */}
-      <Table sx={{ 
+      <Table sx={{
         '& .MuiTableCell-root': { color: TEXT_COLOR },
         '& .MuiTableHead-root': { borderBottom: `2px solid ${PRIMARY_COLOR}` }
       }}>
@@ -59,9 +62,9 @@ const SelectAccount = ({ accounts = [], campaignTypes = [], onBack, onContinue }
         </TableHead>
         <TableBody>
           {accounts.map((acc) => (
-            <TableRow 
-              key={acc.id} 
-              hover 
+            <TableRow
+              key={acc.id}
+              hover
               sx={{ '&:hover': { background: 'rgba(77, 171, 247, 0.9)' } }}
             >
               <TableCell>
@@ -88,20 +91,21 @@ const SelectAccount = ({ accounts = [], campaignTypes = [], onBack, onContinue }
         fullWidth
         value={startDate}
         onChange={(e) => setStartDate(e.target.value)}
-        InputLabelProps={{ 
+        InputLabelProps={{
           shrink: true,
-          style: { color: TEXT_COLOR }
+          style: { color: TEXT_COLOR },
         }}
         inputProps={{
           style: { color: TEXT_COLOR },
-          sx: { '&::-webkit-calendar-picker-indicator': { filter: 'invert(1)' } }
+          sx: { '&::-webkit-calendar-picker-indicator': { filter: 'invert(1)' } },
+          onClick: e => e.currentTarget.showPicker()
         }}
-        sx={{ 
+        sx={{
           mt: 2,
           '& .MuiOutlinedInput-root': {
             '& fieldset': { borderColor: BORDER_COLOR },
             '&:hover fieldset': { borderColor: PRIMARY_COLOR },
-            '&.Mui-focused fieldset': { 
+            '&.Mui-focused fieldset': {
               borderColor: PRIMARY_COLOR,
               boxShadow: '0 0 10px rgba(77, 171, 247, 0.3)'
             }
@@ -115,20 +119,21 @@ const SelectAccount = ({ accounts = [], campaignTypes = [], onBack, onContinue }
         fullWidth
         value={endDate}
         onChange={(e) => setEndDate(e.target.value)}
-        InputLabelProps={{ 
+        InputLabelProps={{
           shrink: true,
           style: { color: TEXT_COLOR }
         }}
         inputProps={{
           style: { color: TEXT_COLOR },
-          sx: { '&::-webkit-calendar-picker-indicator': { filter: 'invert(1)' } }
+          sx: { '&::-webkit-calendar-picker-indicator': { filter: 'invert(1)' } },
+          onClick: e => e.currentTarget.showPicker()
         }}
-        sx={{ 
+        sx={{
           mt: 2,
           '& .MuiOutlinedInput-root': {
             '& fieldset': { borderColor: BORDER_COLOR },
             '&:hover fieldset': { borderColor: PRIMARY_COLOR },
-            '&.Mui-focused fieldset': { 
+            '&.Mui-focused fieldset': {
               borderColor: PRIMARY_COLOR,
               boxShadow: '0 0 10px rgba(77, 171, 247, 0.3)'
             }
@@ -147,7 +152,7 @@ const SelectAccount = ({ accounts = [], campaignTypes = [], onBack, onContinue }
             color: TEXT_COLOR,
             '& .MuiOutlinedInput-notchedOutline': { borderColor: BORDER_COLOR },
             '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: PRIMARY_COLOR },
-            '&.Mui-focused .MuiOutlinedInput-notchedOutline': { 
+            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
               borderColor: PRIMARY_COLOR,
               boxShadow: '0 0 10px rgba(77, 171, 247, 0.3)'
             }
@@ -228,6 +233,7 @@ const SelectAccount = ({ accounts = [], campaignTypes = [], onBack, onContinue }
             />
           }
           label="Sí"
+          sx={{color: TEXT_COLOR}}
         />
         <FormControlLabel
           control={
@@ -241,6 +247,7 @@ const SelectAccount = ({ accounts = [], campaignTypes = [], onBack, onContinue }
             />
           }
           label="No"
+          sx={{color: TEXT_COLOR}}
         />
       </Stack>
 
@@ -272,13 +279,13 @@ const SelectAccount = ({ accounts = [], campaignTypes = [], onBack, onContinue }
         >
           CONTINUAR
         </Button>
-        <Button 
-          variant="outlined" 
+        <Button
+          variant="outlined"
           onClick={onBack}
           sx={{
             borderColor: PRIMARY_COLOR,
             color: PRIMARY_COLOR,
-            '&:hover': { 
+            '&:hover': {
               borderColor: PRIMARY_COLOR,
               background: 'rgba(77, 171, 247, 0.1)'
             }
