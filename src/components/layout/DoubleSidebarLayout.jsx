@@ -53,7 +53,7 @@ const DoubleSidebarLayout = () => {
         }}
       >
         <Routes>
-        <Route path="/home" element={<Home />} />
+        <Route path="/home" element={<Dashboard />} />
 
           {/* AdsBudget */}
           <Route

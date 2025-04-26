@@ -15,7 +15,7 @@ const Header = () => {
         backgroundColor: 'transparent', 
       }}
     >
-      <Link to="/home">
+      <Link to="/comentarios/dashboard">
       <img src={logo} alt="Logo" style={{ height: '50px' }} />
       </Link>
     </Box>

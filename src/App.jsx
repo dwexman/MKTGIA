@@ -3,7 +3,6 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import Home from './containers/Home/Home';
 import Login from './containers/Auth/Login';
 import DoubleSidebarLayout from './components/layout/DoubleSidebarLayout';
-import Optimizar from './containers/AdsBudget/Optimizar';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);

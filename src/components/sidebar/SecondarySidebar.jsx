@@ -11,7 +11,7 @@ import {
   Typography,
   Box
 } from '@mui/material';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { keyframes } from '@emotion/react';
 
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
@@ -56,21 +56,24 @@ const SecondarySidebar = ({ section, leftSidebarWidth, onExpandChange }) => {
   const [selectedIndex, setSelectedIndex] = useState(null);
   const drawerWidth = pinned || hovered ? 240 : 90;
   const isExpanded = pinned || hovered;
+  const location = useLocation();
+  const items = menus[section] || [];
+  if (items.length === 0) return null;
 
-  // Efecto para seleccionar la opción por defecto según la sección
   useEffect(() => {
-    if (section === 'Comentarios') {
-      setSelectedIndex(null);
+    const path = location.pathname;
+    let idx = items.findIndex(item => path.startsWith(item.to));
+    if (path === '/home' && section === 'Comentarios') {
+      idx = items.findIndex(item => item.to === '/comentarios/dashboard');
     }
-  }, [section]);
+    setSelectedIndex(idx !== -1 ? idx : null);
+  }, [location.pathname, items, section]);
+
 
   useEffect(() => {
     onExpandChange(pinned || hovered);
   }, [pinned, hovered, onExpandChange]);
-
-  // Si no hay menú para esta sección, no renderiza nada
-  const items = menus[section] || [];
-  if (items.length === 0) return null;
+  
 
   const drawerStyles = {
     flexShrink: 0,

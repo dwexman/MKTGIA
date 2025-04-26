@@ -11,7 +11,7 @@ import {
   Divider,
   Typography
 } from '@mui/material';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import MenuIcon from '@mui/icons-material/Menu';
 import PushPinIcon from '@mui/icons-material/PushPin';
 import BarChartIcon from '@mui/icons-material/BarChart';
@@ -26,6 +26,23 @@ const LeftSidebar = ({ onSelectItem, onWidthChange }) => {
   const [selectedIndex, setSelectedIndex] = useState(null);
   const drawerWidth = pinned || hovered ? 250 : 100;
   const isExpanded = pinned || hovered;
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.pathname.startsWith('/presupuestos/facebook-login')) {
+      setSelectedIndex(0);
+      onSelectItem?.('AdsBudget');
+    } else if (location.pathname.startsWith('/comentarios')) {
+      setSelectedIndex(1);
+      onSelectItem?.('Comentarios');
+    } else if (location.pathname.startsWith('/content_calendar')) {
+      setSelectedIndex(2);
+      onSelectItem?.('Contenido');
+    } else {
+      setSelectedIndex(null);
+    }
+  }, [location.pathname]);
+
 
   useEffect(() => {
     if (onWidthChange) onWidthChange(drawerWidth);
