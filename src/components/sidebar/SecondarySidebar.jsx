@@ -58,7 +58,7 @@ const SecondarySidebar = ({ section, leftSidebarWidth, onExpandChange }) => {
   const isExpanded = pinned || hovered;
   const location = useLocation();
   const items = menus[section] || [];
-  if (items.length === 0) return null;
+
 
   useEffect(() => {
     const path = location.pathname;
@@ -73,6 +73,8 @@ const SecondarySidebar = ({ section, leftSidebarWidth, onExpandChange }) => {
   useEffect(() => {
     onExpandChange(pinned || hovered);
   }, [pinned, hovered, onExpandChange]);
+
+  if (items.length === 0) return null;
   
 
   const drawerStyles = {

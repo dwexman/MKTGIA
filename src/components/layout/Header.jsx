@@ -7,7 +7,7 @@ const Header = () => {
   return (
     <Box
       sx={{
-        position: 'fixed',
+        position: 'absolute',
         top: 0,
         right: 0,
         p: 1,
