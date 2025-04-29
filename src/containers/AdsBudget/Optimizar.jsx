@@ -1,302 +1,279 @@
-import React, { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { Box, Paper, Button, Typography, Tooltip } from '@mui/material'
-import FacebookIcon from '@mui/icons-material/Facebook'
-import HomeIcon from '@mui/icons-material/Home'
-import SelectAccount from './SelectAccount'
-import ExcludeCampaigns from './ExcludeCampaigns'
-import RoiInput from './RoiInput'
-import Step5Resultados from './components/Step5Resultados'
-import Step5Eliminados from './components/Step5Eliminados'
-import Step5Redistribuir from './components/Step5Redistribuir'
-import Step5Metrics from './components/Step5Metrics'
-import './optimizar.css'
+import React, { useEffect, useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import {
+  Box, Paper, Button, Typography,
+  Tooltip, CircularProgress
+} from '@mui/material';
+import FacebookIcon from '@mui/icons-material/Facebook';
+import HomeIcon from '@mui/icons-material/Home';
+import SelectAccount from './SelectAccount';
+import ExcludeCampaigns from './ExcludeCampaigns';
+import RoiInput from './RoiInput';
+import Step5Resultados from './components/Step5Resultados';
+import Step5Eliminados from './components/Step5Eliminados';
+import Step5Redistribuir from './components/Step5Redistribuir';
+import Step5Metrics from './components/Step5Metrics';
 
-const API_BASE = 'https://www.mrkt21.com'
+import { getAccounts } from '../../utils/api';
+import './optimizar.css';
+
+const API_BASE = import.meta.env.VITE_API_URL;
+const FB_APP_ID = import.meta.env.VITE_FB_APP_ID;
 
 export default function Optimizar() {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
-  const [step, setStep] = useState(1)
-  const [accounts, setAccounts] = useState([])
-  const [campaignTypes, setCampaignTypes] = useState([])
-  const [configStep2, setConfigStep2] = useState(null)
-  const [filteredCampaigns, setFilteredCampaigns] = useState([])
-  const [excludedIds, setExcludedIds] = useState([])
-  const [selectedResultTab, setSelectedResultTab] = useState('resultados_opt')
+  const [step, setStep] = useState(1);
+  const [accounts, setAccounts] = useState([]);
+  const [campaignTypes, setCampaignTypes] = useState([]);
+  const [configStep2, setConfigStep2] = useState(null);
+  const [filteredCampaigns, setFiltered] = useState([]);
+  const [excludedIds, setExcludedIds] = useState([]);
+  const [selectedResultTab, setTab] = useState('resultados_opt');
 
-  // validación de sesión
+  const [fbReady, setFbReady] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+
   useEffect(() => {
-    fetch(`${API_BASE}/comentarios/dashboard/API/`, {
-      method: 'GET',
-      credentials: 'include'
-    })
-      .then(res => res.json())
-      .then(js => {
-        if (js.status !== 'success') navigate('/login', { replace: true })
-      })
-      .catch(() => navigate('/login', { replace: true }))
-  }, [navigate])
+    // Si FB ya está cargado
+    if (window.FB) {
+      setFbReady(true);
+      checkLoginStatus();
+      return;
+    }
 
-  // paso 1 → conecta FB y avanza al 2
-  const handleConnectFacebook = async () => {
-    try {
-      const res = await fetch(
-        `${API_BASE}/presupuestos/select-account/API/`,
-        { method: 'GET', credentials: 'include' }
-      )
-      const js = await res.json()
-      if (js.status === 'success') {
-        setAccounts(js.accounts)
-        setCampaignTypes(js.campaign_types)
-        setStep(2)
-      } else {
-        console.error('API error:', js)
+    window.fbAsyncInit = () => {
+      window.FB.init({
+        appId: FB_APP_ID,
+        cookie: true,
+        xfbml: false,
+        version: 'v19.0'
+      });
+      setFbReady(true);
+      checkLoginStatus();
+    };
+
+    (function (d, s, id) {
+      if (d.getElementById(id)) return;
+      const js = d.createElement(s); js.id = id;
+      js.src = 'https://connect.facebook.net/en_US/sdk.js';
+      d.getElementsByTagName(s)[0].parentNode.insertBefore(js, d.getElementsByTagName(s)[0]);
+    })(document, 'script', 'facebook-jssdk');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  /*Si ya está logeado, ir directo a Paso 2*/
+  const checkLoginStatus = () => {
+    if (!window.FB) return;
+    window.FB.getLoginStatus(async response => {
+      if (response.status !== 'connected') return;
+
+      try {
+        setLoading(true);
+        const js = await getAccounts(API_BASE, response.authResponse.accessToken);
+        if (js.status === 'success') {
+          setAccounts(js.accounts || []);
+          setCampaignTypes(js.campaign_types || []);
+          setStep(2);
+        } else {
+          console.error('API error:', js);
+        }
+      } catch (err) {
+        console.error('Fetch error:', err.message);
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      console.error('Fetch error:', err)
-    }
-  }
+    });
+  };
 
-  // paso 2 → guarda config y avanza al 3
-  const handleContinueStep2 = config => {
-    setConfigStep2(config)
-    setStep(3)
-  }
+  /* abrir diálogo FB y llamar al backend*/
+  const handleConnectFacebook = useCallback(() => {
+    if (!window.FB) return;
+    setLoading(true);
+    // 1) ¿Ya está conectado?
+    window.FB.getLoginStatus(async statusRes => {
+      if (statusRes.status === 'connected') {
+        // Ya tenemos token, vamos directo al backend
+        try {
+          const js = await getAccounts(API_BASE, statusRes.authResponse.accessToken);
+          if (js.status === 'success') {
+            setAccounts(js.accounts || []);
+            setCampaignTypes(js.campaign_types || []);
+            setStep(2);
+          } else {
+            console.error('API error:', js);
+          }
+        } catch (err) {
+          console.error('Fetch error:', err.message);
+        } finally {
+          setLoading(false);
+        }
+        return;
+      }
+      // Si no hay sesión ⇒ abrimos diálogo FB.login
+      window.FB.login(async loginRes => {
+        if (loginRes.status !== 'connected') {
+          setLoading(false);
+          return;
+        }
+        try {
+          const js = await getAccounts(API_BASE, loginRes.authResponse.accessToken);
+          if (js.status === 'success') {
+            setAccounts(js.accounts || []);
+            setCampaignTypes(js.campaign_types || []);
+            setStep(2);
+          } else {
+            console.error('API error:', js);
+          }
+        } catch (err) {
+          console.error('Fetch error:', err.message);
+        } finally {
+          setLoading(false);
+        }
+      }, { scope: 'business_management,ads_management' });
+    });
+  }, []);
 
-  // paso 3 → excluye campañas y avanza según ROI
+  const handleContinueStep2 = cfg => { setConfigStep2(cfg); setStep(3); };
+
+  /* Paso 3 */
   const handleOptimizeCampaigns = (excluded, campaigns) => {
-    setExcludedIds(excluded)
-    const remaining = campaigns.filter(c => !excluded.includes(c.id))
-    setFilteredCampaigns(remaining)
+    setExcludedIds(excluded);
+    setFiltered(campaigns.filter(c => !excluded.includes(c.id)));
+    setStep(configStep2?.variable === 'ROI Ingreso Manual (Retorno de Inversión)' ? 4 : 5);
+  };
 
-    if (configStep2.variable === 'ROI Ingreso Manual (Retorno de Inversión)') {
-      setStep(4)
-    } else {
-      setStep(5) // aquí avanzamos al paso 5 cuando no es ROI manual
-    }
-  }
+  /* Paso 4 */
+  const handleSubmitRoi = () => setStep(5);
 
-  // paso 4 → ROI manual y avanza al 5
-  const handleSubmitRoi = roiValues => {
-    console.log('ROI a enviar:', roiValues)
-    // llamada a tu API de guardado de ROI…
-    setStep(5)
-  }
+  /* Helpers */
+  const backTo1 = () => setStep(1);
+  const backTo2 = () => setStep(2);
+  const backTo3 = () => setStep(3);
 
-  // “volver”
-  const backTo1 = () => setStep(1)
-  const backTo2 = () => setStep(2)
-  const backTo3 = () => setStep(3)
-
-  // — Renderizado según step —
+  /* Render Paso 1 */
   if (step === 1) {
     return (
       <Box className="optimizar-container">
-        <Paper
-          className="optimizar-paper"
-          sx={{
-            '&::before': {
-              content: '""',
-              position: 'absolute',
-              inset: 0,
-              borderRadius: '12px',
-              padding: '2px',
-              background: 'linear-gradient(45deg, #00f3ff 0%, transparent 30%, transparent 70%, #0066ff 100%)',
-              WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-              mask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-              WebkitMaskComposite: 'xor',
-              maskComposite: 'exclude',
-              animation: 'rotateBorder 8s linear infinite',
-            }
-          }}
-        >
+        <Paper className="optimizar-paper">
           <Box className="optimizar-header">
             <Typography variant="h3" className="optimizar-title">
-              Conecta tu cuenta de<br />
-              Facebook Business
+              Conecta tu cuenta de<br />Facebook Business
             </Typography>
           </Box>
+
           <Box className="optimizar-status">
             <Typography variant="h5" className="optimizar-status-text">
               Conecta tu cuenta de Facebook Business<br />
-              para comenzar a optimizar tus<br />
-              presupuestos publicitarios.
+              para comenzar a optimizar tus<br />presupuestos publicitarios.
             </Typography>
           </Box>
+
           <Box className="buttons-row">
-            <Tooltip
-              title={
-                <>
-                  <Typography variant="body2" color="inherit">
-                    Conecta tu cuenta de Facebook Business
-                  </Typography>
-                  <Typography variant="body2" color="inherit">
-                    para acceder a herramientas avanzadas de optimización
-                  </Typography>
-                </>
-              }
-              arrow
-            >
-              <Button
-                variant="contained"
-                startIcon={<FacebookIcon />}
-                className="facebook-btn"
-                onClick={handleConnectFacebook}
-                size="large"
-              >
-                Conectar Facebook Business
-              </Button>
-            </Tooltip>
-
-            {process.env.NODE_ENV === 'development' && (
-              <Button
-                variant="outlined"
-                sx={{ ml: 2, height: '40px' }}
-                onClick={() => {
-                  setAccounts([
-                    { id: '111', name: 'Demo Cuenta 1' },
-                    { id: '222', name: 'Demo Cuenta 2' }
-                  ])
-                  setCampaignTypes(['OUTCOME_LEADS', 'OUTCOME_AWARENESS'])
-                  setStep(2)
-                }}
-              >
-                Simular conexión (Demo)
-              </Button>
-            )}
-          </Box>
-        </Paper>
-      </Box>
-    )
-  }
-
-  if (step === 2) {
-    return (
-      <Box className="optimizar-container">
-        <Paper className="paper-step2">
-          <SelectAccount
-            accounts={accounts}
-            campaignTypes={campaignTypes}
-            onBack={backTo1}
-            onContinue={handleContinueStep2}
-          />
-        </Paper>
-      </Box>
-    )
-  }
-
-  if (step === 3) {
-    return (
-      <Box className="optimizar-container">
-        <Paper className="paper-step2">
-          <ExcludeCampaigns
-            onBack={backTo2}
-            onOptimize={handleOptimizeCampaigns}
-          />
-        </Paper>
-      </Box>
-    )
-  }
-
-  if (step === 4) {
-    return (
-      <Box className="optimizar-container">
-        <Paper className="paper-step2">
-          <RoiInput
-            campaigns={filteredCampaigns}
-            onBack={backTo3}
-            onSubmit={handleSubmitRoi}
-          />
-        </Paper>
-      </Box>
-    )
-  }
-
-  if (step === 5) {
-    return (
-      <Box className="optimizar-container">
-        <Paper className="paper-step2">
-          <Box className="resultados-container">
-
-            <Box className="opt-buttons-container">
-              <button
-                className={`opt-button ${selectedResultTab === 'resultados_opt' ? 'selected' : ''}`}
-                onClick={() => setSelectedResultTab('resultados_opt')}
-              >
-                Resultados de la Optimización
-              </button>
-              <button
-                className={`opt-button ${selectedResultTab === 'anuncios_eliminados' ? 'selected' : ''}`}
-                onClick={() => setSelectedResultTab('anuncios_eliminados')}
-              >
-                Anuncios Eliminados
-              </button>
-              <button
-                className={`opt-button ${selectedResultTab === 'redistribucion_presupuestos' ? 'selected' : ''}`}
-                onClick={() => setSelectedResultTab('redistribucion_presupuestos')}
-              >
-                Redistribución de Presupuestos
-              </button>
-              <button
-                className={`opt-button ${selectedResultTab === 'metricas_generales' ? 'selected' : ''}`}
-                onClick={() => setSelectedResultTab('metricas_generales')}
-              >
-                Métricas Generales
-              </button>
-            </Box>
-
-            <Box className="opt-content">
-              {selectedResultTab === 'resultados_opt' &&
-                <Step5Resultados />}
-
-              {selectedResultTab === 'anuncios_eliminados' && (
-                <Step5Eliminados />
-              )}
-              {selectedResultTab === 'redistribucion_presupuestos' && (
-                <Step5Redistribuir />
-              )}
-              {selectedResultTab === 'metricas_generales' &&
-                <Step5Metrics />}
-
-            </Box>
-
-            <Box mt={3} textAlign="right">
-              <Box mt={3} display="flex" justifyContent="flex-end">
+            <Tooltip arrow title="Conecta tu cuenta de Facebook Business para acceder a herramientas avanzadas de optimización">
+              <span>
                 <Button
                   variant="contained"
-                  onClick={() => navigate('/dashboard')}
-                  sx={{
-                    backgroundColor: '#1976d2',
-                    color: 'white',
-                    padding: '8px 24px',
-                    borderRadius: '8px',
-                    fontSize: '1rem',
-                    fontWeight: '500',
-                    textTransform: 'none',
-                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                    transition: 'all 0.3s ease',
-                    '&:hover': {
-                      backgroundColor: '#1565c0',
-                      boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
-                      transform: 'translateY(-1px)'
-                    },
-                    '&:active': {
-                      transform: 'translateY(0)',
-                      boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-                    }
-                  }}
-                  startIcon={<HomeIcon />}
+                  startIcon={<FacebookIcon />}
+                  className="facebook-btn"
+                  size="large"
+                  disabled={!fbReady || loading}
+                  onClick={handleConnectFacebook}
                 >
-                  Volver al Inicio
+                  {loading
+                    ? <CircularProgress size={24} sx={{ color: '#fff' }} />
+                    : 'Conectar Facebook Business'}
                 </Button>
-              </Box>
-            </Box>
+              </span>
+            </Tooltip>
           </Box>
         </Paper>
       </Box>
-    )
+    );
   }
 
-  return null
+  /* Paso 2 */
+  if (step === 2) return (
+    <Box className="optimizar-container">
+      <Paper className="paper-step2">
+        <SelectAccount
+          accounts={accounts}
+          campaignTypes={campaignTypes}
+          onBack={backTo1}
+          onContinue={handleContinueStep2}
+        />
+      </Paper>
+    </Box>
+  );
+
+  /* Paso 3 */
+  if (step === 3) return (
+    <Box className="optimizar-container">
+      <Paper className="paper-step2">
+        <ExcludeCampaigns
+          onBack={backTo2}
+          onOptimize={handleOptimizeCampaigns}
+        />
+      </Paper>
+    </Box>
+  );
+
+  /* Paso 4 */
+  if (step === 4) return (
+    <Box className="optimizar-container">
+      <Paper className="paper-step2">
+        <RoiInput
+          campaigns={filteredCampaigns}
+          onBack={backTo3}
+          onSubmit={handleSubmitRoi}
+        />
+      </Paper>
+    </Box>
+  );
+
+  /* Paso 5 */
+  if (step === 5) return (
+    <Box className="optimizar-container">
+      <Paper className="paper-step2">
+        <Box className="resultados-container">
+          <Box className="opt-buttons-container">
+            {[
+              ['resultados_opt', 'Resultados de la Optimización'],
+              ['anuncios_eliminados', 'Anuncios Eliminados'],
+              ['redistribucion_presupuestos', 'Redistribución de Presupuestos'],
+              ['metricas_generales', 'Métricas Generales']
+            ].map(([key, label]) => (
+              <button
+                key={key}
+                className={`opt-button ${selectedResultTab === key ? 'selected' : ''}`}
+                onClick={() => setTab(key)}
+              >
+                {label}
+              </button>
+            ))}
+          </Box>
+
+          <Box className="opt-content">
+            {selectedResultTab === 'resultados_opt' && <Step5Resultados />}
+            {selectedResultTab === 'anuncios_eliminados' && <Step5Eliminados />}
+            {selectedResultTab === 'redistribucion_presupuestos' && <Step5Redistribuir />}
+            {selectedResultTab === 'metricas_generales' && <Step5Metrics />}
+          </Box>
+
+          <Box mt={3} textAlign="right">
+            <Button
+              variant="contained"
+              startIcon={<HomeIcon />}
+              onClick={() => navigate('comentarios/dashboard')}
+            >
+              Volver al Inicio
+            </Button>
+          </Box>
+        </Box>
+      </Paper>
+    </Box>
+  );
+
+  return null;
 }
