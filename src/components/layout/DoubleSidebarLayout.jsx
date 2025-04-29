@@ -12,6 +12,7 @@ import Reportes from '../../containers/Comentarios/reportes/Reportes';
 import Header from './Header';
 import Home from '../../containers/Home/Home';
 import Optimizar from '../../containers/AdsBudget/Optimizar';
+import CreacionContenido from '../../containers/Contenido/CreacionContenido';
 
 
 
@@ -84,6 +85,13 @@ const DoubleSidebarLayout = () => {
             path="/comentarios/reportes"
             element={<Reportes />}
           />
+
+          {/* Contenido */}
+           <Route
+            path="/contenido/creacion"
+            element={<CreacionContenido />}
+          />
+
 
           {/* Fallback */}
           <Route

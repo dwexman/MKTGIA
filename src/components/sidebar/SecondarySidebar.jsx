@@ -37,7 +37,7 @@ const menus = {
     { icon: FacebookIcon, text: 'Optimizar', to: '/presupuestos/facebook-login' }
   ],
   Contenido: [
-    { icon: DescriptionIcon, text: 'Inicio Contenido', to: '/content_calendar/index' },
+    { icon: DescriptionIcon, text: 'Inicio Contenido', to: '/contenido/creacion' },
     { icon: EventIcon, text: 'Calendario', to: '/content_calendar/calendario' },
     { icon: LightbulbIcon, text: 'Estrategia', to: '/content_calendar/estrategia' },
     { icon: ScheduleIcon, text: 'Planificar', to: '/content_calendar/planificar_calendario' },

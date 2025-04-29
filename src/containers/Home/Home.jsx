@@ -17,24 +17,24 @@ import {
     Fade
 } from '@mui/material';
 import LoginIcon from '@mui/icons-material/Login';
+import CircularProgress from '@mui/material/CircularProgress';
 import './Home.css';
 import logo from '../../assets/logoWhite.png';
 
-const Home = () => {
+const API_BASE = import.meta.env.VITE_API_URL;
+
+export default function Home() {
     const [formData, setFormData] = useState({
-        nombre: '',
-        apellido: '',
-        telefono: '',
-        email: '',
-        cargo: '',
+        nombre: '', apellido: '', telefono: '', email: '',
+        cargo: '', otherCargo: '',
         casoUso: '',
-        newsletter: false,
-        betatester: false
+        newsletter: false, betatester: false
     });
     const [submitted, setSubmitted] = useState(false);
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
-    const handleChange = (e) => {
+    const handleChange = e => {
         const { name, value, type, checked } = e.target;
         setFormData(prev => ({
             ...prev,
@@ -42,10 +42,51 @@ const Home = () => {
         }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async e => {
         e.preventDefault();
-        setSubmitted(true);
-        // Lógica de envío aquí
+        if (loading) return;
+        setLoading(true);
+
+        const payload = {
+            nombre: formData.nombre,
+            apellido: formData.apellido,
+            telefono: formData.telefono,
+            email: formData.email,
+            cargo: formData.cargo === 'Otro'
+                ? formData.otherCargo
+                : formData.cargo,
+            casoUso: formData.casoUso,
+            intereses: [
+                ...(formData.newsletter ? ['newsletter'] : []),
+                ...(formData.betatester ? ['betatester'] : [])
+            ]
+        };
+
+        try {
+            const res = await fetch(`${API_BASE}/submit`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!res.ok) {
+                const txt = await res.text();
+                throw new Error(`HTTP ${res.status}\n${txt}`);
+            }
+
+            setSubmitted(true);
+            setFormData({
+                nombre: '', apellido: '', telefono: '', email: '',
+                cargo: '', otherCargo: '',
+                casoUso: '',
+                newsletter: false, betatester: false
+            });
+        } catch (err) {
+            console.error(err);
+            alert('Ocurrió un error al enviar el formulario. Intenta de nuevo.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -60,15 +101,20 @@ const Home = () => {
                 position: 'relative'
             }}
         >
-            <Button className='home-button'
+            <Button
+                className='home-button'
                 variant="contained"
                 size="medium"
                 onClick={() => navigate('/login')}
-                startIcon={<LoginIcon sx={{
-                    fontSize: '28px',
-                    color: '#3BED4F',
-                    filter: 'drop-shadow(0 0 4px rgba(59, 237, 79, 0.5))'
-                }} />}
+                startIcon={
+                    <LoginIcon
+                        sx={{
+                            fontSize: 28,
+                            color: '#3BED4F',
+                            filter: 'drop-shadow(0 0 4px rgba(59, 237, 79, 0.5))'
+                        }}
+                    />
+                }
                 sx={{
                     position: 'absolute',
                     top: 16,
@@ -79,49 +125,30 @@ const Home = () => {
                     textTransform: 'none',
                     padding: '12px 28px',
                     fontSize: '1.3rem',
-                    minWidth: '200px',
-                    borderRadius: '8px',
+                    minWidth: 200,
+                    borderRadius: 2,
                     boxShadow: `
-      0 0 8px rgba(59, 237, 79, 0.3),
-      0 0 15px rgba(59, 237, 79, 0.2),
-      inset 0 0 10px rgba(59, 237, 79, 0.1)
-    `,
+            0 0 8px rgba(59, 237, 79, 0.3),
+            0 0 15px rgba(59, 237, 79, 0.2),
+            inset 0 0 10px rgba(59, 237, 79, 0.1)
+          `,
                     textShadow: '0 0 8px rgba(59, 237, 79, 0.4)',
                     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                     '&:hover': {
                         background: 'rgba(25, 35, 28, 0.95)',
-                        borderColor: '#3BED4F',
                         boxShadow: `
-        0 0 15px rgba(59, 237, 79, 0.5),
-        0 0 30px rgba(59, 237, 79, 0.3),
-        inset 0 0 15px rgba(59, 237, 79, 0.2)
-      `,
-                        transform: 'scale(1.03)',
-                        '& .MuiSvgIcon-root': {
-                            filter: 'drop-shadow(0 0 6px rgba(59, 237, 79, 0.7))'
-                        }
-                    },
-                    '&::before': {
-                        content: '""',
-                        position: 'absolute',
-                        top: '-2px',
-                        left: '-2px',
-                        right: '-2px',
-                        bottom: '-2px',
-                        background: 'linear-gradient(45deg, transparent, rgba(59, 237, 79, 0.1), transparent)',
-                        borderRadius: '8px',
-                        zIndex: -1,
-                        animation: 'neon-border 3s linear infinite'
-                    },
-                    '& .MuiButton-startIcon': {
-                        marginRight: '10px',
-                        marginLeft: '-4px'
+              0 0 15px rgba(59, 237, 79, 0.5),
+              0 0 30px rgba(59, 237, 79, 0.3),
+              inset 0 0 15px rgba(59, 237, 79, 0.2)
+            `,
+                        transform: 'scale(1.03)'
                     }
                 }}
             >
                 Login
             </Button>
-            {/* Contenedor principal */}
+
+            {/* contenedor principal (logo + formulario) */}
             <Box
                 sx={{
                     display: 'flex',
@@ -130,102 +157,60 @@ const Home = () => {
                     marginLeft: '10%',
                     gap: 8,
                     width: '90%',
-                    maxWidth: '1200px',
+                    maxWidth: 1200,
                     position: 'relative',
                     paddingTop: '2vh'
                 }}
             >
-                {/* Contenedor del logo y texto */}
+                {/* logo + texto de marketing */}
                 <Box
                     sx={{
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
                         gap: 2,
-                        marginTop: '-120px',
-                        transform: 'translateY(-40px)',
+                        marginTop: -12,
                         position: 'relative',
                         zIndex: 1,
                         pointerEvents: 'none'
                     }}
                 >
-                    {/* Logo */}
-                    <Fade in={true} timeout={2000}>
+                    <Fade in timeout={2000}>
                         <Box
                             sx={{
                                 minWidth: 700,
                                 width: '100%',
-                                position: 'relative',
-                                transform: 'none',
-                                filter: 'drop-shadow(0 0 30px rgba(77, 171, 247, 0.7))',
-                                '&:hover': {
-                                    transform: 'scale(1.02)',
-                                    transition: 'transform 0.3s ease'
-                                }
+                                filter: 'drop-shadow(0 0 30px rgba(77, 171, 247, 0.7))'
                             }}
                         >
-                            <img
-                                src={logo}
-                                alt="Logo"
-                                style={{
-                                    width: '100%',
-                                    height: 'auto'
-                                }}
-                            />
+                            <img src={logo} alt="Logo MRKT21" style={{ width: '100%' }} />
                         </Box>
                     </Fade>
 
-                    {/* Texto con animación de entrada */}
-                    <Fade in={true} timeout={1000} style={{ transitionDelay: '500ms' }}>
-                        <Box
-                            sx={{
-                                position: 'absolute',
-                                top: '70%',
-                                left: '0%',
-                                marginTop: '40px',
-                                filter: 'drop-shadow(0 0 20px rgba(77, 171, 247, 0.5))',
-                                transition: 'all 0.5s ease-out',
-                                animation: 'slideIn 1s ease-out forwards',
-                                '@keyframes slideIn': {
-                                    '0%': { opacity: 0, transform: 'translateX(0)' },
-                                    '100%': { opacity: 1, transform: 'translateX(0)' }
-                                }
-                            }}
-                        >
+                    <Fade in timeout={1000} style={{ transitionDelay: '500ms' }}>
+                        <Box sx={{ position: 'absolute', top: '70%', left: 0, mt: 5 }}>
                             <Typography
                                 variant="h3"
                                 sx={{
                                     color: 'rgba(255, 255, 255, 0.95)',
                                     textAlign: 'center',
-                                    textShadow: '0 0 15px rgba(77, 171, 247, 0.7))',
-                                    fontFamily: 'Arial, sans-serif',
+                                    textShadow: '0 0 15px rgba(77, 171, 247, 0.7)',
                                     fontWeight: 700,
-                                    maxWidth: '800px',
-                                    lineHeight: 1.2,
-                                    letterSpacing: '4px',
-                                    transform: 'skewY(0)',
-                                    fontSize: '3rem',
-                                    whiteSpace: 'pre-line',
-                                    display: '-webkit-box',
-                                    WebkitBoxOrient: 'vertical',
-                                    WebkitLineClamp: 3,
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis',
-
+                                    letterSpacing: 4,
+                                    maxWidth: 800
                                 }}
                             >
-                                Únete a la {' '}
+                                Únete a la{' '}
                                 <Box
                                     component="span"
                                     sx={{
                                         color: '#3BED4F',
                                         textShadow: `
-                                        0 0 2px #000,
-                                        0 0 3px #3BED4F,
-                                        0 0 10px #3BED4F,
-                                        0 0 20px #3BED4F
-                                    `,
-                                        display: 'inline',
+                      0 0 2px #000,
+                      0 0 3px #3BED4F,
+                      0 0 10px #3BED4F,
+                      0 0 20px #3BED4F
+                    `,
                                         animation: 'neonPulse 1.5s ease-in-out infinite',
                                         '@keyframes neonPulse': {
                                             '0%': { opacity: 0.8 },
@@ -235,46 +220,29 @@ const Home = () => {
                                     }}
                                 >
                                     revolución del marketing
-                                </Box>
-                                {' '}24/7 con MRKT21
+                                </Box>{' '}
+                                24/7 con MRKT21
                             </Typography>
                         </Box>
                     </Fade>
                 </Box>
 
-
-                {/* Formulario con efecto 3D */}
+                {/* formulario de contacto */}
                 <Paper
-                    className="flippable"
                     elevation={24}
                     sx={{
                         flex: 1,
                         minWidth: 400,
                         maxWidth: 500,
                         p: 3,
-                        zIndex: 2,
                         background: 'rgba(16, 20, 55, 0.97)',
                         backdropFilter: 'blur(16px)',
                         border: '2px solid rgba(77, 171, 247, 0.5)',
-                        borderRadius: '20px',
-                        transform: 'none',
+                        borderRadius: 3,
                         boxShadow: `
               0 0 40px rgba(77, 171, 247, 0.4),
-              0 0 80px rgba(77, 171, 247, 0.2),
-              0 0 120px rgba(77, 171, 247, 0.1)
-            `,
-                        position: 'relative',
-                        '&:before': {
-                            content: '""',
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
-                            borderRadius: '18px',
-                            border: '4px solid rgba(77, 171, 247, 0.4)',
-                            zIndex: -1
-                        }
+              0 0 80px rgba(77, 171, 247, 0.2)
+            `
                     }}
                 >
                     <Typography variant="h4" gutterBottom sx={titleStyles}>
@@ -292,93 +260,98 @@ const Home = () => {
                             <TextField
                                 name="nombre"
                                 label="Nombre"
-                                variant="outlined"
-                                fullWidth
                                 required
+                                fullWidth
                                 sx={inputStyles}
                                 onChange={handleChange}
+                                value={formData.nombre}
                             />
 
                             <TextField
                                 name="apellido"
                                 label="Apellido"
-                                variant="outlined"
-                                fullWidth
                                 required
+                                fullWidth
                                 sx={inputStyles}
                                 onChange={handleChange}
+                                value={formData.apellido}
                             />
 
                             <TextField
                                 name="telefono"
                                 label="Teléfono"
-                                variant="outlined"
-                                fullWidth
                                 required
+                                fullWidth
                                 sx={inputStyles}
                                 onChange={handleChange}
+                                value={formData.telefono}
                             />
 
                             <TextField
                                 name="email"
                                 label="Email"
                                 type="email"
-                                variant="outlined"
-                                fullWidth
                                 required
+                                fullWidth
                                 sx={inputStyles}
                                 onChange={handleChange}
+                                value={formData.email}
                             />
 
                             <FormControl fullWidth sx={inputStyles}>
-                                <InputLabel sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>Cargo</InputLabel>
+                                <InputLabel sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                                    Cargo
+                                </InputLabel>
                                 <Select
                                     name="cargo"
-                                    value={formData.cargo}
                                     label="Cargo"
-                                    onChange={handleChange}
                                     required
+                                    value={formData.cargo}
+                                    onChange={handleChange}
                                     sx={{
                                         ...inputStyles,
-                                        '& .MuiSelect-icon': {
-                                            color: '#4dabf7'
-                                        }
-                                    }}
-                                    MenuProps={{
-                                        PaperProps: {
-                                            sx: {
-                                                '&::-webkit-scrollbar': {
-                                                    width: '8px',
-                                                    background: 'rgba(16, 20, 55, 0.5)'
-                                                },
-                                                '&::-webkit-scrollbar-thumb': {
-                                                    background: '#4dabf7',
-                                                    borderRadius: '4px'
-                                                }
-                                            }
-                                        }
+                                        '& .MuiSelect-icon': { color: '#4dabf7' }
                                     }}
                                 >
-                                    <MenuItem value="Gerente de Marketing">Gerente de Marketing</MenuItem>
+                                    <MenuItem value="Gerente de Marketing">
+                                        Gerente de Marketing
+                                    </MenuItem>
                                     <MenuItem value="CEO">CEO</MenuItem>
                                     <MenuItem value="Otro">Otro</MenuItem>
                                 </Select>
                             </FormControl>
 
+                            {/* Campo "Otro cargo" */}
+                            {formData.cargo === 'Otro' && (
+                                <TextField
+                                    name="otherCargo"
+                                    label="Especifica tu cargo"
+                                    required
+                                    fullWidth
+                                    sx={inputStyles}
+                                    onChange={handleChange}
+                                    value={formData.otherCargo}
+                                />
+                            )}
+
                             <FormControl fullWidth sx={inputStyles}>
-                                <InputLabel sx={{
-                                    color: 'rgba(255, 255, 255, 0.7)',
-                                    '&.Mui-focused': {
-                                        color: '#4dabf7 !important',
-                                        textShadow: '0 0 15px rgba(77, 171, 247, 0.7)'
-                                    }
-                                }}>Caso de uso</InputLabel>
+                                <InputLabel
+                                    sx={{
+                                        color: 'rgba(255, 255, 255, 0.7)',
+                                        '&.Mui-focused': {
+                                            color: '#4dabf7 !important',
+                                            textShadow: '0 0 15px rgba(77, 171, 247, 0.7)'
+                                        }
+                                    }}
+                                >
+                                    Caso de uso
+                                </InputLabel>
                                 <Select
                                     name="casoUso"
-                                    value={formData.casoUso}
                                     label="Caso de uso"
-                                    onChange={handleChange}
                                     required
+                                    value={formData.casoUso}
+                                    onChange={handleChange}
                                 >
                                     <MenuItem value="agencias">Agencias</MenuItem>
                                     <MenuItem value="enterprise">Enterprise</MenuItem>
@@ -398,7 +371,6 @@ const Home = () => {
                                     label="Newsletter"
                                     sx={{ color: 'white' }}
                                 />
-
                                 <FormControlLabel
                                     control={
                                         <Checkbox
@@ -419,21 +391,23 @@ const Home = () => {
                                 size="large"
                                 fullWidth
                                 sx={buttonStyles}
+                                disabled={loading}
                             >
-                                Enviar Solicitud
+                                {loading
+                                    ? <CircularProgress size={26} sx={{ color: '#fff' }} />
+                                    : 'Enviar Solicitud'}
                             </Button>
                         </Stack>
                     </form>
                 </Paper>
             </Box>
 
-            {/* Efectos de fondo */}
+            {/* Efectos de fondo decorativos */}
             <div className="background-effect"></div>
-        </Box >
+        </Box>
     );
-};
+}
 
-// Estilos reutilizables
 const inputStyles = {
     '& .MuiOutlinedInput-root': {
         color: 'white',
@@ -462,7 +436,7 @@ const buttonStyles = {
     py: 1.5,
     fontSize: '1.1rem',
     fontWeight: 'bold',
-    letterSpacing: '1px',
+    letterSpacing: 1,
     border: '2px solid rgba(77, 171, 247, 0.5)',
     boxShadow: '0 4px 20px rgba(77, 171, 247, 0.3)',
     '&:hover': {
@@ -477,7 +451,5 @@ const titleStyles = {
     mb: 3,
     fontWeight: 'bold',
     textShadow: '0 0 15px rgba(77, 171, 247, 0.7)',
-    letterSpacing: '1px'
+    letterSpacing: 1
 };
-
-export default Home;

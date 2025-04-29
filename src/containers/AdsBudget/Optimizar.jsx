@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box, Paper, Button, Typography,
-  Tooltip, CircularProgress
+  Tooltip, CircularProgress, Alert
 } from '@mui/material';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import HomeIcon from '@mui/icons-material/Home';
@@ -13,8 +13,7 @@ import Step5Resultados from './components/Step5Resultados';
 import Step5Eliminados from './components/Step5Eliminados';
 import Step5Redistribuir from './components/Step5Redistribuir';
 import Step5Metrics from './components/Step5Metrics';
-
-import { getAccounts } from '../../utils/api';
+import { getAccounts, getCampaignsToExclude, postAccountSelected } from '../../utils/api';
 import './optimizar.css';
 
 const API_BASE = import.meta.env.VITE_API_URL;
@@ -30,138 +29,218 @@ export default function Optimizar() {
   const [filteredCampaigns, setFiltered] = useState([]);
   const [excludedIds, setExcludedIds] = useState([]);
   const [selectedResultTab, setTab] = useState('resultados_opt');
-
+  const [fbToken, setFbToken] = useState(localStorage.getItem('fbToken') || null);
   const [fbReady, setFbReady] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [authError, setAuthError] = useState(null);
 
+  // Estado combinado para mejor manejo
+  const [loading, setLoading] = useState({
+    global: false,
+    facebook: false,
+    accounts: false,
+    campaigns: false
+  });
 
+  // Carga del SDK de Facebook
   useEffect(() => {
-    // Si FB ya está cargado
+    console.log('Iniciando carga de Facebook SDK...');
+    
     if (window.FB) {
+      console.log('SDK ya estaba cargado');
       setFbReady(true);
       checkLoginStatus();
       return;
     }
 
-    window.fbAsyncInit = () => {
+    window.fbAsyncInit = function() {
+      console.log('Inicializando SDK de Facebook...');
       window.FB.init({
         appId: FB_APP_ID,
         cookie: true,
         xfbml: false,
-        version: 'v19.0'
+        version: 'v19.0',
+        status: true,
+        autoLogAppEvents: true
       });
       setFbReady(true);
+      console.log('SDK inicializado con App ID:', FB_APP_ID);
       checkLoginStatus();
     };
 
-    (function (d, s, id) {
+    // Cargar script asincrónico
+    (function(d, s, id) {
+      const element = d.getElementsByTagName(s)[0];
       if (d.getElementById(id)) return;
-      const js = d.createElement(s); js.id = id;
+      const fjs = element;
+      const js = d.createElement(s);
+      js.id = id;
       js.src = 'https://connect.facebook.net/en_US/sdk.js';
-      d.getElementsByTagName(s)[0].parentNode.insertBefore(js, d.getElementsByTagName(s)[0]);
+      js.async = true;
+      js.defer = true;
+      js.crossOrigin = 'anonymous';
+      fjs.parentNode.insertBefore(js, fjs);
     })(document, 'script', 'facebook-jssdk');
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  /*Si ya está logeado, ir directo a Paso 2*/
-  const checkLoginStatus = () => {
-    if (!window.FB) return;
-    window.FB.getLoginStatus(async response => {
-      if (response.status !== 'connected') return;
+  // Verificar estado de login
+  const checkLoginStatus = useCallback(() => {
+    if (!window.FB) {
+      console.error('Facebook SDK no disponible');
+      return;
+    }
 
-      try {
-        setLoading(true);
-        const js = await getAccounts(API_BASE, response.authResponse.accessToken);
-        if (js.status === 'success') {
-          setAccounts(js.accounts || []);
-          setCampaignTypes(js.campaign_types || []);
-          setStep(2);
-        } else {
-          console.error('API error:', js);
+    console.log('Verificando estado de login...');
+    setLoading(prev => ({...prev, facebook: true}));
+    
+    window.FB.getLoginStatus(async (response) => {
+      console.log('Respuesta de estado:', response.status);
+      
+      if (response.status === 'connected') {
+        const token = response.authResponse.accessToken;
+        console.log('Usuario conectado. Token:', token);
+        setFbToken(token);
+        localStorage.setItem('fbToken', token);
+        
+        try {
+          setLoading(prev => ({...prev, accounts: true}));
+          const accountsData = await getAccounts(API_BASE, token);
+          
+          if (accountsData.status === 'success') {
+            setAccounts(accountsData.accounts || []);
+            setCampaignTypes(accountsData.campaign_types || []);
+            setStep(2);
+          } else {
+            setAuthError(accountsData.message || 'Error al obtener cuentas');
+          }
+        } catch (error) {
+          setAuthError(error.message);
+        } finally {
+          setLoading(prev => ({...prev, accounts: false, facebook: false}));
         }
-      } catch (err) {
-        console.error('Fetch error:', err.message);
-      } finally {
-        setLoading(false);
+      } else {
+        console.log('Usuario no conectado');
+        setLoading(prev => ({...prev, facebook: false}));
       }
-    });
+    }, true); // Fuerza verificación con Facebook
+  }, []);
+
+  // Manejo de conexión con Facebook
+  const handleConnectFacebook = useCallback(async () => {
+    if (!window.FB) {
+      setAuthError('El plugin de Facebook no se cargó correctamente');
+      return;
+    }
+
+    console.log('Iniciando proceso de login...');
+    setLoading(prev => ({...prev, facebook: true}));
+    setAuthError(null);
+
+    try {
+      const response = await new Promise((resolve) => {
+        window.FB.login(resolve, {
+          scope: 'business_management,ads_management',
+          return_scopes: true,
+          auth_type: 'rerequest'
+        });
+      });
+
+      console.log('Respuesta de login:', response);
+      
+      if (response.status !== 'connected') {
+        throw new Error(response.error?.message || 'El usuario no autorizó la aplicación');
+      }
+
+      if (!response.authResponse.grantedScopes.includes('business_management')) {
+        throw new Error('Se requieren permisos de business_management');
+      }
+
+      const token = response.authResponse.accessToken;
+      setFbToken(token);
+      localStorage.setItem('fbToken', token);
+
+      // Obtener cuentas después de conectar
+      setLoading(prev => ({...prev, accounts: true}));
+      const accountsData = await getAccounts(API_BASE, token);
+      
+      if (accountsData.status === 'success') {
+        setAccounts(accountsData.accounts || []);
+        setCampaignTypes(accountsData.campaign_types || []);
+        setStep(2);
+      } else {
+        throw new Error(accountsData.message || 'Error al obtener cuentas publicitarias');
+      }
+    } catch (error) {
+      console.error('Error en conexión Facebook:', error);
+      setAuthError(error.message);
+      localStorage.removeItem('fbToken');
+    } finally {
+      setLoading(prev => ({...prev, facebook: false, accounts: false}));
+    }
+  }, []);
+
+  // Paso 2: Continuar con la configuración
+  const handleContinueStep2 = async (cfg) => {
+    if (!fbToken) {
+      setAuthError('Sesión no válida. Vuelve a conectar con Facebook.');
+      return;
+    }
+
+    setLoading(prev => ({...prev, campaigns: true}));
+    
+    try {
+      const data = await getCampaignsToExclude(API_BASE, {
+        account_id: cfg.accountId,
+        start_date: cfg.startDate,
+        end_date: cfg.endDate,
+        campaign_type: cfg.campaignType === 'Todos los tipos' ? null : cfg.campaignType,
+        optimize_variable: cfg.variable,
+        whether_or_not_to_eliminate_the_least_profitable_10_percent: cfg.removeWorst ? 'yes' : 'no',
+        fb_access_token: fbToken
+      });
+
+      if (data.status === 'success') {
+        setFiltered(data.campaigns || []);
+        setConfigStep2(cfg);
+        setStep(3);
+      } else {
+        setAuthError(data.message || 'Error al obtener campañas');
+      }
+    } catch (error) {
+      setAuthError(error.message);
+    } finally {
+      setLoading(prev => ({...prev, campaigns: false}));
+    }
   };
 
-  /* abrir diálogo FB y llamar al backend*/
-  const handleConnectFacebook = useCallback(() => {
-    if (!window.FB) return;
-    setLoading(true);
-    // 1) ¿Ya está conectado?
-    window.FB.getLoginStatus(async statusRes => {
-      if (statusRes.status === 'connected') {
-        // Ya tenemos token, vamos directo al backend
-        try {
-          const js = await getAccounts(API_BASE, statusRes.authResponse.accessToken);
-          if (js.status === 'success') {
-            setAccounts(js.accounts || []);
-            setCampaignTypes(js.campaign_types || []);
-            setStep(2);
-          } else {
-            console.error('API error:', js);
-          }
-        } catch (err) {
-          console.error('Fetch error:', err.message);
-        } finally {
-          setLoading(false);
-        }
-        return;
-      }
-      // Si no hay sesión ⇒ abrimos diálogo FB.login
-      window.FB.login(async loginRes => {
-        if (loginRes.status !== 'connected') {
-          setLoading(false);
-          return;
-        }
-        try {
-          const js = await getAccounts(API_BASE, loginRes.authResponse.accessToken);
-          if (js.status === 'success') {
-            setAccounts(js.accounts || []);
-            setCampaignTypes(js.campaign_types || []);
-            setStep(2);
-          } else {
-            console.error('API error:', js);
-          }
-        } catch (err) {
-          console.error('Fetch error:', err.message);
-        } finally {
-          setLoading(false);
-        }
-      }, { scope: 'business_management,ads_management' });
-    });
-  }, []);
-
-  const handleContinueStep2 = cfg => { setConfigStep2(cfg); setStep(3); };
-
-  /* Paso 3 */
+  // Resto de funciones (sin cambios)
   const handleOptimizeCampaigns = (excluded, campaigns) => {
     setExcludedIds(excluded);
     setFiltered(campaigns.filter(c => !excluded.includes(c.id)));
     setStep(configStep2?.variable === 'ROI Ingreso Manual (Retorno de Inversión)' ? 4 : 5);
   };
 
-  /* Paso 4 */
   const handleSubmitRoi = () => setStep(5);
-
-  /* Helpers */
   const backTo1 = () => setStep(1);
   const backTo2 = () => setStep(2);
   const backTo3 = () => setStep(3);
 
-  /* Render Paso 1 */
-  if (step === 1) {
-    return (
-      <Box className="optimizar-container">
+  // Renderizado
+  return (
+    <Box className="optimizar-container">
+      {/* Paso 1: Conexión con Facebook */}
+      {step === 1 && (
         <Paper className="optimizar-paper">
           <Box className="optimizar-header">
             <Typography variant="h3" className="optimizar-title">
               Conecta tu cuenta de<br />Facebook Business
             </Typography>
           </Box>
+
+          {authError && (
+            <Alert severity="error" sx={{ mb: 3 }}>
+              {authError}
+            </Alert>
+          )}
 
           <Box className="optimizar-status">
             <Typography variant="h5" className="optimizar-status-text">
@@ -171,109 +250,119 @@ export default function Optimizar() {
           </Box>
 
           <Box className="buttons-row">
-            <Tooltip arrow title="Conecta tu cuenta de Facebook Business para acceder a herramientas avanzadas de optimización">
-              <span>
-                <Button
-                  variant="contained"
-                  startIcon={<FacebookIcon />}
-                  className="facebook-btn"
-                  size="large"
-                  disabled={!fbReady || loading}
-                  onClick={handleConnectFacebook}
-                >
-                  {loading
-                    ? <CircularProgress size={24} sx={{ color: '#fff' }} />
-                    : 'Conectar Facebook Business'}
-                </Button>
-              </span>
+            <Tooltip title="Conecta con Facebook para acceder a tus cuentas publicitarias">
+              <Button
+                variant="contained"
+                startIcon={<FacebookIcon />}
+                className="facebook-btn"
+                size="large"
+                disabled={!fbReady || loading.facebook || loading.accounts}
+                onClick={handleConnectFacebook}
+              >
+                {loading.facebook || loading.accounts ? (
+                  <>
+                    <CircularProgress size={24} sx={{ color: '#fff', mr: 1 }} />
+                    Conectando...
+                  </>
+                ) : (
+                  'Conectar Facebook Business'
+                )}
+              </Button>
             </Tooltip>
           </Box>
         </Paper>
-      </Box>
-    );
-  }
+      )}
 
-  /* Paso 2 */
-  if (step === 2) return (
-    <Box className="optimizar-container">
-      <Paper className="paper-step2">
-        <SelectAccount
-          accounts={accounts}
-          campaignTypes={campaignTypes}
-          onBack={backTo1}
-          onContinue={handleContinueStep2}
-        />
-      </Paper>
-    </Box>
-  );
+      {/* Paso 2: Selección de cuenta */}
+      {step === 2 && (
+        <Paper className="paper-step2">
+          {loading.accounts ? (
+            <Box display="flex" justifyContent="center" py={4}>
+              <CircularProgress size={60} />
+            </Box>
+          ) : (
+            <SelectAccount
+              accounts={accounts}
+              campaignTypes={campaignTypes}
+              onBack={backTo1}
+              onContinue={handleContinueStep2}
+              loading={loading.campaigns}
+            />
+          )}
+        </Paper>
+      )}
 
-  /* Paso 3 */
-  if (step === 3) return (
-    <Box className="optimizar-container">
-      <Paper className="paper-step2">
-        <ExcludeCampaigns
-          onBack={backTo2}
-          onOptimize={handleOptimizeCampaigns}
-        />
-      </Paper>
-    </Box>
-  );
+      {/* Paso 3: Excluir campañas */}
+      {step === 3 && (
+        <Paper className="paper-step2">
+          {loading.campaigns ? (
+            <Box display="flex" justifyContent="center" py={4}>
+              <CircularProgress size={60} />
+              <Typography variant="body1" sx={{ ml: 2 }}>
+                Cargando campañas...
+              </Typography>
+            </Box>
+          ) : (
+            <ExcludeCampaigns
+              onBack={backTo2}
+              onOptimize={handleOptimizeCampaigns}
+              campaigns={filteredCampaigns}
+            />
+          )}
+        </Paper>
+      )}
 
-  /* Paso 4 */
-  if (step === 4) return (
-    <Box className="optimizar-container">
-      <Paper className="paper-step2">
-        <RoiInput
-          campaigns={filteredCampaigns}
-          onBack={backTo3}
-          onSubmit={handleSubmitRoi}
-        />
-      </Paper>
-    </Box>
-  );
+      {/* Paso 4: ROI Manual */}
+      {step === 4 && (
+        <Paper className="paper-step2">
+          <RoiInput
+            campaigns={filteredCampaigns}
+            onBack={backTo3}
+            onSubmit={handleSubmitRoi}
+          />
+        </Paper>
+      )}
 
-  /* Paso 5 */
-  if (step === 5) return (
-    <Box className="optimizar-container">
-      <Paper className="paper-step2">
-        <Box className="resultados-container">
-          <Box className="opt-buttons-container">
-            {[
-              ['resultados_opt', 'Resultados de la Optimización'],
-              ['anuncios_eliminados', 'Anuncios Eliminados'],
-              ['redistribucion_presupuestos', 'Redistribución de Presupuestos'],
-              ['metricas_generales', 'Métricas Generales']
-            ].map(([key, label]) => (
-              <button
-                key={key}
-                className={`opt-button ${selectedResultTab === key ? 'selected' : ''}`}
-                onClick={() => setTab(key)}
+      {/* Paso 5: Resultados */}
+      {step === 5 && (
+        <Paper className="paper-step2">
+          <Box className="resultados-container">
+            <Box className="opt-buttons-container">
+              {[
+                ['resultados_opt', 'Resultados de la Optimización'],
+                ['anuncios_eliminados', 'Anuncios Eliminados'],
+                ['redistribucion_presupuestos', 'Redistribución de Presupuestos'],
+                ['metricas_generales', 'Métricas Generales']
+              ].map(([key, label]) => (
+                <button
+                  key={key}
+                  className={`opt-button ${selectedResultTab === key ? 'selected' : ''}`}
+                  onClick={() => setTab(key)}
+                >
+                  {label}
+                </button>
+              ))}
+            </Box>
+
+            <Box className="opt-content">
+              {selectedResultTab === 'resultados_opt' && <Step5Resultados />}
+              {selectedResultTab === 'anuncios_eliminados' && <Step5Eliminados />}
+              {selectedResultTab === 'redistribucion_presupuestos' && <Step5Redistribuir />}
+              {selectedResultTab === 'metricas_generales' && <Step5Metrics />}
+            </Box>
+
+            <Box mt={3} textAlign="right">
+              <Button
+                variant="contained"
+                startIcon={<HomeIcon />}
+                onClick={() => navigate('comentarios/dashboard')}
               >
-                {label}
-              </button>
-            ))}
+                Volver al Inicio
+              </Button>
+            </Box>
           </Box>
-
-          <Box className="opt-content">
-            {selectedResultTab === 'resultados_opt' && <Step5Resultados />}
-            {selectedResultTab === 'anuncios_eliminados' && <Step5Eliminados />}
-            {selectedResultTab === 'redistribucion_presupuestos' && <Step5Redistribuir />}
-            {selectedResultTab === 'metricas_generales' && <Step5Metrics />}
-          </Box>
-
-          <Box mt={3} textAlign="right">
-            <Button
-              variant="contained"
-              startIcon={<HomeIcon />}
-              onClick={() => navigate('comentarios/dashboard')}
-            >
-              Volver al Inicio
-            </Button>
-          </Box>
-        </Box>
-      </Paper>
+        </Paper>
+      )}
     </Box>
   );
-
-  return null;
 }

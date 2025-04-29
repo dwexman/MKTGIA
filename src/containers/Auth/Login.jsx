@@ -9,12 +9,13 @@ import {
   Stack,
   Alert,
   InputAdornment,
-  IconButton
+  IconButton,
+  CircularProgress
 } from '@mui/material';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import './Login.css'; 
-import logo from '../../assets/logoWhite.png'; 
+import './Login.css';
+import logo from '../../assets/logoWhite.png';
 
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
@@ -24,6 +25,7 @@ const Login = ({ onLogin }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   // Al montar el componente, cargamos el username desde localStorage
   useEffect(() => {
@@ -54,6 +56,8 @@ const Login = ({ onLogin }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (loading) return;
+    setLoading(true);
     setErrorMessage('');
 
     try {
@@ -76,8 +80,9 @@ const Login = ({ onLogin }) => {
         setErrorMessage(data.message);
       }
     } catch (err) {
-      console.error('Error de conexión con el servidor:', err);
       setErrorMessage('Error de conexión con el servidor.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -110,11 +115,11 @@ const Login = ({ onLogin }) => {
       >
         {/* Logo */}
         <Box sx={{ textAlign: 'center' }}>
-          <img 
-            src={logo} 
-            alt="MKTG AI Logo" 
-            style={{ 
-              width: '400px', 
+          <img
+            src={logo}
+            alt="MKTG AI Logo"
+            style={{
+              width: '400px',
               height: '280px',
               marginTop: '-50px',
               filter: 'drop-shadow(0 0 10px rgba(77, 171, 247, 0.5))'
@@ -122,12 +127,12 @@ const Login = ({ onLogin }) => {
           />
         </Box>
 
-        
+
         <Typography variant="body1" className="subtitle">
-        Accede a herramientas inteligentes para optimizar tu marketing digital.
+          Accede a herramientas inteligentes para optimizar tu marketing digital.
         </Typography>
 
-         {/* Alert de error si existe */}     
+        {/* Alert de error si existe */}
         {errorMessage && (
           <Alert severity="error" sx={{ mt: 2 }}>
             {errorMessage}
@@ -163,7 +168,7 @@ const Login = ({ onLogin }) => {
                       onClick={handleTogglePassword}
                       edge="end"
                       aria-label="toggle password visibility"
-                      sx={{color: "white"}}
+                      sx={{ color: "white" }}
                     >
                       {showPassword ? <VisibilityOff /> : <Visibility />}
                     </IconButton>
@@ -177,8 +182,12 @@ const Login = ({ onLogin }) => {
               className="gradient-button"
               size="large"
               fullWidth
+              disabled={loading}
             >
-              INICIAR SESIÓN
+              {loading
+                ? <CircularProgress size={24} sx={{ color: '#fff' }} />
+                : 'Iniciar Sesión'
+              }
             </Button>
           </Stack>
         </Box>

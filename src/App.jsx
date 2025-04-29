@@ -34,6 +34,7 @@ function App() {
         <Route path="/comentarios/prompts" element={<div />} />
         <Route path="/comentarios/registro" element={<div />} />
         <Route path="/comentarios/reportes" element={<div />} />
+        <Route path="/contenido/creacion" element={<div />} />
         <Route path="*" element={<Navigate to="/home" replace />} />
       </Route>
     </Routes>
