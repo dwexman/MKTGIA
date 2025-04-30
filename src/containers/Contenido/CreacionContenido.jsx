@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Paper,
@@ -12,17 +13,19 @@ import {
 } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 
-const API_BASE = import.meta.env.VITE_API_URL; 
+
+const API_BASE = import.meta.env.VITE_API_URL;
 
 
 const PRIMARY_COLOR = '#4dabf7';
 const SECONDARY_COLOR = '#1a237e';
-const TEXT_COLOR_LIGHT = '#ffffff'; 
+const TEXT_COLOR_LIGHT = '#ffffff';
 const BORDER_COLOR = 'rgba(77, 171, 247, 0.3)';
-const INPUT_BORDER_COLOR = '#4dabf7'; 
-const BUTTON_BG_COLOR = '#4dabf7'; 
+const INPUT_BORDER_COLOR = '#4dabf7';
+const BUTTON_BG_COLOR = '#4dabf7';
 
 export default function CreacionContenido() {
+  const navigate = useNavigate();
   const [message, setMessage] = useState('');
   const [history, setHistory] = useState([]);
 
@@ -31,7 +34,7 @@ export default function CreacionContenido() {
     const newHistory = [...history, { sender: 'user', text: message }];
     setHistory(newHistory);
     setMessage('');
-  
+
     try {
       const res = await fetch(`${API_BASE}/creacionContenido/chatbot_api`, {
         method: 'POST',
@@ -39,17 +42,17 @@ export default function CreacionContenido() {
         body: JSON.stringify({ message, history: newHistory }),
         credentials: 'include'
       });
-      
+
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      
+
       const data = await res.json();
       const reply = data.response ?? `Error: ${data.error ?? 'sin respuesta'}`;
       setHistory(h => [...h, { sender: 'bot', text: reply }]);
-      
+
     } catch (err) {
       console.error('Error en la solicitud:', err);
-      setHistory(h => [...h, { 
-        sender: 'bot', 
+      setHistory(h => [...h, {
+        sender: 'bot',
         text: `Error de conexión: ${err.message || 'Intenta recargar la página'}`
       }]);
     }
@@ -64,17 +67,17 @@ export default function CreacionContenido() {
         alignItems: 'center',
         gap: 3,
         minHeight: '100vh',
-        background: 'rgba(245, 245, 245, 1)' 
+        background: 'rgba(245, 245, 245, 1)'
       }}
     >
       {/* Módulo principal - Paper claro con fondo oscuro dentro */}
       <Paper
         elevation={0}
         sx={{
-          p: 1, 
+          p: 1,
           width: '100%',
           maxWidth: 600,
-          background: 'rgba(255, 255, 255, 0.8)', 
+          background: 'rgba(255, 255, 255, 0.8)',
           borderRadius: '10px',
           boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)'
         }}
@@ -82,13 +85,13 @@ export default function CreacionContenido() {
         <Box
           sx={{
             p: 3,
-            background: 'rgba(16, 20, 55, 0.9)', 
+            background: 'rgba(16, 20, 55, 0.9)',
             borderRadius: '8px',
             border: `5px solid ${BORDER_COLOR}`
           }}
         >
-          <Typography 
-            variant="h4" 
+          <Typography
+            variant="h4"
             sx={{
               mb: 2,
               fontWeight: 700,
@@ -99,9 +102,9 @@ export default function CreacionContenido() {
           >
             CREACIÓN DE CONTENIDO
           </Typography>
-          <Typography 
-            variant="body1" 
-            sx={{ 
+          <Typography
+            variant="body1"
+            sx={{
               color: TEXT_COLOR_LIGHT,
               textAlign: 'center',
               mb: 3
@@ -110,9 +113,9 @@ export default function CreacionContenido() {
             Bienvenido al módulo de creación de contenido.
           </Typography>
 
-          <Stack 
-            direction="row" 
-            justifyContent="center" 
+          <Stack
+            direction="row"
+            justifyContent="center"
             spacing={2}
             sx={{ flexWrap: 'wrap' }}
           >
@@ -124,6 +127,12 @@ export default function CreacionContenido() {
               <Button
                 key={i}
                 variant="contained"
+                onClick={() => {
+                  if (txt === 'Ver calendario') {
+                    navigate('/contenido/calendario');
+                  }
+                }}
+
                 sx={{
                   width: 140,
                   height: 60,
@@ -147,10 +156,10 @@ export default function CreacionContenido() {
       <Paper
         elevation={0}
         sx={{
-          p: 1, 
+          p: 1,
           width: '100%',
           maxWidth: 600,
-          background: 'rgba(255, 255, 255, 0.8)', 
+          background: 'rgba(255, 255, 255, 0.8)',
           borderRadius: '10px',
           boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)'
         }}
@@ -158,13 +167,13 @@ export default function CreacionContenido() {
         <Box
           sx={{
             p: 3,
-            background: 'rgba(16, 20, 55, 0.9)', 
+            background: 'rgba(16, 20, 55, 0.9)',
             borderRadius: '8px',
             border: `5px solid ${BORDER_COLOR}`
           }}
         >
-          <Typography 
-            variant="h4" 
+          <Typography
+            variant="h4"
             sx={{
               mb: 2,
               fontWeight: 700,
@@ -199,8 +208,8 @@ export default function CreacionContenido() {
                 <Paper
                   sx={{
                     p: 1.5,
-                    bgcolor: msg.sender === 'user' 
-                      ? `rgba(77, 171, 247, 0.2)` 
+                    bgcolor: msg.sender === 'user'
+                      ? `rgba(77, 171, 247, 0.2)`
                       : 'rgba(26, 35, 126, 0.3)',
                     border: `1px solid ${msg.sender === 'user' ? PRIMARY_COLOR : SECONDARY_COLOR}`,
                     borderRadius: '8px',
@@ -208,14 +217,14 @@ export default function CreacionContenido() {
                     boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
                   }}
                 >
-                  <ListItemText 
-                    primary={msg.text} 
-                    sx={{ 
+                  <ListItemText
+                    primary={msg.text}
+                    sx={{
                       color: TEXT_COLOR_LIGHT,
                       '& .MuiTypography-root': {
                         fontSize: '0.95rem'
                       }
-                    }} 
+                    }}
                   />
                 </Paper>
               </ListItem>
@@ -252,8 +261,8 @@ export default function CreacionContenido() {
                 }
               }}
             />
-            <Button 
-              variant="contained" 
+            <Button
+              variant="contained"
               onClick={handleSend}
               endIcon={<SendIcon sx={{ color: TEXT_COLOR_LIGHT }} />}
               sx={{
@@ -262,7 +271,7 @@ export default function CreacionContenido() {
                 fontWeight: 600,
                 minWidth: '120px',
                 '&:hover': {
-                  background: '#3a8fd9', 
+                  background: '#3a8fd9',
                   boxShadow: `0 0 10px ${BUTTON_BG_COLOR}`
                 }
               }}

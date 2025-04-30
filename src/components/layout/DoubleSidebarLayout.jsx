@@ -13,6 +13,7 @@ import Header from './Header';
 import Home from '../../containers/Home/Home';
 import Optimizar from '../../containers/AdsBudget/Optimizar';
 import CreacionContenido from '../../containers/Contenido/CreacionContenido';
+import Calendario from '../../containers/Contenido/Calendario';
 
 
 
@@ -90,6 +91,11 @@ const DoubleSidebarLayout = () => {
            <Route
             path="/contenido/creacion"
             element={<CreacionContenido />}
+          />
+
+          <Route
+            path="/contenido/calendario"
+            element={<Calendario />}
           />
 
 
