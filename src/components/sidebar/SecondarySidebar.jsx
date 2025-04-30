@@ -39,7 +39,7 @@ const menus = {
   Contenido: [
     { icon: DescriptionIcon, text: 'Inicio Contenido', to: '/contenido/creacion' },
     { icon: EventIcon, text: 'Calendario', to: '/contenido/calendario' },
-    { icon: LightbulbIcon, text: 'Estrategia', to: '/content_calendar/estrategia' },
+    { icon: LightbulbIcon, text: 'Estrategia', to: '/contenido/estrategia' },
     { icon: ScheduleIcon, text: 'Planificar', to: '/content_calendar/planificar_calendario' },
   ],
   Comentarios: [

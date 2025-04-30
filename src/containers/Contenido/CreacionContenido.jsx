@@ -67,7 +67,7 @@ export default function CreacionContenido() {
         alignItems: 'center',
         gap: 3,
         minHeight: '100vh',
-        background: 'rgba(245, 245, 245, 1)'
+        background: 'transparent'
       }}
     >
       {/* Módulo principal - Paper claro con fondo oscuro dentro */}

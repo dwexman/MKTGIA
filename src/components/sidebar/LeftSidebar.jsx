@@ -35,7 +35,7 @@ const LeftSidebar = ({ onSelectItem, onWidthChange }) => {
     } else if (location.pathname.startsWith('/comentarios')) {
       setSelectedIndex(1);
       onSelectItem?.('Comentarios');
-    } else if (location.pathname.startsWith('/content_calendar')) {
+    } else if (location.pathname.startsWith('/contenido')) {
       setSelectedIndex(2);
       onSelectItem?.('Contenido');
     } else {
@@ -233,7 +233,6 @@ const LeftSidebar = ({ onSelectItem, onWidthChange }) => {
           selected={selectedIndex === 2}
           onClick={() => handleItemClick(2, 'Contenido')}
           component={Link}
-          to="/content_calendar/index"
           sx={selectedStyles}
         >
           <ListItemIcon sx={{ minWidth: isExpanded ? 56 : 40 }}>

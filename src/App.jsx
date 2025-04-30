@@ -1,45 +1,61 @@
 import React, { useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
+
 import Home from './containers/Home/Home';
 import Login from './containers/Auth/Login';
 import DoubleSidebarLayout from './components/layout/DoubleSidebarLayout';
 
-function App() {
+import Dashboard from './containers/Comentarios/Dashboard';
+import ComentariosPrompts from './containers/Comentarios/ComentariosPrompts';
+import RegistroComentarios from './containers/Comentarios/RegistroComentarios';
+import Reportes from './containers/Comentarios/reportes/Reportes';
+
+import Optimizar from './containers/AdsBudget/Optimizar';
+
+import CreacionContenido from './containers/Contenido/CreacionContenido';
+import Calendario from './containers/Contenido/Calendario';
+import Estrategia from './containers/Contenido/Estrategia';
+
+export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   return (
     <Routes>
-
-      {/* Ruta pública */}
+      {/* 1. Rutas públicas */}
       <Route path="/" element={<Home />} />
+      <Route
+        path="/login"
+        element={<Login onLogin={() => setIsAuthenticated(true)} />}
+      />
 
-      {/* Ruta para el Login */}
-      <Route path="/login" element={<Login onLogin={() => setIsAuthenticated(true)} />} />
-
-      {/* Rutas protegidas con el layout */}
+      {/* 2. Rutas protegidas */}
       <Route
         element={
-          isAuthenticated ? (
-            <DoubleSidebarLayout />
-          ) : (
-            <Navigate to="/login" replace />
-          )
+          isAuthenticated
+            ? <DoubleSidebarLayout />
+            : <Navigate to="/login" replace />
         }
       >
-        {/* Dentro del layout se definen todas las rutas de la aplicación */}
-        <Route path="/home" element={<div />} />
-        <Route path="/presupuestos/facebook-login" element={<div />} />
-        <Route path="/content_calendar/calendario" element={<div />} />
-        <Route path="/comentarios/dashboard" element={<div />} />
-        <Route path="/comentarios/prompts" element={<div />} />
-        <Route path="/comentarios/registro" element={<div />} />
-        <Route path="/comentarios/reportes" element={<div />} />
-        <Route path="/contenido/creacion" element={<div />} />
-        <Route path="/contenido/calendario" element={<div />} />
-        <Route path="*" element={<Navigate to="/home" replace />} />
+        {/* Dashboard post-login */}
+        <Route path="home" element={<Dashboard />} />
+
+        {/* AdsBudget */}
+        <Route path="presupuestos/facebook-login" element={<Optimizar />} />
+
+        {/* Contenido */}
+        <Route path="contenido/creacion" element={<CreacionContenido />} />
+        <Route path="contenido/calendario" element={<Calendario />} />
+        <Route path="contenido/estrategia" element={<Estrategia />} />
+
+        {/* Comentarios */}
+        <Route path="comentarios/dashboard" element={<Dashboard />} />
+        <Route path="comentarios/prompts" element={<ComentariosPrompts />} />
+        <Route path="comentarios/registro" element={<RegistroComentarios />} />
+        <Route path="comentarios/reportes" element={<Reportes />} />
       </Route>
+
+      {/* 3. Cualquier otra ruta redirige a la portada pública */}
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }
-
-export default App;
