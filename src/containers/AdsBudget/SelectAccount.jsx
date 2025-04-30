@@ -65,12 +65,13 @@ const SelectAccount = ({ accounts = [], campaignTypes = [], onBack, onContinue }
             <TableRow
               key={acc.id}
               hover
+              onClick={() => setAccountId(String(acc.id))}
               sx={{ '&:hover': { background: 'rgba(77, 171, 247, 0.9)' } }}
             >
               <TableCell>
                 <Radio
-                  checked={accountId === acc.id}
-                  onChange={() => setAccountId(acc.id)}
+                  checked={accountId === String(acc.id)}
+                  onChange={() => setAccountId(String(acc.id))}
                   sx={{
                     color: PRIMARY_COLOR,
                     '&.Mui-checked': { color: PRIMARY_COLOR }

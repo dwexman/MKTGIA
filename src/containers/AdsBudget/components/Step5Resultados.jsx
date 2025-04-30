@@ -6,14 +6,10 @@ const PRIMARY_COLOR = '#4dabf7'
 const TEXT_COLOR = 'rgba(255, 255, 255, 1)'
 const BORDER_COLOR = 'rgba(77, 171, 247, 0.3)'
 
-export default function Step5Resultados() {
-  const dummyConfig = {
-    dateRange: '01/01/2025 a 31/01/2025',
-    campaignType: 'OUTCOME_LEADS',
-    variable: 'Clics Totales',
-    currency: 'USD',
-    excludeLowPerformance: true
-  }
+export default function Step5Resultados({config, data}) {
+
+  if (!config || !data) return null;
+  
 
   return (
     <Box sx={{
@@ -48,13 +44,13 @@ export default function Step5Resultados() {
             background: 'rgba(255, 255, 255, 0.05)'
           }
         }}>
-          <Typography><strong>Rango de fecha:</strong> {dummyConfig.dateRange}</Typography>
-          <Typography><strong>Tipo de campaña:</strong> {dummyConfig.campaignType}</Typography>
-          <Typography><strong>Variable optimizada:</strong> {dummyConfig.variable}</Typography>
-          <Typography><strong>Moneda:</strong> {dummyConfig.currency}</Typography>
+          <Typography><strong>Rango de fecha:</strong> {config.startDate} – {config.endDate}</Typography>
+          <Typography><strong>Tipo de campaña:</strong> {config.campaignType}</Typography>
+          <Typography><strong>Variable optimizada:</strong> {data.optimize_variable}</Typography>
+          <Typography><strong>Moneda:</strong> {data.currency_code}</Typography>
           <Typography>
             <strong>¿Eliminar el 10% de menor rendimiento?:</strong> {' '}
-            {dummyConfig.excludeLowPerformance ? 'Sí' : 'No'}
+            {config.removeWorst ? 'Sí' : 'No'}
           </Typography>
         </Box>
       </Paper>

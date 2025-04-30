@@ -13,7 +13,7 @@ import Step5Resultados from './components/Step5Resultados';
 import Step5Eliminados from './components/Step5Eliminados';
 import Step5Redistribuir from './components/Step5Redistribuir';
 import Step5Metrics from './components/Step5Metrics';
-import { getAccounts, getCampaignsToExclude, postAccountSelected, postInputRoi } from '../../utils/api';
+import { getAccounts, getCampaignsToExclude, postAccountSelected, postInputRoi, postUpdateBudgets, getOptimizeCampaigns } from '../../utils/api';
 import './optimizar.css';
 
 const API_BASE = import.meta.env.VITE_API_URL;
@@ -41,26 +41,28 @@ export default function Optimizar() {
   const [fbToken, setFbToken] = useState(localStorage.getItem('fbToken') || null);
   const [fbReady, setFbReady] = useState(false);
   const [authError, setAuthError] = useState(null);
+  const [optData, setOptData] = useState(null);
   const [loading, setLoading] = useState({
     global: false,
     facebook: false,
     accounts: false,
     campaigns: false,
-    roi: false
+    roi: false,
+    optimize: false
   });
 
   // Carga del SDK de Facebook
   useEffect(() => {
     console.log('Iniciando carga de Facebook SDK...');
-
+  
     if (window.FB) {
       console.log('SDK ya estaba cargado');
       setFbReady(true);
       checkLoginStatus();
       return;
     }
-
-    window.fbAsyncInit = function () {
+  
+    window.fbAsyncInit = function() {
       console.log('Inicializando SDK de Facebook...');
       window.FB.init({
         appId: FB_APP_ID,
@@ -74,9 +76,9 @@ export default function Optimizar() {
       console.log('SDK inicializado con App ID:', FB_APP_ID);
       checkLoginStatus();
     };
-
+  
     // Cargar script asincrónico
-    (function (d, s, id) {
+    (function(d, s, id) {
       const element = d.getElementsByTagName(s)[0];
       if (d.getElementById(id)) return;
       const fjs = element;
@@ -192,10 +194,15 @@ export default function Optimizar() {
       setAuthError('Sesión no válida. Vuelve a conectar con Facebook.');
       return;
     }
-
+  
+    // Limpia estados antes de hacer la nueva solicitud
+    setFiltered([]);
+    setExcludedIds([]);
+    setOptData(null);
+    
     setLoading(prev => ({ ...prev, campaigns: true }));
     setAuthError(null);
-
+  
     try {
       /* 1️⃣ POST account-selected */
       await postAccountSelected(API_BASE, {
@@ -207,7 +214,7 @@ export default function Optimizar() {
         whether_or_not_to_eliminate_the_least_profitable_10_percent:
           cfg.removeWorst ? 'true' : 'false'
       });
-
+  
       /* 2️⃣ GET campañas a excluir */
       const data = await getCampaignsToExclude(API_BASE, {
         account_id: cfg.accountId,
@@ -219,9 +226,7 @@ export default function Optimizar() {
           cfg.removeWorst ? 'true' : 'false',
         fb_access_token: fbToken
       });
-
-      console.log('➡️ Respuesta campañas', data);   // -- depuración
-
+  
       if (data.status === 'success') {
         setFiltered(data.campaigns || []);
         setConfigStep2(cfg);
@@ -237,30 +242,67 @@ export default function Optimizar() {
     }
   };
 
-  const handleOptimizeCampaigns = (excluded, campaigns) => {
-    setExcludedIds(excluded);
-    setFiltered(campaigns.filter(c => !excluded.includes(c.id)));
-    setStep(configStep2?.variable === 'ROI Ingreso Manual (Retorno de Inversión)' ? 4 : 5);
-  };
-
-  const handleSubmitRoi = async (roiValues) => {
-    setLoading(prev => ({ ...prev, roi: true }));
+  const fetchOptimizeResults = async () => {
+    setLoading(l => ({ ...l, optimize: true }));
     setAuthError(null);
 
     try {
-      /* POST ROI */
-      await postInputRoi(API_BASE, roiValues);
+      const data = await getOptimizeCampaigns(API_BASE, {
+        account_id: configStep2.accountId,
+        fb_access_token: fbToken,
+        excluded_ids: excludedIds.join(',')
+      });
+      setOptData(data);
       setStep(5);
     } catch (err) {
-      console.error(err);
       setAuthError(err.message);
     } finally {
-      setLoading(prev => ({ ...prev, roi: false }));
+      setLoading(l => ({ ...l, optimize: false }));
     }
   };
 
-  const backTo1 = () => setStep(1);
-  const backTo2 = () => setStep(2);
+  const handleOptimizeCampaigns = async (excluded, campaigns) => {
+    setExcludedIds(excluded);
+    setFiltered(campaigns.filter(c => !excluded.includes(c.id)));
+
+    if (configStep2?.variable === 'ROI Ingreso Manual (Retorno de Inversión)') {
+      setStep(4);
+    } else {
+      await fetchOptimizeResults();
+    }
+  };
+
+  const handleSubmitRoi = async roiMap => {
+    setLoading(l => ({ ...l, roi: true }));
+    setAuthError(null);
+
+    try {
+      await postInputRoi(API_BASE, roiMap);
+      await fetchOptimizeResults();
+    } catch (err) {
+      setAuthError(err.message);
+    } finally {
+      setLoading(l => ({ ...l, roi: false }));
+    }
+  };
+
+  const backTo1 = () => {
+    setStep(1);
+    setAccounts([]);
+    setCampaignTypes([]);
+    setFiltered([]);
+    setExcludedIds([]);
+    setOptData(null);
+    setConfigStep2(null);
+    setAuthError(null);
+  };
+
+  const backTo2 = () => {
+    setStep(2);
+    setFiltered([]);         // campañas de la cuenta anterior
+    setExcludedIds([]);      // exclusiones anteriores
+    setOptData(null);        // resultados anteriores
+  };
   const backTo3 = () => setStep(3);
 
   // Renderizado
@@ -321,11 +363,12 @@ export default function Optimizar() {
             </Box>
           ) : (
             <SelectAccount
-              accounts={accounts}
-              campaignTypes={campaignTypes}
-              onBack={backTo1}
-              onContinue={handleContinueStep2}
-              loading={loading.campaigns}
+            key={accounts.length} 
+            accounts={accounts}
+            campaignTypes={campaignTypes}
+            onBack={backTo1}
+            onContinue={handleContinueStep2}
+            loading={loading.campaigns}
             />
           )}
         </Paper>
@@ -346,6 +389,7 @@ export default function Optimizar() {
               onBack={backTo2}
               onOptimize={handleOptimizeCampaigns}
               campaigns={filteredCampaigns}
+              key={configStep2?.accountId}
             />
           )}
         </Paper>
@@ -385,10 +429,17 @@ export default function Optimizar() {
             </Box>
 
             <Box className="opt-content">
-              {selectedResultTab === 'resultados_opt' && <Step5Resultados />}
-              {selectedResultTab === 'anuncios_eliminados' && <Step5Eliminados />}
-              {selectedResultTab === 'redistribucion_presupuestos' && <Step5Redistribuir />}
-              {selectedResultTab === 'metricas_generales' && <Step5Metrics />}
+              {selectedResultTab === 'resultados_opt' && <Step5Resultados config={configStep2} data={optData} />}
+              {selectedResultTab === 'anuncios_eliminados' && <Step5Eliminados data={optData?.adsets_to_remove} />}
+              {selectedResultTab === 'redistribucion_presupuestos' && <Step5Redistribuir adsetData={optData?.adset_data}
+                onSaveBudgets={async map => {
+                  try {
+                    await postUpdateBudgets(API_BASE, map);
+                    alert('Presupuestos actualizados ✅');
+                  }
+                  catch (e) { alert(`Error: ${e.message}`); }
+                }} />}
+              {selectedResultTab === 'metricas_generales' && <Step5Metrics data={optData} />}
             </Box>
 
             <Box mt={3} textAlign="right">

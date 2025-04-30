@@ -1,119 +1,79 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
 import {
-  Box,
-  Typography,
-  Table,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableBody,
-  Paper,
-  TablePagination
-} from '@mui/material'
+  Box, Typography, Table, TableHead,
+  TableRow, TableCell, TableBody,
+  Paper, TablePagination
+} from '@mui/material';
 
-const BACKGROUND_COLOR = 'rgba(16, 20, 55, 0.85)'
-const PRIMARY_COLOR = '#4dabf7'
-const TEXT_COLOR = 'rgba(255, 255, 255, 1)'
-const BORDER_COLOR = 'rgba(77, 171, 247, 0.3)'
+const BG  = 'rgba(16, 20, 55, 0.85)';
+const PRI = '#4dabf7';
+const TXT = 'rgba(255,255,255,1)';
+const BOR = 'rgba(77,171,247,0.3)';
 
-export default function Step5Eliminados({ data }) {
-  // Filtramos solo los datos de hoy
-  const today = new Date().toISOString().split('T')[0]
+export default function Step5Eliminados({ data = [] }) {
+  /* si el backend no eliminó nada */
+  if (!data.length) {
+    return (
+      <Typography sx={{ color: TXT, mt: 2 }}>
+        No se eliminaron conjuntos de anuncios.
+      </Typography>
+    );
+  }
 
-  // Datos dummy con campo fecha
-  const dummyData = [
-    { name: 'Campaña A', averageValue: 12.34, date: today },
-    { name: 'Campaña B', averageValue: 8.56, date: today },
-    { name: 'Campaña C', averageValue: 15.0, date: '2025-01-01' },
-    { name: 'Campaña D', averageValue: 9.12, date: today },
-    { name: 'Campaña E', averageValue: 11.11, date: today },
-    { name: 'Campaña F', averageValue: 7.89, date: today },
-    { name: 'Campaña G', averageValue: 7.89, date: today },
-    { name: 'Campaña H', averageValue: 7.89, date: today }
-  ]
-
-  const rows = Array.isArray(data) && data.length > 0 ? data : dummyData
-  const todayRows = rows.filter(r => r.date === today)
-
-  // Paginación
-  const rowsPerPage = 5
-  const [page, setPage] = useState(0)
-  const handleChangePage = (event, newPage) => setPage(newPage)
-
-  const paginatedRows = todayRows.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
-  )
+  /* paginación */
+  const rowsPerPage = 8;
+  const [page, setPage] = useState(0);
+  const handleChangePage = (_, p) => setPage(p);
+  const pageRows = data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
   return (
-    <Box sx={{
-      p: 3,
-      background: BACKGROUND_COLOR,
-      backdropFilter: 'blur(12px)',
-      borderRadius: '10px'
-    }}>
+    <Box sx={{ p: 3, background: BG, backdropFilter: 'blur(12px)', borderRadius: '10px' }}>
       <Paper sx={{
         p: 3,
         background: 'rgba(16, 20, 55, 0.7)',
-        border: `2px solid ${BORDER_COLOR}`,
-        boxShadow: '0 0 15px rgba(77, 171, 247, 0.3)'
+        border: `2px solid ${BOR}`,
+        boxShadow: '0 0 15px rgba(77,171,247,0.3)'
       }}>
         <Typography variant="h4" sx={{
-          color: PRIMARY_COLOR,
-          fontWeight: 700,
-          mb: 3,
-          textShadow: '0 0 12px rgba(77, 171, 247, 0.6)'
+          color: PRI, fontWeight: 700, mb: 3,
+          textShadow: '0 0 12px rgba(77,171,247,0.6)'
         }}>
-          Conjunto de Anuncios Eliminados (10% de menor rendimiento)
+          Conjuntos de anuncios eliminados (10 % peor rendimiento)
         </Typography>
 
         <Table size="small" sx={{
-          '& .MuiTableCell-root': {
-            color: TEXT_COLOR,
-            borderBottom: `1px solid ${BORDER_COLOR}`
-          },
-          '& .MuiTableHead-root': {
-            borderBottom: `2px solid ${PRIMARY_COLOR}`
-          }
+          '& .MuiTableCell-root': { color: TXT, borderBottom: `1px solid ${BOR}` },
+          '& .MuiTableHead-root': { borderBottom: `2px solid ${PRI}` }
         }}>
           <TableHead>
             <TableRow>
-              <TableCell sx={{ fontWeight: 700, color: PRIMARY_COLOR }}>Conjunto de anuncios</TableCell>
-              <TableCell sx={{ fontWeight: 700, color: PRIMARY_COLOR }}>Valor promedio</TableCell>
+              <TableCell sx={{ fontWeight: 700, color: PRI }}>Conjunto</TableCell>
+              <TableCell sx={{ fontWeight: 700, color: PRI }}>Valor promedio</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {paginatedRows.map((row, idx) => (
-              <TableRow 
-                key={idx}
-                hover
-                sx={{ '&:hover': { background: 'rgba(77, 171, 247, 0.1)' } }}
-              >
+            {pageRows.map(row => (
+              <TableRow key={row.adset_id} hover
+                sx={{ '&:hover': { background: 'rgba(77,171,247,0.1)' } }}>
                 <TableCell>{row.name}</TableCell>
-                <TableCell>{row.averageValue}</TableCell>
+                <TableCell>{row.average_value}</TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
 
-        <TablePagination
-          component="div"
-          count={todayRows.length}
-          page={page}
-          onPageChange={handleChangePage}
-          rowsPerPage={rowsPerPage}
-          rowsPerPageOptions={[rowsPerPage]}
-          sx={{
-            color: TEXT_COLOR,
-            '.MuiTablePagination-toolbar': {
-              color: TEXT_COLOR
-            },
-            '.MuiTablePagination-selectIcon': {
-              color: PRIMARY_COLOR
-            }
-          }}
-        />
+        {data.length > rowsPerPage && (
+          <TablePagination
+            component="div"
+            count={data.length}
+            page={page}
+            onPageChange={handleChangePage}
+            rowsPerPage={rowsPerPage}
+            rowsPerPageOptions={[]}
+            sx={{ color: TXT }}
+          />
+        )}
       </Paper>
     </Box>
-  )
+  );
 }

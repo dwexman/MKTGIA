@@ -109,3 +109,37 @@ export async function postInputRoi(apiBase, roiMap) {
   }
   return data;        // ← retorna {status, message, adsets, redirect_url?}
 }
+
+/**
+ * Paso 5 – GET resultados de la optimización
+ * @param {string} apiBase
+ * @param {object} qsObject – querystring (account_id, fb_access_token, …)
+ */
+export async function getOptimizeCampaigns(apiBase, qsObject) {
+  const qs  = new URLSearchParams(qsObject).toString();
+  const url = `${apiBase}/presupuestos/optimize-campaigns/API/?${qs}`;
+
+  const res  = await fetch(url, { credentials:'include' });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const data = await res.json();
+  if (data.status !== 'success') throw new Error(data.message || 'Error al optimizar');
+  return data;          // ← objeto con adsets_to_remove, …, metric_antes, etc.
+}
+
+/**
+ * POST actualización de presupuestos
+ * @param {string} apiBase
+ * @param {object} newBudgets { "<adset_id>": <nuevo_presupuesto>, … }
+ */
+export async function postUpdateBudgets(apiBase, newBudgets) {
+  const res = await fetch(`${apiBase}/presupuestos/update-budgets/API/`, {
+    method:'POST',
+    credentials:'include',
+    headers:{ 'Content-Type':'application/json' },
+    body:JSON.stringify({ new_budgets:newBudgets })
+  });
+  const data = await res.json().catch(()=>null);
+  if (!res.ok || !data || data.status!=='success')
+    throw new Error(data?.message || `HTTP ${res.status}`);
+  return data;
+}
