@@ -28,7 +28,7 @@ export default function ExcludeCampaigns({ campaigns = [], onBack, onOptimize })
     const excludedIds = Object.entries(selected)
       .filter(([_, v]) => v)
       .map(([id]) => id);
-    onOptimize(excludedIds, source);
+    onOptimize(excludedIds, campaigns);
   };
 
   const noCampaigns = campaigns.length === 0;
@@ -72,7 +72,7 @@ export default function ExcludeCampaigns({ campaigns = [], onBack, onOptimize })
           </Typography>
         ) : (
 
-          <FormGroup sx={{ maxHeight: 400, overflowY: 'auto', pr: 2 }}>
+          <FormGroup sx={{ maxHeight: 'calc(100vh - 260px)', overflowY: 'auto', display: 'flex', flexDirection: 'column', flexWrap: 'nowrap', pr: 2 }}>
           {campaigns.map(c => (
             <FormControlLabel
               key={c.id}
