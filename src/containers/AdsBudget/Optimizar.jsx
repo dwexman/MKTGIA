@@ -19,6 +19,15 @@ import './optimizar.css';
 const API_BASE = import.meta.env.VITE_API_URL;
 const FB_APP_ID = import.meta.env.VITE_FB_APP_ID;
 
+const OPT_VAR_MAP = {
+  'Costo por Lead': 'cpl',
+  'Costo por 1000 Alcance (CPM)': 'cpm',
+  'Costo por Acción (CPA)': 'cpa',
+  'Costo por Clic (CPC)': 'cpc',
+  'ROAS Facebook (Retorno sobre Gasto Publicitario)': 'roas',
+  'ROI Ingreso Manual (Retorno de Inversión)': 'roi_manual'
+};
+
 export default function Optimizar() {
   const navigate = useNavigate();
 
@@ -32,8 +41,6 @@ export default function Optimizar() {
   const [fbToken, setFbToken] = useState(localStorage.getItem('fbToken') || null);
   const [fbReady, setFbReady] = useState(false);
   const [authError, setAuthError] = useState(null);
-
-  // Estado combinado para mejor manejo
   const [loading, setLoading] = useState({
     global: false,
     facebook: false,
@@ -184,35 +191,51 @@ export default function Optimizar() {
       setAuthError('Sesión no válida. Vuelve a conectar con Facebook.');
       return;
     }
-
-    setLoading(prev => ({...prev, campaigns: true}));
-    
+  
+    setLoading(prev => ({ ...prev, campaigns: true }));
+    setAuthError(null);
+  
     try {
+      /* 1️⃣ POST account-selected */
+      await postAccountSelected(API_BASE, {
+        account_id:  cfg.accountId,
+        start_date:   cfg.startDate,
+        end_date:     cfg.endDate,
+        ...(cfg.campaignType !== 'Todos los tipos' && { campaign_type: cfg.campaignType }),
+        optimize_variable: OPT_VAR_MAP[cfg.variable],
+        whether_or_not_to_eliminate_the_least_profitable_10_percent:
+            cfg.removeWorst ? 'true' : 'false'
+      });
+  
+      /* 2️⃣ GET campañas a excluir */
       const data = await getCampaignsToExclude(API_BASE, {
-        account_id: cfg.accountId,
-        start_date: cfg.startDate,
-        end_date: cfg.endDate,
-        campaign_type: cfg.campaignType === 'Todos los tipos' ? null : cfg.campaignType,
-        optimize_variable: cfg.variable,
-        whether_or_not_to_eliminate_the_least_profitable_10_percent: cfg.removeWorst ? 'yes' : 'no',
+        account_id:  cfg.accountId,
+        start_date:  cfg.startDate,
+        end_date:    cfg.endDate,
+        ...(cfg.campaignType !== 'Todos los tipos' && { campaign_type: cfg.campaignType }),
+        optimize_variable: OPT_VAR_MAP[cfg.variable],
+        whether_or_not_to_eliminate_the_least_profitable_10_percent:
+            cfg.removeWorst ? 'true' : 'false',
         fb_access_token: fbToken
       });
-
+  
+      console.log('➡️ Respuesta campañas', data);   // -- depuración
+  
       if (data.status === 'success') {
         setFiltered(data.campaigns || []);
         setConfigStep2(cfg);
         setStep(3);
       } else {
-        setAuthError(data.message || 'Error al obtener campañas');
+        throw new Error(data.message || 'Error al obtener campañas');
       }
-    } catch (error) {
-      setAuthError(error.message);
+    } catch (err) {
+      console.error(err);
+      setAuthError(err.message);
     } finally {
-      setLoading(prev => ({...prev, campaigns: false}));
+      setLoading(prev => ({ ...prev, campaigns: false }));
     }
   };
 
-  // Resto de funciones (sin cambios)
   const handleOptimizeCampaigns = (excluded, campaigns) => {
     setExcludedIds(excluded);
     setFiltered(campaigns.filter(c => !excluded.includes(c.id)));

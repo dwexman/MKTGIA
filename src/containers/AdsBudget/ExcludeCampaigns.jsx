@@ -10,28 +10,16 @@ const SECONDARY_COLOR  = '#1a237e';
 const TEXT_COLOR       = 'rgba(255, 255, 255, 1)';
 const BORDER_COLOR     = 'rgba(77, 171, 247, 0.3)';
 
-/* Dummy solo para desarrollo */
-const dummyCampaigns = [
-  { id: '101', name: 'Campaña A - Lanzamiento' },
-  { id: '102', name: 'Campaña B - Remarketing' },
-  { id: '103', name: 'Campaña C - Promoción' }
-];
 
-export default function ExcludeCampaigns({ campaigns, onBack, onOptimize }) {
-  const isDev = process.env.NODE_ENV === 'development';
+export default function ExcludeCampaigns({ campaigns = [], onBack, onOptimize }) {
 
-  /* Si estás en dev y no llegaron campañas, usamos dummy */
-  const source = isDev && !campaigns.length ? dummyCampaigns : campaigns;
+  const [selected, setSelected] = useState({});
 
-  /* State de checkboxes */
-  const [selected, setSelected] = useState(
-    source.reduce((acc, c) => ({ ...acc, [c.id]: false }), {})
-  );
-
-  /* Si la prop campaigns cambia (por navegar atrás/adelante) sincroniza state */
+  /* Sincroniza state cuando llegan campañas */
   useEffect(() => {
-    setSelected(source.reduce((acc, c) => ({ ...acc, [c.id]: false }), {}));
-  }, [source]);
+    setSelected(campaigns.reduce((acc, c) => ({ ...acc, [c.id]: false }), {}));
+  }, [campaigns]);
+
 
   const handleToggle = id =>
     setSelected(sel => ({ ...sel, [id]: !sel[id] }));
@@ -42,6 +30,9 @@ export default function ExcludeCampaigns({ campaigns, onBack, onOptimize }) {
       .map(([id]) => id);
     onOptimize(excludedIds, source);
   };
+
+  const noCampaigns = campaigns.length === 0;
+
 
   return (
     <Box sx={{ p: 3, background: BACKGROUND_COLOR, borderRadius: 2 }}>
@@ -75,8 +66,14 @@ export default function ExcludeCampaigns({ campaigns, onBack, onOptimize }) {
           Selecciona Campañas a Excluir
         </Typography>
 
-        <FormGroup sx={{ maxHeight: 400, overflowY: 'auto', pr: 2 }}>
-          {source.map(c => (
+        {noCampaigns ? (
+          <Typography sx={{ color: TEXT_COLOR }}>
+            No se encontraron campañas activas para excluir.
+          </Typography>
+        ) : (
+
+          <FormGroup sx={{ maxHeight: 400, overflowY: 'auto', pr: 2 }}>
+          {campaigns.map(c => (
             <FormControlLabel
               key={c.id}
               control={
@@ -91,37 +88,39 @@ export default function ExcludeCampaigns({ campaigns, onBack, onOptimize }) {
             />
           ))}
         </FormGroup>
+      )}
 
-        <Box sx={{ mt: 4, display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
-          <Button
-            variant="contained"
-            onClick={handleOptimize}
-            sx={{
-              background: `linear-gradient(145deg, ${PRIMARY_COLOR} 0%, ${SECONDARY_COLOR} 100%)`,
-              color: TEXT_COLOR, fontWeight: 700, px: 4,
-              '&:hover': {
-                background: `linear-gradient(145deg, ${SECONDARY_COLOR} 0%, ${PRIMARY_COLOR} 100%)`,
-                boxShadow : '0 0 25px rgba(77, 171, 247, 0.5)'
-              }
-            }}
-          >
-            Optimizar Campañas
-          </Button>
-          <Button
-            variant="outlined"
-            onClick={onBack}
-            sx={{
-              borderColor: PRIMARY_COLOR, color: PRIMARY_COLOR,
-              '&:hover': {
-                borderColor: PRIMARY_COLOR,
-                background : 'rgba(77, 171, 247, 0.1)'
-              }
-            }}
-          >
-            Volver
-          </Button>
-        </Box>
-      </Paper>
-    </Box>
-  );
+      <Box sx={{ mt: 4, display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
+        <Button
+          variant="contained"
+          disabled={noCampaigns}
+          onClick={handleOptimize}
+          sx={{
+            background: `linear-gradient(145deg, ${PRIMARY_COLOR} 0%, ${SECONDARY_COLOR} 100%)`,
+            color: TEXT_COLOR, fontWeight: 700, px: 4,
+            '&:hover': {
+              background: `linear-gradient(145deg, ${SECONDARY_COLOR} 0%, ${PRIMARY_COLOR} 100%)`,
+              boxShadow : '0 0 25px rgba(77, 171, 247, 0.5)'
+            }
+          }}
+        >
+          Optimizar Campañas
+        </Button>
+        <Button
+          variant="outlined"
+          onClick={onBack}
+          sx={{
+            borderColor: PRIMARY_COLOR, color: PRIMARY_COLOR,
+            '&:hover': {
+              borderColor: PRIMARY_COLOR,
+              background : 'rgba(77, 171, 247, 0.1)'
+            }
+          }}
+        >
+          Volver
+        </Button>
+      </Box>
+    </Paper>
+  </Box>
+);
 }
