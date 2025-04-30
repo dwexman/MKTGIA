@@ -3,20 +3,20 @@ import {
   Box,
   Table, TableHead, TableRow, TableCell, TableBody,
   TextField, Button, Typography, Stack, Paper,
-  TablePagination
+  TablePagination, CircularProgress
 } from '@mui/material'
 import PropTypes from 'prop-types'
 
 const BACKGROUND_COLOR = 'rgba(16, 20, 55, 0.85)'
-const PRIMARY_COLOR    = '#4dabf7'
-const SECONDARY_COLOR  = '#1a237e'
-const TEXT_COLOR       = 'rgba(255, 255, 255, 1)'
-const BORDER_COLOR     = 'rgba(77, 171, 247, 0.3)'
-const ROWS_PER_PAGE    = 10
+const PRIMARY_COLOR = '#4dabf7'
+const SECONDARY_COLOR = '#1a237e'
+const TEXT_COLOR = 'rgba(255, 255, 255, 1)'
+const BORDER_COLOR = 'rgba(77, 171, 247, 0.3)'
+const ROWS_PER_PAGE = 10
 
-export default function RoiInput({ campaigns, onBack, onSubmit }) {
+export default function RoiInput({ campaigns, onBack, onSubmit, loading = false }) {
   const [roiValues, setRoiValues] = useState({})
-  const [page, setPage]           = useState(0)
+  const [page, setPage] = useState(0)
 
   const handleChange = id => e => {
     setRoiValues(vals => ({ ...vals, [id]: e.target.value }))
@@ -144,7 +144,7 @@ export default function RoiInput({ campaigns, onBack, onSubmit }) {
         </Button>
         <Button
           variant="contained"
-          disabled={!allFilled}
+          disabled={!allFilled || loading}
           onClick={() => onSubmit(roiValues)}
           sx={{
             px: 4,
@@ -158,7 +158,9 @@ export default function RoiInput({ campaigns, onBack, onSubmit }) {
             }
           }}
         >
-          Enviar ROI
+          {loading
+            ? <CircularProgress size={22} sx={{ color: '#fff' }} />
+            : 'Enviar ROI'}
         </Button>
       </Stack>
     </Paper>
@@ -167,9 +169,10 @@ export default function RoiInput({ campaigns, onBack, onSubmit }) {
 
 RoiInput.propTypes = {
   campaigns: PropTypes.arrayOf(PropTypes.shape({
-    id:   PropTypes.string.isRequired,
+    id: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired
   })).isRequired,
-  onBack:   PropTypes.func.isRequired,
-  onSubmit: PropTypes.func.isRequired
+  onBack: PropTypes.func.isRequired,
+  onSubmit: PropTypes.func.isRequired,
+  loading:  PropTypes.bool
 }

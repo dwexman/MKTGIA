@@ -83,3 +83,29 @@ export async function getCampaignsToExclude(apiBase, qsObject) {
 
   return parseIfJson(res);  
 }
+
+/**
+ * Paso 4 – POST ROI manual por ad set
+ * @param {string} apiBase
+ * @param {object} roiMap { "<adset_id>": <roi>, … }
+ */
+export async function postInputRoi(apiBase, roiMap) {
+  const res = await fetch(`${apiBase}/presupuestos/input-roi/API/`, {
+    method:  'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(roiMap)
+  });
+
+  const data = await res.json().catch(() => null);
+
+  if (!res.ok || !data || data.status !== 'success') {
+    throw new Error(
+      data?.message ||
+      `HTTP ${res.status}\nNo se pudo procesar el ROI`
+    );
+  }
+  return data;        // ← retorna {status, message, adsets, redirect_url?}
+}

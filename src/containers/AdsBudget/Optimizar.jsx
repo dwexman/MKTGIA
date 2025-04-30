@@ -13,7 +13,7 @@ import Step5Resultados from './components/Step5Resultados';
 import Step5Eliminados from './components/Step5Eliminados';
 import Step5Redistribuir from './components/Step5Redistribuir';
 import Step5Metrics from './components/Step5Metrics';
-import { getAccounts, getCampaignsToExclude, postAccountSelected } from '../../utils/api';
+import { getAccounts, getCampaignsToExclude, postAccountSelected, postInputRoi } from '../../utils/api';
 import './optimizar.css';
 
 const API_BASE = import.meta.env.VITE_API_URL;
@@ -45,13 +45,14 @@ export default function Optimizar() {
     global: false,
     facebook: false,
     accounts: false,
-    campaigns: false
+    campaigns: false,
+    roi: false
   });
 
   // Carga del SDK de Facebook
   useEffect(() => {
     console.log('Iniciando carga de Facebook SDK...');
-    
+
     if (window.FB) {
       console.log('SDK ya estaba cargado');
       setFbReady(true);
@@ -59,7 +60,7 @@ export default function Optimizar() {
       return;
     }
 
-    window.fbAsyncInit = function() {
+    window.fbAsyncInit = function () {
       console.log('Inicializando SDK de Facebook...');
       window.FB.init({
         appId: FB_APP_ID,
@@ -75,7 +76,7 @@ export default function Optimizar() {
     };
 
     // Cargar script asincrónico
-    (function(d, s, id) {
+    (function (d, s, id) {
       const element = d.getElementsByTagName(s)[0];
       if (d.getElementById(id)) return;
       const fjs = element;
@@ -97,21 +98,21 @@ export default function Optimizar() {
     }
 
     console.log('Verificando estado de login...');
-    setLoading(prev => ({...prev, facebook: true}));
-    
+    setLoading(prev => ({ ...prev, facebook: true }));
+
     window.FB.getLoginStatus(async (response) => {
       console.log('Respuesta de estado:', response.status);
-      
+
       if (response.status === 'connected') {
         const token = response.authResponse.accessToken;
         console.log('Usuario conectado. Token:', token);
         setFbToken(token);
         localStorage.setItem('fbToken', token);
-        
+
         try {
-          setLoading(prev => ({...prev, accounts: true}));
+          setLoading(prev => ({ ...prev, accounts: true }));
           const accountsData = await getAccounts(API_BASE, token);
-          
+
           if (accountsData.status === 'success') {
             setAccounts(accountsData.accounts || []);
             setCampaignTypes(accountsData.campaign_types || []);
@@ -122,11 +123,11 @@ export default function Optimizar() {
         } catch (error) {
           setAuthError(error.message);
         } finally {
-          setLoading(prev => ({...prev, accounts: false, facebook: false}));
+          setLoading(prev => ({ ...prev, accounts: false, facebook: false }));
         }
       } else {
         console.log('Usuario no conectado');
-        setLoading(prev => ({...prev, facebook: false}));
+        setLoading(prev => ({ ...prev, facebook: false }));
       }
     }, true); // Fuerza verificación con Facebook
   }, []);
@@ -139,7 +140,7 @@ export default function Optimizar() {
     }
 
     console.log('Iniciando proceso de login...');
-    setLoading(prev => ({...prev, facebook: true}));
+    setLoading(prev => ({ ...prev, facebook: true }));
     setAuthError(null);
 
     try {
@@ -152,7 +153,7 @@ export default function Optimizar() {
       });
 
       console.log('Respuesta de login:', response);
-      
+
       if (response.status !== 'connected') {
         throw new Error(response.error?.message || 'El usuario no autorizó la aplicación');
       }
@@ -166,9 +167,9 @@ export default function Optimizar() {
       localStorage.setItem('fbToken', token);
 
       // Obtener cuentas después de conectar
-      setLoading(prev => ({...prev, accounts: true}));
+      setLoading(prev => ({ ...prev, accounts: true }));
       const accountsData = await getAccounts(API_BASE, token);
-      
+
       if (accountsData.status === 'success') {
         setAccounts(accountsData.accounts || []);
         setCampaignTypes(accountsData.campaign_types || []);
@@ -181,7 +182,7 @@ export default function Optimizar() {
       setAuthError(error.message);
       localStorage.removeItem('fbToken');
     } finally {
-      setLoading(prev => ({...prev, facebook: false, accounts: false}));
+      setLoading(prev => ({ ...prev, facebook: false, accounts: false }));
     }
   }, []);
 
@@ -191,36 +192,36 @@ export default function Optimizar() {
       setAuthError('Sesión no válida. Vuelve a conectar con Facebook.');
       return;
     }
-  
+
     setLoading(prev => ({ ...prev, campaigns: true }));
     setAuthError(null);
-  
+
     try {
       /* 1️⃣ POST account-selected */
       await postAccountSelected(API_BASE, {
-        account_id:  cfg.accountId,
-        start_date:   cfg.startDate,
-        end_date:     cfg.endDate,
+        account_id: cfg.accountId,
+        start_date: cfg.startDate,
+        end_date: cfg.endDate,
         ...(cfg.campaignType !== 'Todos los tipos' && { campaign_type: cfg.campaignType }),
         optimize_variable: OPT_VAR_MAP[cfg.variable],
         whether_or_not_to_eliminate_the_least_profitable_10_percent:
-            cfg.removeWorst ? 'true' : 'false'
+          cfg.removeWorst ? 'true' : 'false'
       });
-  
+
       /* 2️⃣ GET campañas a excluir */
       const data = await getCampaignsToExclude(API_BASE, {
-        account_id:  cfg.accountId,
-        start_date:  cfg.startDate,
-        end_date:    cfg.endDate,
+        account_id: cfg.accountId,
+        start_date: cfg.startDate,
+        end_date: cfg.endDate,
         ...(cfg.campaignType !== 'Todos los tipos' && { campaign_type: cfg.campaignType }),
         optimize_variable: OPT_VAR_MAP[cfg.variable],
         whether_or_not_to_eliminate_the_least_profitable_10_percent:
-            cfg.removeWorst ? 'true' : 'false',
+          cfg.removeWorst ? 'true' : 'false',
         fb_access_token: fbToken
       });
-  
+
       console.log('➡️ Respuesta campañas', data);   // -- depuración
-  
+
       if (data.status === 'success') {
         setFiltered(data.campaigns || []);
         setConfigStep2(cfg);
@@ -242,7 +243,22 @@ export default function Optimizar() {
     setStep(configStep2?.variable === 'ROI Ingreso Manual (Retorno de Inversión)' ? 4 : 5);
   };
 
-  const handleSubmitRoi = () => setStep(5);
+  const handleSubmitRoi = async (roiValues) => {
+    setLoading(prev => ({ ...prev, roi: true }));
+    setAuthError(null);
+
+    try {
+      /* POST ROI */
+      await postInputRoi(API_BASE, roiValues);
+      setStep(5);
+    } catch (err) {
+      console.error(err);
+      setAuthError(err.message);
+    } finally {
+      setLoading(prev => ({ ...prev, roi: false }));
+    }
+  };
+
   const backTo1 = () => setStep(1);
   const backTo2 = () => setStep(2);
   const backTo3 = () => setStep(3);
@@ -342,6 +358,7 @@ export default function Optimizar() {
             campaigns={filteredCampaigns}
             onBack={backTo3}
             onSubmit={handleSubmitRoi}
+            loading={loading.roi}
           />
         </Paper>
       )}
