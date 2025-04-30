@@ -14,13 +14,13 @@ import SendIcon from '@mui/icons-material/Send';
 
 const API_BASE = import.meta.env.VITE_API_URL; 
 
-// Colores ajustados
+
 const PRIMARY_COLOR = '#4dabf7';
 const SECONDARY_COLOR = '#1a237e';
-const TEXT_COLOR_LIGHT = '#ffffff'; // Texto blanco
+const TEXT_COLOR_LIGHT = '#ffffff'; 
 const BORDER_COLOR = 'rgba(77, 171, 247, 0.3)';
-const INPUT_BORDER_COLOR = '#4dabf7'; // Celeste para el borde del input
-const BUTTON_BG_COLOR = '#4dabf7'; // Celeste para el botón enviar
+const INPUT_BORDER_COLOR = '#4dabf7'; 
+const BUTTON_BG_COLOR = '#4dabf7'; 
 
 export default function CreacionContenido() {
   const [message, setMessage] = useState('');
@@ -33,7 +33,7 @@ export default function CreacionContenido() {
     setMessage('');
   
     try {
-      const res = await fetch("https://www.mrkt21.com/creacionContenido/chatbot_api", {
+      const res = await fetch(`${API_BASE}/creacionContenido/chatbot_api`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message, history: newHistory }),
@@ -64,17 +64,17 @@ export default function CreacionContenido() {
         alignItems: 'center',
         gap: 3,
         minHeight: '100vh',
-        background: 'rgba(245, 245, 245, 1)' // Fondo claro como en la imagen
+        background: 'rgba(245, 245, 245, 1)' 
       }}
     >
       {/* Módulo principal - Paper claro con fondo oscuro dentro */}
       <Paper
         elevation={0}
         sx={{
-          p: 1, // Borde claro alrededor
+          p: 1, 
           width: '100%',
           maxWidth: 600,
-          background: 'rgba(255, 255, 255, 0.8)', // Paper clarito atrás
+          background: 'rgba(255, 255, 255, 0.8)', 
           borderRadius: '10px',
           boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)'
         }}
@@ -82,9 +82,9 @@ export default function CreacionContenido() {
         <Box
           sx={{
             p: 3,
-            background: 'rgba(16, 20, 55, 0.9)', // Fondo oscuro interno
+            background: 'rgba(16, 20, 55, 0.9)', 
             borderRadius: '8px',
-            border: `1px solid ${BORDER_COLOR}`
+            border: `5px solid ${BORDER_COLOR}`
           }}
         >
           <Typography 
@@ -147,10 +147,10 @@ export default function CreacionContenido() {
       <Paper
         elevation={0}
         sx={{
-          p: 1, // Borde claro alrededor
+          p: 1, 
           width: '100%',
           maxWidth: 600,
-          background: 'rgba(255, 255, 255, 0.8)', // Paper clarito atrás
+          background: 'rgba(255, 255, 255, 0.8)', 
           borderRadius: '10px',
           boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)'
         }}
@@ -158,9 +158,9 @@ export default function CreacionContenido() {
         <Box
           sx={{
             p: 3,
-            background: 'rgba(16, 20, 55, 0.9)', // Fondo oscuro interno
+            background: 'rgba(16, 20, 55, 0.9)', 
             borderRadius: '8px',
-            border: `1px solid ${BORDER_COLOR}`
+            border: `5px solid ${BORDER_COLOR}`
           }}
         >
           <Typography 
@@ -262,7 +262,7 @@ export default function CreacionContenido() {
                 fontWeight: 600,
                 minWidth: '120px',
                 '&:hover': {
-                  background: '#3a8fd9', // Un poco más oscuro al hover
+                  background: '#3a8fd9', 
                   boxShadow: `0 0 10px ${BUTTON_BG_COLOR}`
                 }
               }}
