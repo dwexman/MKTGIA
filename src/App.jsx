@@ -15,6 +15,7 @@ import Optimizar from './containers/AdsBudget/Optimizar';
 import CreacionContenido from './containers/Contenido/CreacionContenido';
 import Calendario from './containers/Contenido/Calendario';
 import Estrategia from './containers/Contenido/Estrategia';
+import Planificar from './containers/Contenido/Planificar';
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -46,6 +47,8 @@ export default function App() {
         <Route path="contenido/creacion" element={<CreacionContenido />} />
         <Route path="contenido/calendario" element={<Calendario />} />
         <Route path="contenido/estrategia" element={<Estrategia />} />
+        <Route path="contenido/planificar" element={<Planificar />} />
+        
 
         {/* Comentarios */}
         <Route path="comentarios/dashboard" element={<Dashboard />} />
