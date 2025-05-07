@@ -19,7 +19,12 @@ export default function RoiInput({ campaigns, onBack, onSubmit, loading = false 
   const [page, setPage] = useState(0)
 
   const handleChange = id => e => {
-    setRoiValues(vals => ({ ...vals, [id]: e.target.value }))
+    let value = e.target.value.replace(/[^0-9.]/g, '');        
+    const parts = value.split('.');
+    if (parts.length > 2) {
+      value = parts[0] + '.' + parts.slice(1).join('');
+    }
+    setRoiValues(vals => ({ ...vals, [id]: value }));
   }
 
   const visibleCampaigns = campaigns.slice(
@@ -92,6 +97,8 @@ export default function RoiInput({ campaigns, onBack, onSubmit, loading = false 
                   placeholder="Ej: 1.25"
                   size="small"
                   InputProps={{
+                    inputMode: 'decimal',
+                    pattern: '[0-9]*[.]?[0-9]*',
                     sx: {
                       color: TEXT_COLOR,
                       '& .MuiOutlinedInput-notchedOutline': { borderColor: BORDER_COLOR },

@@ -13,6 +13,8 @@ export default function Step5Metrics({ data }) {
   const after   = data.metric_despues;
   const pct     = data.porcentaje_aumento_metric;
   const symbol  = data.currency_symbol || '';
+  const fmt = n => n?.toLocaleString('es-CL');   
+
 
   return (
     <Box sx={{ p:3, background:BG, backdropFilter:'blur(12px)', borderRadius:'10px' }}>
@@ -38,7 +40,7 @@ export default function Step5Metrics({ data }) {
           }
         }}>
           <Typography>
-            <strong>Métrica total antes:</strong> {symbol}{before}
+            <strong>Métrica total antes:</strong> {symbol}{fmt(before)}
           </Typography>
           <Typography>
             <strong>Métrica total después:</strong> {symbol}{after}

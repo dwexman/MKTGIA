@@ -1,10 +1,11 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import { 
-  Box, Paper, Typography, Button, Fade, Dialog, DialogTitle, 
-  DialogContent, DialogActions, Avatar, Divider, Chip, Stack 
+import {
+    Box, Paper, Typography, Button, Fade, Dialog, DialogTitle,
+    DialogContent, DialogActions, Avatar, Divider, Chip, Stack, Menu, MenuItem
 } from '@mui/material';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
@@ -30,29 +31,138 @@ const API_BASE = import.meta.env.VITE_API_URL || 'https://www.mrkt21.com';
 const formatDate = date => date.toISOString().split('T')[0];
 
 export default function Calendario() {
+    const navigate = useNavigate();
     const calendarRef = useRef(null);
     const today = new Date();
+    const twoDaysLater = new Date(today);
+    twoDaysLater.setDate(today.getDate() + 2);
     const [informe, setInforme] = useState(null);
-    const [currentDate, setCurrentDate] = useState(today);
+    const [contextMenu, setContextMenu] = useState(null);
+    const [selectedEvent, setSelectedEvent] = useState(null);
+    const [copiedEvents, setCopiedEvents] = useState([]);
+    const [contextDay, setContextDay] = useState(null);
     const [openResumen, setOpenResumen] = useState(false);
     const handleOpenResumen = () => setOpenResumen(true);
     const handleCloseResumen = () => setOpenResumen(false);
-    const [events, setEvents] = useState([
-        {
-            id: 1,
-            date: formatDate(today),
-            title: "Análisis de Campaña",
-            color: "#4dabf7",
-            type: "Análisis"
-        },
-        {
-            id: 2,
-            date: formatDate(new Date(today.setDate(today.getDate() + 2))),
-            title: "Optimización IA",
-            color: "#ff6b6b",
-            type: "Optimización"
+    const [currentLabel, setCurrentLabel] = useState(
+        today
+            .toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })
+            .toUpperCase()
+    );
+
+    const [events, setEvents] = useState([]);
+
+    const loadEvents = useCallback(async () => {
+        try {
+            const res = await fetch(`${API_BASE}/api/calendario/events`, {
+                method: 'GET',
+                credentials: 'include'
+            });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const { status, events: raw } = await res.json();
+            if (status === 'ok' && Array.isArray(raw)) {
+                const mapped = raw.map(e => ({
+                    id: String(e.ID),
+                    date: e.Fecha,
+                    title: e.Titulo,
+                    color: '#4dabf7',
+                    type: e.TipoContenido
+                }));
+                setEvents(mapped);
+            }
+        } catch (err) {
+            console.error('Error cargando eventos:', err);
         }
-    ]);
+    }, []);
+
+    const handleDatesSet = (info) => {
+        setCurrentLabel(info.view.title.toUpperCase());
+    };
+
+    const handleEventClick = (info) => {
+        info.jsEvent.preventDefault();          // ← esto detiene *toda* acción nativa
+        navigate(`/contenido/calendario/editar/${info.event.id}`);
+
+        return false; 
+      };
+      
+
+
+    const handleEventContextMenu = (event, jsEvent) => {
+        jsEvent.preventDefault();
+        jsEvent.stopPropagation();
+        setSelectedEvent(event);
+        setContextMenu({
+            mouseX: jsEvent.clientX - 2,
+            mouseY: jsEvent.clientY - 4
+        });
+    };
+    const handleCloseContextMenu = () => {
+        setContextMenu(null);
+        setSelectedEvent(null);
+        setContextDay(null);
+    };
+    const handleCopy = () => {
+        setCopiedEvents([selectedEvent.id]);
+        handleCloseContextMenu();
+    };
+    const handlePaste = async () => {
+        if (!copiedEvents.length) return;
+        const targetDate = formatDate(selectedEvent ? selectedEvent.start : contextDay);
+        await fetch(`${API_BASE}/api/calendario/events/paste`, {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ eventIds: copiedEvents, targetDate })
+        });
+        handleCloseContextMenu();
+        loadEvents(); // recarga lista
+    };
+    const handleDuplicate = async () => {
+        const id = selectedEvent.id;
+        const res = await fetch(`${API_BASE}/api/calendario/events/${id}/duplicate`, {
+            method: 'POST',
+            credentials: 'include'
+        });
+        if (res.ok) {
+            loadEvents();
+        }
+        handleCloseContextMenu();
+    };
+    const handleRedo = async () => {
+        const id = selectedEvent.id;
+        await fetch(`${API_BASE}/api/calendario/events/${id}`, {
+            method: 'PATCH',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ /* campos que quieras rehacer */ })
+        });
+        loadEvents();
+        handleCloseContextMenu();
+    };
+    const handleDelete = async () => {
+        const id = selectedEvent.id;
+        const res = await fetch(`${API_BASE}/api/calendario/events/${id}`, {
+            method: 'DELETE',
+            credentials: 'include'
+        });
+        if (res.ok) {
+            setEvents(prev => prev.filter(ev => ev.id !== id));
+        }
+        handleCloseContextMenu();
+    };
+
+    const handleDayContextMenu = (date, jsEvent) => {
+        jsEvent.preventDefault();
+        jsEvent.stopPropagation();
+        setContextMenu({
+            mouseX: jsEvent.clientX - 2,
+            mouseY: jsEvent.clientY - 4
+        });
+        setContextDay(date);
+        setSelectedEvent(null);
+    };
+
 
     const fetchInforme = useCallback(async () => {
         try {
@@ -87,6 +197,11 @@ export default function Calendario() {
             calendarApi.setOption('eventDragMinDistance', 5);
         }
     }, []);
+
+    useEffect(() => {
+        loadEvents();
+    }, [loadEvents]);
+
 
     const calendarEvents = events.map(ev => ({
         id: ev.id.toString(),
@@ -203,9 +318,7 @@ export default function Calendario() {
                         letterSpacing: '0.5px',
                         textShadow: '0 2px 4px rgba(77, 171, 247, 0.1)',
                     }}>
-                        {currentDate
-                            .toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })
-                            .toUpperCase()}
+                        {currentLabel}
                     </Typography>
 
                     <Button
@@ -235,7 +348,8 @@ export default function Calendario() {
                             events={calendarEvents}
                             initialDate={today}
                             height={750}
-                            datesSet={info => setCurrentDate(info.start)}
+                            datesSet={handleDatesSet}
+                            eventClick={handleEventClick}
                             eventDragStart={(info) => {
                                 const el = info.el;
                                 el.style.width = `${el.offsetWidth}px`;
@@ -307,14 +421,51 @@ export default function Calendario() {
                             dayCellDidMount={(arg) => {
                                 arg.el.style.border = '1px solid rgba(77, 171, 247, 0.3)';
                                 arg.el.style.borderRadius = '8px';
+                                arg.el.addEventListener('contextmenu', e => handleDayContextMenu(arg.date, e));
                             }}
+                            eventDidMount={(info) => {
+                                /* 🚫  Elimina el enlace que genera FC */
+                                info.el.removeAttribute('href');   // ←  esta línea mata el salto a "/"
+                                info.el.style.cursor = 'pointer';
+                              
+                                // --- resto de tu código ---
+                                info.el.addEventListener('contextmenu', e =>
+                                  handleEventContextMenu(info.event, e)
+                                );
+                                info.el.addEventListener(
+                                  'click',
+                                  e => {
+                                    if (e.button === 2) {
+                                      e.preventDefault();
+                                      e.stopImmediatePropagation();
+                                    }
+                                  },
+                                  { capture: true }
+                                );
+                              }}
                         />
                     </Box>
                 </Fade>
+                <Menu
+                    open={Boolean(contextMenu)}
+                    onClose={handleCloseContextMenu}
+                    anchorReference="anchorPosition"
+                    anchorPosition={
+                        contextMenu
+                            ? { top: contextMenu.mouseY, left: contextMenu.mouseX }
+                            : undefined
+                    }
+                >
+                    <MenuItem onClick={handleCopy}>Copiar</MenuItem>
+                    <MenuItem onClick={handlePaste} disabled={!copiedEvents.length}>Pegar</MenuItem>
+                    <MenuItem onClick={handleDuplicate}>Duplicar</MenuItem>
+                    <MenuItem onClick={handleRedo}>Rehacer</MenuItem>
+                    <MenuItem onClick={handleDelete}>Eliminar</MenuItem>
+                </Menu>
 
                 {/* Modal de Resumen (se mantiene igual) */}
-                <Dialog 
-                    open={openResumen} 
+                <Dialog
+                    open={openResumen}
                     onClose={handleCloseResumen}
                     PaperProps={{
                         sx: {
@@ -341,7 +492,7 @@ export default function Calendario() {
                             <Typography variant="body2" sx={{ opacity: 0.9 }}>Estadísticas de tus actividades</Typography>
                         </Box>
                     </DialogTitle>
-                    
+
                     <DialogContent dividers sx={{ py: 3 }}>
                         {informe ? (
                             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
@@ -365,11 +516,11 @@ export default function Calendario() {
                                         </Typography>
                                     </Box>
                                 </Box>
-                                
+
                                 <Divider sx={{ my: 1 }} />
-                                
+
                                 <Box>
-                                    <Typography variant="subtitle1" fontWeight="bold" sx={{ 
+                                    <Typography variant="subtitle1" fontWeight="bold" sx={{
                                         mb: 2,
                                         display: 'flex',
                                         alignItems: 'center',
@@ -379,12 +530,12 @@ export default function Calendario() {
                                         <PieChartOutlineIcon fontSize="small" />
                                         Distribución por tipo
                                     </Typography>
-                                    
-                                    <Box sx={{ 
-                                        display: 'flex', 
-                                        flexWrap: 'wrap', 
+
+                                    <Box sx={{
+                                        display: 'flex',
+                                        flexWrap: 'wrap',
                                         gap: 1.5,
-                                        mb: 2 
+                                        mb: 2
                                     }}>
                                         {Object.entries(informe.distribucion_por_tipo).map(
                                             ([tipo, cantidad]) => (
@@ -401,7 +552,7 @@ export default function Calendario() {
                                             )
                                         )}
                                     </Box>
-                                    
+
                                     <Box sx={{ mt: 3, mb: 2 }}>
                                         {Object.entries(informe.distribucion_por_tipo).map(
                                             ([tipo, cantidad]) => (
@@ -431,11 +582,11 @@ export default function Calendario() {
                                 </Box>
                             </Box>
                         ) : (
-                            <Box sx={{ 
-                                display: 'flex', 
-                                justifyContent: 'center', 
-                                alignItems: 'center', 
-                                height: '200px' 
+                            <Box sx={{
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                height: '200px'
                             }}>
                                 <Typography variant="body1" color="text.secondary">
                                     Cargando resumen...
@@ -443,13 +594,13 @@ export default function Calendario() {
                             </Box>
                         )}
                     </DialogContent>
-                    
-                    <DialogActions sx={{ 
-                        px: 3, 
+
+                    <DialogActions sx={{
+                        px: 3,
                         py: 2,
                         background: 'rgba(77, 171, 247, 0.05)'
                     }}>
-                        <Button 
+                        <Button
                             onClick={handleCloseResumen}
                             variant="contained"
                             sx={{

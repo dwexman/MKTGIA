@@ -1,6 +1,3 @@
-/*  Step5Redistribuir.jsx  */
-/*  <-- copia todo esto y reemplaza tu archivo actual --> */
-
 import React, { useState, useEffect } from 'react';
 import {
   Box, Typography, Table, TableHead, TableRow, TableCell,
@@ -16,22 +13,23 @@ const TXT = 'rgba(255,255,255,1)';
 const BOR = 'rgba(77,171,247,0.3)';
 
 export default function Step5Redistribuir({ adsetData = null, onSaveBudgets }) {
-  /* ───────────────────────────────────────── toRows seguro ───────────────────────────────────────── */
   const toRows = d =>
-    !d || Object.keys(d).length === 0
-      ? []
-      : Object.values(d).map(ad => ({
-          id:           ad.adset_id,
-          titulo:       ad.campaign_name,
-          tipo:         ad.objective,
-          costo:        ad.cost_per_result,
-          presupuesto:  Number(ad.daily_budget_formatted ?? 0),
-          porcentaje:   ad.shift_percent,
-          nuevo:        Number(ad.new_daily_budget ?? 0),
-          antes:        Number(ad.metric_before ?? 0),
-          despues:      Number(ad.metric_after  ?? 0),
-          inputValue:   String(ad.new_daily_budget ?? '')
-        }));
+  !d || Object.keys(d).length === 0
+    ? []
+    : Object.entries(d).map(([aid, ad])  => ({
+        id:           aid,
+        titulo:     ad.conjunto_de_anuncio    || ad.campaign_name,
+        tipo:       ad.tipo_de_campaña        || ad.objective,
+        costo:         ad.costo_variable              ?? null,
+        presupuesto:   Number(ad.daily_budget         ?? 0),
+        nuevo:         Number(ad.nuevo_daily_budget   ?? 0),
+        antes:         Number(ad.metric_antes         ?? 0),
+        despues:       Number(ad.metric_despues       ?? 0),
+        porcentaje:  ad.porcentaje_presupuesto_anterior_formateado
+                      ?? ad.porcentaje_presupuesto_anterior
+                      ?? '',
+        inputValue:  String(ad.nuevo_daily_budget ?? '')
+      }));
 
   /* filas en estado, actualizadas cada vez que cambie la prop */
   const [rows, setRows] = useState([]);

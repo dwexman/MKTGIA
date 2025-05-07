@@ -13,19 +13,20 @@ import Step5Resultados from './components/Step5Resultados';
 import Step5Eliminados from './components/Step5Eliminados';
 import Step5Redistribuir from './components/Step5Redistribuir';
 import Step5Metrics from './components/Step5Metrics';
-import { getAccounts, getCampaignsToExclude, postAccountSelected, postInputRoi, postUpdateBudgets, getOptimizeCampaigns } from '../../utils/api';
+import { getAccounts, getCampaignsToExclude, postAccountSelected, postInputRoi, postUpdateBudgets, getOptimizeCampaigns, postCampaignsSelected, applyBudgetsUpdate } from '../../utils/api';
 import './optimizar.css';
 
 const API_BASE = import.meta.env.VITE_API_URL;
 const FB_APP_ID = import.meta.env.VITE_FB_APP_ID;
+const FB_REDIRECT_URI = import.meta.env.VITE_FB_REDIRECT_URI
 
 const OPT_VAR_MAP = {
-  'Costo por Lead': 'cpl',
+  'Costo por Lead': 'costo_por_lead',
   'Costo por 1000 Alcance (CPM)': 'cpm',
   'Costo por Acción (CPA)': 'cpa',
   'Costo por Clic (CPC)': 'cpc',
   'ROAS Facebook (Retorno sobre Gasto Publicitario)': 'roas',
-  'ROI Ingreso Manual (Retorno de Inversión)': 'roi_manual'
+  'ROI Ingreso Manual (Retorno de Inversión)': 'roi'
 };
 
 export default function Optimizar() {
@@ -54,15 +55,15 @@ export default function Optimizar() {
   // Carga del SDK de Facebook
   useEffect(() => {
     console.log('Iniciando carga de Facebook SDK...');
-  
+
     if (window.FB) {
       console.log('SDK ya estaba cargado');
       setFbReady(true);
       checkLoginStatus();
       return;
     }
-  
-    window.fbAsyncInit = function() {
+
+    window.fbAsyncInit = function () {
       console.log('Inicializando SDK de Facebook...');
       window.FB.init({
         appId: FB_APP_ID,
@@ -76,9 +77,9 @@ export default function Optimizar() {
       console.log('SDK inicializado con App ID:', FB_APP_ID);
       checkLoginStatus();
     };
-  
+
     // Cargar script asincrónico
-    (function(d, s, id) {
+    (function (d, s, id) {
       const element = d.getElementsByTagName(s)[0];
       if (d.getElementById(id)) return;
       const fjs = element;
@@ -134,59 +135,15 @@ export default function Optimizar() {
     }, true); // Fuerza verificación con Facebook
   }, []);
 
-  // Manejo de conexión con Facebook
-  const handleConnectFacebook = useCallback(async () => {
-    if (!window.FB) {
-      setAuthError('El plugin de Facebook no se cargó correctamente');
-      return;
-    }
-
-    console.log('Iniciando proceso de login...');
-    setLoading(prev => ({ ...prev, facebook: true }));
-    setAuthError(null);
-
-    try {
-      const response = await new Promise((resolve) => {
-        window.FB.login(resolve, {
-          scope: 'business_management,ads_management',
-          return_scopes: true,
-          auth_type: 'rerequest'
-        });
-      });
-
-      console.log('Respuesta de login:', response);
-
-      if (response.status !== 'connected') {
-        throw new Error(response.error?.message || 'El usuario no autorizó la aplicación');
-      }
-
-      if (!response.authResponse.grantedScopes.includes('business_management')) {
-        throw new Error('Se requieren permisos de business_management');
-      }
-
-      const token = response.authResponse.accessToken;
-      setFbToken(token);
-      localStorage.setItem('fbToken', token);
-
-      // Obtener cuentas después de conectar
-      setLoading(prev => ({ ...prev, accounts: true }));
-      const accountsData = await getAccounts(API_BASE, token);
-
-      if (accountsData.status === 'success') {
-        setAccounts(accountsData.accounts || []);
-        setCampaignTypes(accountsData.campaign_types || []);
-        setStep(2);
-      } else {
-        throw new Error(accountsData.message || 'Error al obtener cuentas publicitarias');
-      }
-    } catch (error) {
-      console.error('Error en conexión Facebook:', error);
-      setAuthError(error.message);
-      localStorage.removeItem('fbToken');
-    } finally {
-      setLoading(prev => ({ ...prev, facebook: false, accounts: false }));
-    }
-  }, []);
+  // Redirige al diálogo OAuth de Facebook 
+  const handleConnectFacebook = () => {
+    const oauth = `https://www.facebook.com/v19.0/dialog/oauth` +
+      `?client_id=${FB_APP_ID}` +
+      `&redirect_uri=${encodeURIComponent(FB_REDIRECT_URI)}` +
+      `&scope=business_management,ads_management` +
+      `&response_type=code`;
+    window.location.href = oauth;
+  };
 
   // Paso 2: Continuar con la configuración
   const handleContinueStep2 = async (cfg) => {
@@ -194,15 +151,15 @@ export default function Optimizar() {
       setAuthError('Sesión no válida. Vuelve a conectar con Facebook.');
       return;
     }
-  
+
     // Limpia estados antes de hacer la nueva solicitud
     setFiltered([]);
     setExcludedIds([]);
     setOptData(null);
-    
+
     setLoading(prev => ({ ...prev, campaigns: true }));
     setAuthError(null);
-  
+
     try {
       /* 1️⃣ POST account-selected */
       await postAccountSelected(API_BASE, {
@@ -214,7 +171,7 @@ export default function Optimizar() {
         whether_or_not_to_eliminate_the_least_profitable_10_percent:
           cfg.removeWorst ? 'true' : 'false'
       });
-  
+
       /* 2️⃣ GET campañas a excluir */
       const data = await getCampaignsToExclude(API_BASE, {
         account_id: cfg.accountId,
@@ -226,7 +183,7 @@ export default function Optimizar() {
           cfg.removeWorst ? 'true' : 'false',
         fb_access_token: fbToken
       });
-  
+
       if (data.status === 'success') {
         setFiltered(data.campaigns || []);
         setConfigStep2(cfg);
@@ -265,6 +222,14 @@ export default function Optimizar() {
     setExcludedIds(excluded);
     setFiltered(campaigns.filter(c => !excluded.includes(c.id)));
 
+    // Guarda la lista en sesión para que el paso 5 la use
+    try {
+      await postCampaignsSelected(API_BASE, excluded);
+    } catch (e) {
+      setAuthError(e.message);
+      return;
+    }
+
     if (configStep2?.variable === 'ROI Ingreso Manual (Retorno de Inversión)') {
       setStep(4);
     } else {
@@ -277,6 +242,11 @@ export default function Optimizar() {
     setAuthError(null);
 
     try {
+      if (excludedIds.length) {
+        await postCampaignsSelected(API_BASE, excludedIds);
+      }
+      await postInputRoi(API_BASE, roiMap);
+      await fetchOptimizeResults();
       await postInputRoi(API_BASE, roiMap);
       await fetchOptimizeResults();
     } catch (err) {
@@ -363,12 +333,12 @@ export default function Optimizar() {
             </Box>
           ) : (
             <SelectAccount
-            key={accounts.length} 
-            accounts={accounts}
-            campaignTypes={campaignTypes}
-            onBack={backTo1}
-            onContinue={handleContinueStep2}
-            loading={loading.campaigns}
+              key={accounts.length}
+              accounts={accounts}
+              campaignTypes={campaignTypes}
+              onBack={backTo1}
+              onContinue={handleContinueStep2}
+              loading={loading.campaigns}
             />
           )}
         </Paper>
@@ -431,14 +401,25 @@ export default function Optimizar() {
             <Box className="opt-content">
               {selectedResultTab === 'resultados_opt' && <Step5Resultados config={configStep2} data={optData} />}
               {selectedResultTab === 'anuncios_eliminados' && <Step5Eliminados data={optData?.adsets_to_remove} />}
-              {selectedResultTab === 'redistribucion_presupuestos' && <Step5Redistribuir adsetData={optData?.adset_data}
-                onSaveBudgets={async map => {
-                  try {
-                    await postUpdateBudgets(API_BASE, map);
-                    alert('Presupuestos actualizados ✅');
-                  }
-                  catch (e) { alert(`Error: ${e.message}`); }
-                }} />}
+              {selectedResultTab === 'redistribucion_presupuestos' && (
+                <Step5Redistribuir
+                  adsetData={optData?.adset_data}
+                  onSaveBudgets={async map => {
+                    try {
+                      await postUpdateBudgets(API_BASE, map);   // guarda en sesión
+                      await applyBudgetsUpdate(API_BASE);       // cambia en Facebook
+
+                      alert('Presupuestos actualizados en Facebook ✅');
+
+                      // refresca datos para mostrar el nuevo presupuesto
+                      await fetchOptimizeResults();
+                    } catch (e) {
+                      alert(`Error: ${e.message}`);
+                    }
+                  }}
+                />
+              )}
+
               {selectedResultTab === 'metricas_generales' && <Step5Metrics data={optData} />}
             </Box>
 

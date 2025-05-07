@@ -143,3 +143,30 @@ export async function postUpdateBudgets(apiBase, newBudgets) {
     throw new Error(data?.message || `HTTP ${res.status}`);
   return data;
 }
+
+export async function postCampaignsSelected(apiBase, excludeIds) {
+  const body = new URLSearchParams();
+  excludeIds.forEach(id => body.append('exclude_campaigns', id));
+
+  const res = await fetch(`${apiBase}/presupuestos/campaigns-selected`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body
+  });
+
+  if (!res.ok) throw new Error(`HTTP ${res.status} al guardar exclusiones`);
+}
+
+export async function applyBudgetsUpdate(apiBase) {
+  const res = await fetch(`${apiBase}/presupuestos/apply-budgets-update`, {
+    method: 'POST',
+    credentials: 'include',
+    redirect: 'manual'        // <- evita que siga al 302
+  });
+
+  if (res.type === 'opaqueredirect' || res.status === 302 || res.ok) {
+    return { status: 'success' };
+  }
+  throw new Error(`HTTP ${res.status}`);
+}

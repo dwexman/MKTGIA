@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import {
   Box,
   Typography,
@@ -189,6 +190,29 @@ const Login = ({ onLogin }) => {
                 : 'Iniciar Sesión'
               }
             </Button>
+            <Typography 
+              variant="body2" 
+              sx={{ 
+                color: 'rgba(255, 255, 255, 0.7)', 
+                textAlign: 'center',
+                mt: 1
+              }}
+            >
+              Al iniciar sesión, aceptas nuestros {' '}
+              <Link 
+                to="/terminos-condiciones" 
+                style={{ 
+                  color: '#4dabf7', 
+                  textDecoration: 'none',
+                  fontWeight: 500,
+                  '&:hover': {
+                    textDecoration: 'underline'
+                  }
+                }}
+              >
+                Términos y Condiciones
+              </Link>
+            </Typography>
           </Stack>
         </Box>
 

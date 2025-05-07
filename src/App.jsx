@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 
+import TitleUpdater from './components/common/TitleUpdater';
+
 import Home from './containers/Home/Home';
 import Login from './containers/Auth/Login';
 import DoubleSidebarLayout from './components/layout/DoubleSidebarLayout';
@@ -14,16 +16,22 @@ import Optimizar from './containers/AdsBudget/Optimizar';
 
 import CreacionContenido from './containers/Contenido/CreacionContenido';
 import Calendario from './containers/Contenido/Calendario';
+import EditEvent from './containers/Contenido/EditEvent';
 import Estrategia from './containers/Contenido/Estrategia';
 import Planificar from './containers/Contenido/Planificar';
+
+import TermsAndConditions from './containers/Condiciones/TermsAndConditions';
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   return (
+    <>
+    <TitleUpdater />
     <Routes>
       {/* 1. Rutas públicas */}
       <Route path="/" element={<Home />} />
+      <Route path="terminos-condiciones" element={<TermsAndConditions />} />
       <Route
         path="/login"
         element={<Login onLogin={() => setIsAuthenticated(true)} />}
@@ -43,12 +51,14 @@ export default function App() {
         {/* AdsBudget */}
         <Route path="presupuestos/facebook-login" element={<Optimizar />} />
 
-        {/* Contenido */}
-        <Route path="contenido/creacion" element={<CreacionContenido />} />
-        <Route path="contenido/calendario" element={<Calendario />} />
-        <Route path="contenido/estrategia" element={<Estrategia />} />
-        <Route path="contenido/planificar" element={<Planificar />} />
-        
+        <Route path="contenido">
+          <Route path="creacion" element={<CreacionContenido />} />
+          <Route path="calendario" element={<Calendario />} />
+          <Route path="calendario/editar/:id" element={<EditEvent />} />
+          <Route path="estrategia" element={<Estrategia />} />
+          <Route path="planificar" element={<Planificar />} />
+        </Route>
+
 
         {/* Comentarios */}
         <Route path="comentarios/dashboard" element={<Dashboard />} />
@@ -60,5 +70,6 @@ export default function App() {
       {/* 3. Cualquier otra ruta redirige a la portada pública */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+    </>
   );
 }
