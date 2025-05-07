@@ -30,31 +30,51 @@ export default function CreacionContenido() {
   const [history, setHistory] = useState([]);
 
   const handleSend = async () => {
-    if (!message.trim()) return;
-    const newHistory = [...history, { sender: 'user', text: message }];
-    setHistory(newHistory);
+    const trimmed = message.trim();
+    if (!trimmed) return;
+
+    /* 1️⃣ Actualizamos el historial que ve el usuario */
+    setHistory(prev => [...prev, { sender: 'user', text: trimmed }]);
     setMessage('');
 
-    try {
-      const res = await fetch(`${API_BASE}/creacionContenido/chatbot_api`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message, history: newHistory }),
-        credentials: 'include'
-      });
+    /* 2️⃣ Convertimos a formato {role,content} que espera Flask */
+    const apiHistory = [
+      ...history.map(m => ({
+        role:   m.sender === 'user' ? 'user' : 'assistant',
+        content: m.text
+      })),
+      { role: 'user', content: trimmed }
+    ];
 
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    try {
+      const res = await fetch(
+        `${API_BASE}/creacionContenido/chatbot_api`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({
+            message : trimmed,   // último mensaje
+            history : apiHistory // historial completo en formato backend
+          })
+        }
+      );
+
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
 
       const data = await res.json();
-      const reply = data.response ?? `Error: ${data.error ?? 'sin respuesta'}`;
-      setHistory(h => [...h, { sender: 'bot', text: reply }]);
+      const reply = data.response || `Error: ${data.error ?? 'sin respuesta'}`;
+
+      setHistory(prev => [...prev, { sender: 'bot', text: reply }]);
 
     } catch (err) {
       console.error('Error en la solicitud:', err);
-      setHistory(h => [...h, {
-        sender: 'bot',
-        text: `Error de conexión: ${err.message || 'Intenta recargar la página'}`
-      }]);
+      setHistory(prev => [
+        ...prev,
+        { sender: 'bot', text: `Error de conexión: ${err.message}` }
+      ]);
     }
   };
 
@@ -152,7 +172,7 @@ export default function CreacionContenido() {
         </Box>
       </Paper>
 
-      {/* Chatbot - Paper claro con fondo oscuro dentro */}
+      {/* Chatbot */}
       <Paper
         elevation={0}
         sx={{
