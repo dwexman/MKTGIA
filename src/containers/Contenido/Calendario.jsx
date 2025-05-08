@@ -30,6 +30,33 @@ const API_BASE = import.meta.env.VITE_API_URL || 'https://www.mrkt21.com';
 
 const formatDate = date => date.toISOString().split('T')[0];
 
+const moveEventOnServer = async (idEvento, nuevaFecha) => {
+    const resGet = await fetch(`${API_BASE}/api/calendario/events/${idEvento}`, {
+      credentials: 'include',
+    });
+    if (!resGet.ok) throw new Error(`GET ${idEvento}: HTTP ${resGet.status}`);
+    const { event } = await resGet.json();      
+  
+    const payload = {
+      brand: event.Brand ?? event.brand,            
+      fecha: nuevaFecha,                          
+      tipoContenido: event.TipoContenido ?? event.tipoContenido,
+      titulo: event.Titulo ?? event.titulo,
+      descripcion: event.Descripcion ?? event.descripcion ?? '',
+    };
+      const resPatch = await fetch(`${API_BASE}/api/calendario/events/${idEvento}`, {
+      method: 'PATCH',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+  
+    if (!resPatch.ok) {
+      const { message } = await resPatch.json().catch(() => ({}));
+      throw new Error(message || `PATCH ${idEvento}: HTTP ${resPatch.status}`);
+    }
+  };
+
 export default function Calendario() {
     const navigate = useNavigate();
     const calendarRef = useRef(null);
@@ -80,7 +107,7 @@ export default function Calendario() {
     };
 
     const handleEventClick = (info) => {
-        info.jsEvent.preventDefault();          // ← esto detiene *toda* acción nativa
+        info.jsEvent.preventDefault();     
         navigate(`/contenido/calendario/editar/${info.event.id}`);
 
         return false; 
@@ -116,7 +143,7 @@ export default function Calendario() {
             body: JSON.stringify({ eventIds: copiedEvents, targetDate })
         });
         handleCloseContextMenu();
-        loadEvents(); // recarga lista
+        loadEvents(); 
     };
     const handleDuplicate = async () => {
         const id = selectedEvent.id;
@@ -130,16 +157,42 @@ export default function Calendario() {
         handleCloseContextMenu();
     };
     const handleRedo = async () => {
+        if (!selectedEvent) return;
         const id = selectedEvent.id;
-        await fetch(`${API_BASE}/api/calendario/events/${id}`, {
+      
+        try {
+          const resGet = await fetch(`${API_BASE}/api/calendario/events/${id}`, {
+            credentials: 'include',
+          });
+          if (!resGet.ok) throw new Error(`GET ${id}: HTTP ${resGet.status}`);
+          const { event } = await resGet.json();
+      
+          const payload = {
+            brand:          event.Brand          ?? event.brand,
+            fecha:          event.Fecha          ?? event.fecha,          
+            tipoContenido:  event.TipoContenido  ?? event.tipoContenido,
+            titulo:         event.Titulo         ?? event.titulo,
+            descripcion:    event.Descripcion    ?? event.descripcion ?? '',
+          };
+      
+          const resPatch = await fetch(`${API_BASE}/api/calendario/events/${id}`, {
             method: 'PATCH',
             credentials: 'include',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ /* campos que quieras rehacer */ })
-        });
-        loadEvents();
-        handleCloseContextMenu();
-    };
+            body: JSON.stringify(payload),
+          });
+          if (!resPatch.ok) {
+            const { message } = await resPatch.json().catch(() => ({}));
+            throw new Error(message || `PATCH ${id}: HTTP ${resPatch.status}`);
+          }
+      
+          loadEvents();
+          handleCloseContextMenu();
+        } catch (err) {
+          console.error('Error en rehacer:', err);
+          alert('No se pudo rehacer:\n' + err.message);
+        }
+      };
     const handleDelete = async () => {
         const id = selectedEvent.id;
         const res = await fetch(`${API_BASE}/api/calendario/events/${id}`, {
@@ -176,7 +229,6 @@ export default function Calendario() {
             setInforme(data);
         } catch (err) {
             console.error('Error obteniendo informe:', err);
-            // Datos de ejemplo si falla la API
             setInforme({
                 total_eventos: events.length,
                 distribucion_por_tipo: events.reduce((acc, event) => {
@@ -256,7 +308,6 @@ export default function Calendario() {
                     borderRadius: '16px',
                 }
             }}>
-                {/* Header de navegación con botón de resumen integrado */}
                 <Box sx={{
                     display: 'flex',
                     justifyContent: 'space-between',
@@ -269,7 +320,6 @@ export default function Calendario() {
                     boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
                 }}>
                     <Stack direction="row" spacing={2} alignItems="center">
-                        {/* Botón de Resumen ahora integrado en la barra de navegación */}
                         <Button
                             onClick={handleOpenResumen}
                             startIcon={<SummarizeIcon />}
@@ -379,16 +429,21 @@ export default function Calendario() {
                                 el.style.left = '';
                                 el.style.top = '';
                             }}
-                            eventDrop={info => {
-                                const newDate = formatDate(info.event.start);
-                                setEvents(prev =>
+                            eventDrop={async info => {
+                                const newDate = formatDate(info.event.start);  
+                                try {
+                                  await moveEventOnServer(info.event.id, newDate);         
+                                  setEvents(prev =>                                         
                                     prev.map(ev =>
-                                        ev.id.toString() === info.event.id
-                                            ? { ...ev, date: newDate }
-                                            : ev
+                                      ev.id.toString() === info.event.id ? { ...ev, date: newDate } : ev
                                     )
-                                );
-                            }}
+                                  );
+                                } catch (err) {
+                                  info.revert();                                            
+                                  console.error(err);
+                                  alert('No se pudo mover el evento:\n' + err.message);
+                                }
+                              }}
                             dayHeaderContent={(arg) => (
                                 <Box sx={{
                                     color: '#4dabf7',
@@ -424,11 +479,8 @@ export default function Calendario() {
                                 arg.el.addEventListener('contextmenu', e => handleDayContextMenu(arg.date, e));
                             }}
                             eventDidMount={(info) => {
-                                /* 🚫  Elimina el enlace que genera FC */
-                                info.el.removeAttribute('href');   // ←  esta línea mata el salto a "/"
+                                info.el.removeAttribute('href');   
                                 info.el.style.cursor = 'pointer';
-                              
-                                // --- resto de tu código ---
                                 info.el.addEventListener('contextmenu', e =>
                                   handleEventContextMenu(info.event, e)
                                 );
@@ -463,7 +515,6 @@ export default function Calendario() {
                     <MenuItem onClick={handleDelete}>Eliminar</MenuItem>
                 </Menu>
 
-                {/* Modal de Resumen (se mantiene igual) */}
                 <Dialog
                     open={openResumen}
                     onClose={handleCloseResumen}
