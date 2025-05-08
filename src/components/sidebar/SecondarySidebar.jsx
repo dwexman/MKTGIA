@@ -11,7 +11,7 @@ import {
   Typography,
   Box
 } from '@mui/material';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { keyframes } from '@emotion/react';
 
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
@@ -24,6 +24,7 @@ import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import PromptIcon from '@mui/icons-material/AutoAwesomeMotion';
 import HistoryIcon from '@mui/icons-material/History';
 import ReportIcon from '@mui/icons-material/Assessment';
+import FacebookIcon from '@mui/icons-material/Facebook';
 
 const neonGlow = keyframes`
   from { filter: drop-shadow(0 0 1px #4dabf7); }
@@ -32,11 +33,14 @@ const neonGlow = keyframes`
 
 // Configuración de menús por sección
 const menus = {
+  AdsBudget: [
+    { icon: FacebookIcon, text: 'Optimizar', to: '/presupuestos/facebook-login' }
+  ],
   Contenido: [
-    { icon: DescriptionIcon, text: 'Inicio Contenido', to: '/content_calendar/index' },
-    { icon: EventIcon, text: 'Calendario', to: '/content_calendar/calendario' },
-    { icon: LightbulbIcon, text: 'Estrategia', to: '/content_calendar/estrategia' },
-    { icon: ScheduleIcon, text: 'Planificar', to: '/content_calendar/planificar_calendario' },
+    { icon: DescriptionIcon, text: 'Inicio Contenido', to: '/contenido/creacion' },
+    { icon: EventIcon, text: 'Calendario', to: '/contenido/calendario' },
+    { icon: LightbulbIcon, text: 'Estrategia', to: '/contenido/estrategia' },
+    { icon: ScheduleIcon, text: 'Planificar', to: '/contenido/planificar' },
   ],
   Comentarios: [
     { icon: AccountTreeIcon, text: 'Conectar cuentas', to: '/comentarios/dashboard' },
@@ -52,26 +56,26 @@ const SecondarySidebar = ({ section, leftSidebarWidth, onExpandChange }) => {
   const [selectedIndex, setSelectedIndex] = useState(null);
   const drawerWidth = pinned || hovered ? 240 : 90;
   const isExpanded = pinned || hovered;
+  const location = useLocation();
+  const items = menus[section] || [];
 
-  // Efecto para seleccionar la opción por defecto según la sección
+
   useEffect(() => {
-    if (section === 'Comentarios') {
-      // Selecciona el primer ítem (índice 0) en la sección Comentarios,
-      // que corresponde a "Conectar cuentas"
-      setSelectedIndex(0);
-    } else {
-      // Puedes establecer otro valor o dejarlo en null para otras secciones
-      setSelectedIndex(null);
+    const path = location.pathname;
+    let idx = items.findIndex(item => path.startsWith(item.to));
+    if (path === '/home' && section === 'Comentarios') {
+      idx = items.findIndex(item => item.to === '/comentarios/dashboard');
     }
-  }, [section]);
+    setSelectedIndex(idx !== -1 ? idx : null);
+  }, [location.pathname, items, section]);
+
 
   useEffect(() => {
     onExpandChange(pinned || hovered);
   }, [pinned, hovered, onExpandChange]);
 
-  // Si no hay menú para esta sección, no renderiza nada
-  const items = menus[section] || [];
   if (items.length === 0) return null;
+  
 
   const drawerStyles = {
     flexShrink: 0,

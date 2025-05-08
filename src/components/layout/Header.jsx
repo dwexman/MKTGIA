@@ -1,13 +1,13 @@
-// src/components/Header.js
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Box } from '@mui/material';
-import logo from '../../assets/logoblack.png'; // Ajusta la ruta según tu estructura
+import logo from '../../assets/logoblack.png'; 
 
 const Header = () => {
   return (
     <Box
       sx={{
-        position: 'fixed',
+        position: 'absolute',
         top: 0,
         right: 0,
         p: 1,
@@ -15,7 +15,9 @@ const Header = () => {
         backgroundColor: 'transparent', 
       }}
     >
+      <Link to="/comentarios/dashboard">
       <img src={logo} alt="Logo" style={{ height: '50px' }} />
+      </Link>
     </Box>
   );
 };

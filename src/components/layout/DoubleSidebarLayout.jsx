@@ -1,89 +1,55 @@
-import React, { useState } from 'react';
-import { Box } from '@mui/material';
-import { Routes, Route } from 'react-router-dom';
-import { useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Box, Toolbar } from '@mui/material';
+import { useLocation, Outlet } from 'react-router-dom';
+
+import Header from './Header';
 import LeftSidebar from '../sidebar/LeftSidebar';
 import SecondarySidebar from '../sidebar/SecondarySidebar';
-import Calendar from '../Calendar';
-import Dashboard from '../../containers/Comentarios/Dashboard';
-import ComentariosPrompts from '../../containers/Comentarios/ComentariosPrompts';
-import RegistroComentarios from '../../containers/Comentarios/RegistroComentarios';
-import Reportes from '../../containers/Comentarios/reportes/Reportes';
-import Header from './Header';
 
-
-const DoubleSidebarLayout = () => {
+export default function DoubleSidebarLayout() {
   const [selectedSection, setSelectedSection] = useState(null);
   const [leftWidth, setLeftWidth] = useState(60);
   const [secondaryExpanded, setSecondaryExpanded] = useState(false);
   const location = useLocation();
 
+  useEffect(() => {
+    if (location.pathname.startsWith('/presupuestos')) setSelectedSection('AdsBudget');
+    else if (location.pathname.startsWith('/contenido')) setSelectedSection('Contenido');
+    else if (location.pathname.startsWith('/comentarios')) setSelectedSection('Comentarios');
+    else setSelectedSection(null);
+  }, [location.pathname]);
 
-  const handleSelectItem = (item) => {
-    setSelectedSection(item);
+  const SEC_WIDTH = {
+    expanded: 240,
+    collapsed: 90,
   };
-
-  const handleLeftWidthChange = (width) => {
-    setLeftWidth(width);
-  };
-
-  const secondaryWidth = secondaryExpanded ? 240 : 90;
-  
-  const mainMarginLeft = location.pathname === '/comentarios/registro' && selectedSection 
-    ? leftWidth + (secondaryExpanded ? 240 : 90)
-    : 0;
-
+  const secondaryWidth = secondaryExpanded ? SEC_WIDTH.expanded : SEC_WIDTH.collapsed;
 
   return (
     <>
-    <Header />
-    <Box sx={{ display: 'flex', width: '100%', minHeight: '100vh' }}>
-      <LeftSidebar onSelectItem={handleSelectItem} onWidthChange={handleLeftWidthChange} />
-      <SecondarySidebar section={selectedSection} leftSidebarWidth={leftWidth} onExpandChange={setSecondaryExpanded} />
-
-      <Box component="main" 
-      sx={{
-          flexGrow: 1,
-          p: 0,
-          transition: 'margin 0.3s ease', 
-          ml: `${mainMarginLeft}px`  
+      <Header />
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: `${leftWidth}px ${secondaryWidth}px 1fr`,
+          minHeight: '100vh'
         }}
       >
-        <Routes>
-          {/* Contenido */}
-          <Route
-            path="/content_calendar/calendario"
-            element={<Calendar />}
-          />
+        <LeftSidebar
+          onSelectItem={setSelectedSection}
+          onWidthChange={setLeftWidth}
+        />
 
-          {/* Comentarios */}
-          <Route
-            path="/comentarios/dashboard"
-            element={<Dashboard />}
-          />
-          <Route
-            path="/comentarios/prompts"
-            element={<ComentariosPrompts />}
-          />
-          <Route
-            path="/comentarios/registro"
-            element={<RegistroComentarios />}
-          />
-          <Route
-            path="/comentarios/reportes"
-            element={<Reportes />}
-          />
+        <SecondarySidebar
+          section={selectedSection}
+          leftSidebarWidth={leftWidth}
+          onExpandChange={setSecondaryExpanded}
+        />
 
-          {/* Fallback */}
-          <Route
-            path="*"
-            element={<div>Seleccione una opción del sidebar.</div>}
-          />
-        </Routes>
+        <Box component="main">
+          <Outlet />
+        </Box>
       </Box>
-    </Box>
     </>
   );
-};
-
-export default DoubleSidebarLayout;
+}

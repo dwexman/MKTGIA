@@ -11,13 +11,15 @@ import {
   Divider,
   Typography
 } from '@mui/material';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import MenuIcon from '@mui/icons-material/Menu';
 import PushPinIcon from '@mui/icons-material/PushPin';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import ChatIcon from '@mui/icons-material/Chat';
 import DescriptionIcon from '@mui/icons-material/Description';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
+import DocumentScannerIcon from '@mui/icons-material/DocumentScanner';
+import logocam from "../../assets/logoWhite.png"
 
 
 const LeftSidebar = ({ onSelectItem, onWidthChange }) => {
@@ -26,6 +28,24 @@ const LeftSidebar = ({ onSelectItem, onWidthChange }) => {
   const [selectedIndex, setSelectedIndex] = useState(null);
   const drawerWidth = pinned || hovered ? 250 : 100;
   const isExpanded = pinned || hovered;
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (location.pathname.startsWith('/presupuestos/facebook-login')) {
+      setSelectedIndex(0);
+      onSelectItem?.('AdsBudget');
+    } else if (location.pathname.startsWith('/comentarios')) {
+      setSelectedIndex(1);
+      onSelectItem?.('Comentarios');
+    } else if (location.pathname.startsWith('/contenido')) {
+      setSelectedIndex(2);
+      onSelectItem?.('Contenido');
+    } else {
+      setSelectedIndex(null);
+    }
+  }, [location.pathname]);
+
 
   useEffect(() => {
     if (onWidthChange) onWidthChange(drawerWidth);
@@ -128,14 +148,21 @@ const LeftSidebar = ({ onSelectItem, onWidthChange }) => {
         px: 2
       }}>
         {isExpanded && (
-          <Typography variant="h6" sx={{
-            fontWeight: 600,
-            letterSpacing: '1px',
-            ...neonText,
-            fontFamily: 'Arial Rounded MT Bold'
-          }}>
-            MKTG AI
-          </Typography>
+          <Box
+            component="img"
+            src={logocam}
+            alt="Logo"
+            sx={{
+              marginLeft: '-10px',
+              marginTop: '-20px',
+              marginBottom: '-21px',
+              height: 105,
+              width: 'auto',
+              maxWidth: '100%',
+              objectFit: 'contain',
+              filter: 'drop-shadow(0 0 8px rgba(77, 171, 247, 0.6))'
+            }}
+          />
         )}
         <IconButton
           onClick={togglePin}
@@ -165,7 +192,7 @@ const LeftSidebar = ({ onSelectItem, onWidthChange }) => {
           selected={selectedIndex === 0}
           onClick={() => handleItemClick(0, 'AdsBudget')}
           component={Link}
-          to="/presupuestos/select_account"
+          to="/presupuestos/facebook-login"
           sx={selectedStyles}
         >
           <ListItemIcon sx={{ minWidth: isExpanded ? 56 : 40 }}>
@@ -191,8 +218,6 @@ const LeftSidebar = ({ onSelectItem, onWidthChange }) => {
         <ListItemButton
           selected={selectedIndex === 1}
           onClick={() => handleItemClick(1, 'Comentarios')}
-          component={Link}
-          to="/comentarios/dashboard"
           sx={selectedStyles}
         >
           <ListItemIcon sx={{ minWidth: isExpanded ? 56 : 40 }}>
@@ -218,7 +243,6 @@ const LeftSidebar = ({ onSelectItem, onWidthChange }) => {
           selected={selectedIndex === 2}
           onClick={() => handleItemClick(2, 'Contenido')}
           component={Link}
-          to="/content_calendar/index"
           sx={selectedStyles}
         >
           <ListItemIcon sx={{ minWidth: isExpanded ? 56 : 40 }}>
@@ -242,6 +266,38 @@ const LeftSidebar = ({ onSelectItem, onWidthChange }) => {
       <Box sx={{ position: 'absolute', bottom: 0, left: 0, right: 0 }}>
         <Divider sx={{ borderColor: 'rgba(77, 171, 247, 0.2)' }} />
         <List>
+          <ListItemButton
+            component={Link}
+            to="/terminos-condiciones"
+            onClick={() => navigate('/terminos-condiciones')}
+            sx={{
+              m: 1,
+              borderRadius: '8px',
+              '&:hover': {
+                background: 'rgba(77, 171, 247, 0.15)',
+                '& .MuiListItemText-root': { color: '#4dabf7' }
+              },
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+            }}
+          >
+            <ListItemIcon sx={{ minWidth: isExpanded ? 56 : 40 }}>
+              {renderIconInCircle(DocumentScannerIcon, false)}
+            </ListItemIcon>
+            {isExpanded && (
+              <ListItemText
+                primary="Términos y Condiciones"
+                sx={{
+                  ml: 2,
+                  '& .MuiTypography-root': {
+                    fontWeight: 500,
+                    letterSpacing: '0.5px',
+                    ...neonText,
+                    fontSize: '0.95rem'
+                  }
+                }}
+              />
+            )}
+          </ListItemButton>
           <ListItemButton
             onClick={() => window.location.href = '/comentarios/logout'}
             sx={{
