@@ -18,6 +18,7 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import './Login.css';
 import logo from '../../assets/logoWhite.png';
 
+
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 const Login = ({ onLogin }) => {
@@ -28,7 +29,7 @@ const Login = ({ onLogin }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Al montar el componente, cargamos el username desde localStorage
+  // Al montar el componente, cargamos el username desde localStorage.
   useEffect(() => {
     const storedUsername = localStorage.getItem('username');
     console.log('Username recuperado del localStorage:', storedUsername);
