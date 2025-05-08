@@ -77,6 +77,7 @@ const Login = ({ onLogin }) => {
 
       if (data.status === 'success') {
         onLogin && onLogin();
+        localStorage.setItem('isAuthenticated', 'true'); 
         navigate('/home', { replace: true });
       } else {
         setErrorMessage(data.message);

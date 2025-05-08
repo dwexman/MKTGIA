@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 
 import TitleUpdater from './components/common/TitleUpdater';
@@ -23,7 +23,12 @@ import Planificar from './containers/Contenido/Planificar';
 import TermsAndConditions from './containers/Condiciones/TermsAndConditions';
 
 export default function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return localStorage.getItem('isAuthenticated') === 'true';
+  });
+  useEffect(() => {
+    localStorage.setItem('isAuthenticated', isAuthenticated);
+  }, [isAuthenticated]);
 
   return (
     <>
