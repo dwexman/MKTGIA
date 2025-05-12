@@ -151,6 +151,12 @@ export default function CreacionContenido() {
                   if (txt === 'Ver calendario') {
                     navigate('/contenido/calendario');
                   }
+                  if (txt === 'Ver estrategia') {
+                    navigate('/contenido/estrategia');
+                  }
+                  if (txt === 'Planificar nuevo') {
+                    navigate('/contenido/planificar');
+                  }
                 }}
 
                 sx={{

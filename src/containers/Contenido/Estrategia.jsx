@@ -1,12 +1,11 @@
-// src/containers/Contenido/Estrategia.jsx
 import React, { useState, useEffect } from 'react';
 import {
   Box, Typography, Button, TextField, Modal, Paper, Stack, Chip,
   Grid, Card, CardContent
 } from '@mui/material';
 
-/* ---------- CONFIG ---------- */
-const API_BASE = import.meta.env.VITE_API_URL || '';          // p.e. "https://www.mrkt21.com"
+
+const API_BASE = import.meta.env.VITE_API_URL || '';    
 const ENDPOINT = `${API_BASE}/creacionContenido/api/estrategia`;
 
 /* -------- helpers de mapeo -------- */
