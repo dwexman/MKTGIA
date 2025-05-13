@@ -25,6 +25,14 @@ import { useParams, useNavigate } from 'react-router-dom'
 
 const API_BASE = import.meta.env.VITE_API_URL
 
+const mapLabelToRefreshType = {
+  'Tipo de Contenido': 'tipo',
+  'Título': 'titulo',
+  'Descripción': 'descripcion',
+  acciones: 'acciones',
+  completo: 'completo',
+};
+
 // Animaciones
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(20px); }
@@ -131,20 +139,16 @@ export default function EditEvent() {
   const handleRefreshModal = async () => {
     try {
       const payload = {
-        brand: form.Brand,
-        fecha: form.Fecha,
-        tipoContenido: form.TipoContenido,
-        titulo: form.Titulo,
-        descripcion: form.Descripcion,
-        refreshField,
-        comentario: refreshComment
+        refresh_type: mapLabelToRefreshType[refreshField],
+        comentario: refreshComment || undefined,
       }
-      const res = await fetch(`${API_BASE}/api/calendario/events/${id}/refresh`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      })
+      const res = await fetch(
+        `${API_BASE}/creacionContenido/API/calendario/refresh/${id}`, {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        })
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       alert(`Refresh de "${refreshField}" solicitado`)
       closeRefresh()
@@ -157,14 +161,10 @@ export default function EditEvent() {
   const handleScopeRefresh = async () => {
     try {
       const payload = {
-        brand: form.Brand,
-        fecha: form.Fecha,
-        tipoContenido: form.TipoContenido,
-        titulo: form.Titulo,
-        descripcion: form.Descripcion,
-        scope: scopeRefresh
-      }
-      const res = await fetch(`${API_BASE}/api/calendario/events/${id}/refresh`, {
+            refresh_type: mapLabelToRefreshType[scopeRefresh],
+            comentario: refreshComment || undefined,
+          }
+          const res = await fetch(`${API_BASE}/creacionContenido/API/calendario/refresh/${id}`,{
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -437,7 +437,7 @@ export default function EditEvent() {
                   boxShadow: scopeRefresh ? '0 2px 8px rgba(76, 175, 80, 0.3)' : 'none',
                   transition: 'all 0.3s ease',
                   ':hover': scopeRefresh ? {
-                    backgroundColor: '#43A047', 
+                    backgroundColor: '#43A047',
                     transform: 'translateY(-2px)',
                     boxShadow: '0 4px 12px rgba(76, 175, 80, 0.4)'
                   } : {}
