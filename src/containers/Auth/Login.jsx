@@ -202,6 +202,7 @@ const Login = ({ onLogin }) => {
               Al iniciar sesión, aceptas nuestros {' '}
               <Link 
                 to="/terminos-condiciones" 
+                state={{ from: '/login' }} 
                 style={{ 
                   color: '#4dabf7', 
                   textDecoration: 'none',

@@ -269,7 +269,8 @@ const LeftSidebar = ({ onSelectItem, onWidthChange }) => {
           <ListItemButton
             component={Link}
             to="/terminos-condiciones"
-            onClick={() => navigate('/terminos-condiciones')}
+            state={{ from: location.pathname }}
+            replace
             sx={{
               m: 1,
               borderRadius: '8px',

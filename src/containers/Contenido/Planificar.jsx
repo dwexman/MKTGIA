@@ -1,22 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box, Paper, Typography, TextField, Button, Stack, Divider,
   Table, TableHead, TableRow, TableCell, TableBody,
   CircularProgress, Alert
 } from '@mui/material';
 
-const API = import.meta.env.VITE_API_URL 
+const API = import.meta.env.VITE_API_URL
 const PATH = '/creacionContenido/api';
 
 export default function Planificar() {
-  /* ───────── estado ───────── */
+
   const [desde, setDesde] = useState('');
   const [hasta, setHasta] = useState('');
-  const [plan, setPlan] = useState([]);     // resultados[]
+  const [plan, setPlan] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [estrategiaId, setEstrategiaId] = useState(null);
+  const [estrategiaNombre, setEstrategiaNombre] = useState('');
 
-  /* helper fetch → devuelve JSON o lanza error */
+
   const api = async (url, opts = {}) => {
     const res = await fetch(url, {
       headers: { 'Content-Type': 'application/json' },
@@ -35,6 +37,18 @@ export default function Planificar() {
     copy: r.copy || r.Copy,
     imagen: r.imagen || r.Imagen
   }));
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const { estrategia } = await api(`${API}${PATH}/estrategia`);
+        setEstrategiaNombre(estrategia.nombreNegocio ?? '');
+      } catch (e) {
+        console.error('Error cargando estrategia:', e);
+      }
+    })();
+  }, []);
+
 
   /* ───────── planificar ───────── */
   const handlePlanificar = async () => {
@@ -62,10 +76,8 @@ export default function Planificar() {
     finally { setLoading(false); }
   };
 
-  /* ───────── reset sin registrar ───────── */
   const resetFechas = () => setPlan([]);
 
-  /* ─── estilos originales, sin cambios ─── */
   const styles = {
     container: {
       p: 3, display: 'flex', flexDirection: 'column', alignItems: 'center',
@@ -100,13 +112,18 @@ export default function Planificar() {
           boxShadow: '0 0 10px rgba(77,171,247,0.3)'
         }
       },
+      '& input[type="date"]::-webkit-calendar-picker-indicator': {
+        filter: 'invert(1)',
+        fontSize: '1.5rem',
+        cursor: 'pointer'
+      },
       '& .MuiInputLabel-root': {
         color: 'rgba(255,255,255,0.7)',
         '&.Mui-focused': { color: '#4dabf7' }
       },
       '& .MuiInputBase-input::placeholder': {
         color: 'rgba(255,255,255,0.5)', opacity: 1
-      }
+      },
     },
     datePicker: { '& .MuiInputBase-input': { padding: '14px 14px' } },
     button: {
@@ -161,9 +178,9 @@ export default function Planificar() {
     },
     registerButton: {
       background: 'linear-gradient(145deg,#4dabf7 0%,#1a237e 100%)',
-      color: '#ffffff', 
-      fontWeight: 600, 
-      textTransform: 'none', 
+      color: '#ffffff',
+      fontWeight: 600,
+      textTransform: 'none',
       py: 1.5,
       flex: 1,
       '&:hover': {
@@ -204,10 +221,10 @@ export default function Planificar() {
 
           {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
-          {/* Estrategia (el backend la usa internamente; aquí solo texto genérico) */}
+  
           <Box sx={styles.estrategiaCard}>
             <Typography sx={styles.estrategiaTitle}>Estrategia actual</Typography>
-            <Typography sx={styles.estrategiaText}>Se empleará la última estrategia registrada</Typography>
+            <Typography sx={styles.estrategiaText}> {estrategiaNombre ? ` ${estrategiaNombre}` : 'Cargando estrategia…'} </Typography>
           </Box>
 
           <Divider sx={{ borderColor: 'rgba(77,171,247,0.3)', my: 2 }} />
