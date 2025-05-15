@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Box,
   Typography,
@@ -14,9 +14,18 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 const TermsAndConditions = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const from = location.state?.from;
 
   const handleAccept = () => {
-    navigate('/login');
+    if (!from || from === '/login') {
+      // si no hay origen o venimos del login, volvemos al login
+      navigate('/login');
+    } else {
+      // si venimos de otra página dentro de la app, volvemos a ella
+      navigate(from);
+    }
   };
 
   // Estilo común para todas las listas
