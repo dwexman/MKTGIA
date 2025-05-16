@@ -1,24 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Box, Typography, Button, TextField, Modal, Paper, Stack, Chip,
-  Grid, Card, CardContent
-} from '@mui/material';
+import { Box, Typography, Button, TextField, Modal, Paper, Stack, Chip, Grid, Card, CardContent, Tooltip } from '@mui/material';
 
 
-const API_BASE = import.meta.env.VITE_API_URL || '';    
+const API_BASE = import.meta.env.VITE_API_URL || '';
 const ENDPOINT = `${API_BASE}/creacionContenido/api/estrategia`;
 
 /* -------- helpers de mapeo -------- */
 const apiToState = (api = {}) => ({
-  id:  api.ID ?? api.idEstrategia ?? api.id ?? null,
-  nombre:            api.nombreNegocio        ?? '',
-  descripcion:       api.descripcionNegocio   ?? '',
-  publicoObjetivo:   api.publicoObjetivo      ?? '',
-  tonoMarca:         api.tonoMarca            ?? '',
-  objetivosMarketing:api.objetivosMarketing   ?? '',
-  pilaresContenido:  api.pilaresContenido     ?? '',
-  ubicacionFisica:   api.ubicacionFisica      ?? '',
-  ofertas:           api.ofertasDisponibles   ?? ''
+  id: api.ID ?? api.idEstrategia ?? api.id ?? null,
+  nombre: api.nombreNegocio ?? '',
+  descripcion: api.descripcionNegocio ?? '',
+  publicoObjetivo: api.publicoObjetivo ?? '',
+  tonoMarca: api.tonoMarca ?? '',
+  objetivosMarketing: api.objetivosMarketing ?? '',
+  pilaresContenido: api.pilaresContenido ?? '',
+  ubicacionFisica: api.ubicacionFisica ?? '',
+  ofertas: api.ofertasDisponibles ?? ''
 });
 
 const stateToApi = (s) => ({
@@ -160,7 +157,11 @@ export default function Estrategia() {
     },
     chipOferta: {
       color: '#ffffff', backgroundColor: 'rgba(26,35,126,0.4)',
-      border: '1px solid #1a237e'
+      border: '1px solid #1a237e',
+      '& .MuiChip-label': {
+        whiteSpace: 'normal',
+        wordBreak: 'break-word'
+      }
     },
     objectivesList: { pl: 2, color: '#ffffff', m: 0, '& li': { mb: 1, fontSize: '0.875rem' } },
     pilaresContainer: {

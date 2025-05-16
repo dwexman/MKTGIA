@@ -63,10 +63,11 @@ export default function Home() {
         };
 
         try {
-            const res = await fetch(`${API_BASE}/submit`, {
+            const res = await fetch(`${API_BASE}/submit/API/`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+                body: JSON.stringify(payload),
+                credentials: 'include'
             });
 
             if (!res.ok) {

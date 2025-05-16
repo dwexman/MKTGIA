@@ -12,6 +12,8 @@ import {
   Stack
 } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
+import CircularProgress from '@mui/material/CircularProgress';
+
 
 
 const API_BASE = import.meta.env.VITE_API_URL;
@@ -28,19 +30,21 @@ export default function CreacionContenido() {
   const navigate = useNavigate();
   const [message, setMessage] = useState('');
   const [history, setHistory] = useState([]);
+  const [loadingBot, setLoadingBot] = useState(false);
+
 
   const handleSend = async () => {
     const trimmed = message.trim();
     if (!trimmed) return;
 
-    /* 1️⃣ Actualizamos el historial que ve el usuario */
+
     setHistory(prev => [...prev, { sender: 'user', text: trimmed }]);
     setMessage('');
+    setLoadingBot(true);
 
-    /* 2️⃣ Convertimos a formato {role,content} que espera Flask */
     const apiHistory = [
       ...history.map(m => ({
-        role:   m.sender === 'user' ? 'user' : 'assistant',
+        role: m.sender === 'user' ? 'user' : 'assistant',
         content: m.text
       })),
       { role: 'user', content: trimmed }
@@ -54,8 +58,8 @@ export default function CreacionContenido() {
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
           body: JSON.stringify({
-            message : trimmed,   // último mensaje
-            history : apiHistory // historial completo en formato backend
+            message: trimmed,   // último mensaje
+            history: apiHistory // historial completo en formato backend
           })
         }
       );
@@ -75,6 +79,8 @@ export default function CreacionContenido() {
         ...prev,
         { sender: 'bot', text: `Error de conexión: ${err.message}` }
       ]);
+    } finally {
+      setLoadingBot(false);
     }
   };
 
@@ -289,8 +295,13 @@ export default function CreacionContenido() {
             />
             <Button
               variant="contained"
+              disabled={loadingBot}
               onClick={handleSend}
-              endIcon={<SendIcon sx={{ color: TEXT_COLOR_LIGHT }} />}
+              endIcon={
+                loadingBot
+                  ? <CircularProgress size={20} sx={{ color: TEXT_COLOR_LIGHT }} />
+                  : <SendIcon sx={{ color: TEXT_COLOR_LIGHT }} />
+              }
               sx={{
                 background: BUTTON_BG_COLOR,
                 color: TEXT_COLOR_LIGHT,
