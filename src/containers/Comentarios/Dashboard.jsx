@@ -7,6 +7,9 @@ import InstagramIcon from '@mui/icons-material/Instagram';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import './dashboard.css';
 
+const API_BASE = import.meta.env.VITE_API_URL;
+
+
 const Dashboard = () => {
   const [open, setOpen] = useState(false);
   const [username, setUsername] = useState('');
@@ -16,7 +19,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const response = await fetch('https://www.mrkt21.com/comentarios/dashboard/API/', {
+        const response = await fetch(`${API_BASE}/comentarios/comentarios_prompts/API/`, {
           method: 'GET',
           credentials: 'include'
         });
@@ -86,7 +89,7 @@ const Dashboard = () => {
                 variant="contained"
                 startIcon={<FacebookIcon />}
                 className="facebook-btn"
-                onClick={() => window.location.href = 'https://www.mrkt21.com/comentarios/connect_facebook'}
+                onClick={() => window.location.href = `${API_BASE}/comentarios/connect_facebook`}
               >
               Facebook
               </Button>
@@ -106,7 +109,7 @@ const Dashboard = () => {
                 variant="contained"
                 startIcon={<InstagramIcon />}
                 className="instagram-btn"
-                onClick={() => window.location.href = 'https://www.mrkt21.com/comentarios/connect_instagram'}
+                onClick={() => window.location.href = `${API_BASE}/comentarios/connect_instagram`}
               >
               Instagram
               </Button>

@@ -4,13 +4,15 @@ import TendenciasInteraccion from './components/TendenciasInteraccion';
 import ComentariosMes from './components/ComentariosMes';
 import './reportes.css';
 
+const API_BASE = import.meta.env.VITE_API_URL;
+
 const Reportes = () => {
   const [data, setData] = useState([]); 
   const [loading, setLoading] = useState(true);
   const [selectedButton, setSelectedButton] = useState('numero_comentarios');
 
   useEffect(() => {
-    fetch('https://www.mrkt21.com/comentarios/reportes/API/', {
+    fetch(`${API_BASE}/comentarios/reportes/API/`, {
       method: 'GET',
       credentials: 'include' 
     })

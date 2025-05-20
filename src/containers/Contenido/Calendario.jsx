@@ -26,7 +26,7 @@ const fadeIn = keyframes`
   to { opacity: 1; transform: translateY(0); }
 `;
 
-const API_BASE = import.meta.env.VITE_API_URL || 'https://www.mrkt21.com';
+const API_BASE = import.meta.env.VITE_API_URL;
 
 const formatDate = date => date.toISOString().split('T')[0];
 

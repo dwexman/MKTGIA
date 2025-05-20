@@ -12,6 +12,8 @@ import {
 } from '@mui/material';
 import './RegistroComentarios.css';
 
+const API_BASE = import.meta.env.VITE_API_URL;
+
 const RegistroComentarios = () => {
 
   const [comentarios, setComentarios] = useState([]);
@@ -29,7 +31,7 @@ const RegistroComentarios = () => {
   };
 
   useEffect(() => {
-    fetch('https://www.mrkt21.com/comentarios/registro_comentarios/API/', {
+    fetch(`${API_BASE}/comentarios/registro_comentarios/API/`, {
       method: 'GET',
       credentials: 'include'
     })

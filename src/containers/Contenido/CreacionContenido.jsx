@@ -96,7 +96,7 @@ export default function CreacionContenido() {
         background: 'transparent'
       }}
     >
-      {/* Módulo principal - Paper claro con fondo oscuro dentro */}
+      {/* Módulo principal */}
       <Paper
         elevation={0}
         sx={{
