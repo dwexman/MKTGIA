@@ -20,6 +20,8 @@ import AddIcon from '@mui/icons-material/Add';
 import CloseIcon from '@mui/icons-material/Close';
 import './ComentariosPrompts.css';
 
+const API_BASE = import.meta.env.VITE_API_URL;
+
 const ComentariosPrompts = () => {
   // Modal para agregar un nuevo prompt
   const [openModal, setOpenModal] = useState(false);
@@ -36,7 +38,7 @@ const ComentariosPrompts = () => {
 
   // Conecta al endpoint y extrae la propiedad "prompts"
   useEffect(() => {
-    fetch('https://www.mrkt21.com/comentarios/comentarios_prompts/API/', {
+    fetch(`${API_BASE}/comentarios/comentarios_prompts/API/`, {
       method: 'GET',
       credentials: 'include'
     })
@@ -60,7 +62,7 @@ const ComentariosPrompts = () => {
   const handleCloseModal = () => setOpenModal(false);
 
   const handleSavePrompt = () => {
-    fetch('https://www.mrkt21.com/comentarios/comentarios_prompts/API/', {
+    fetch(`${API_BASE}/comentarios/comentarios_prompts/API/`, {
       method: 'POST',
       credentials: 'include',
       headers: {
