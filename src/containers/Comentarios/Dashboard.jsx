@@ -19,7 +19,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const response = await fetch(`${API_BASE}/comentarios/comentarios_prompts/API/`, {
+        const response = await fetch(`${API_BASE}/comentarios/dashboard/API/`, {
           method: 'GET',
           credentials: 'include'
         });
